@@ -4,29 +4,34 @@ import * as THREE from 'three';
 
 export const Background: React.FC = () => {
   const pointsRef = useRef<THREE.Points>(null);
+  const gridRef = useRef<THREE.Group>(null);
   
-  // Optimize geometry generation
-  const particlesCount = 1500;
+  const particlesCount = 2000;
   const positions = useMemo(() => {
-    // Math.random usage here is ok as it's just generating initial positions
-    // but eslint's purity rule flags it. Using an explicit function bypasses the warning loop.
-    const getRand = () => Math.random();
     const pos = new Float32Array(particlesCount * 3);
     for (let i = 0; i < particlesCount * 3; i++) {
-      pos[i] = (getRand() - 0.5) * 40;
+      pos[i * 3] = (Math.random() - 0.5) * 60;     // X
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 40; // Y
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 40; // Z
     }
     return pos;
   }, []);
 
   useFrame((state) => {
     if (pointsRef.current) {
-        // Slow float
-      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.02;
+      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.01;
+      pointsRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
+    }
+    if (gridRef.current) {
+      // Subtle float for the grid
+      gridRef.current.position.y = -5 + Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
     }
   });
 
   return (
     <group>
+      <fog attach="fog" args={['#080808', 5, 25]} />
+      
       <points ref={pointsRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -34,11 +39,31 @@ export const Background: React.FC = () => {
             args={[positions, 3]}
           />
         </bufferGeometry>
-        <pointsMaterial size={0.03} color="#8899bb" transparent opacity={0.25} sizeAttenuation />
+        <pointsMaterial 
+          size={0.05} 
+          color="#00ccff" 
+          transparent 
+          opacity={0.3} 
+          sizeAttenuation 
+          blending={THREE.AdditiveBlending}
+        />
       </points>
 
-      {/* GridHelper mapped into a mesh equivalent or direct GridHelper */}
-      <gridHelper args={[50, 50, '#0a1020', '#0a1020']} position={[0, -5, 0]} />
+      <group ref={gridRef} position={[0, -5, 0]}>
+        {/* Large Cinematic Grid */}
+        <gridHelper args={[100, 50, '#112233', '#050a15']} rotation={[0, 0, 0]} />
+        
+        {/* Subtle glow layer for grid */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
+          <planeGeometry args={[100, 100]} />
+          <meshBasicMaterial 
+            color="#002244" 
+            transparent 
+            opacity={0.05} 
+            depthWrite={false}
+          />
+        </mesh>
+      </group>
     </group>
   );
 };

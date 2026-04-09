@@ -12,7 +12,9 @@ import { Background } from './components/Background';
 import { HeroOverlay } from './components/HeroOverlay';
 import { LoaderScene } from './components/LoaderScene';
 import { useMousePosition } from './hooks/useMousePosition';
-import { lerp } from './utils/math';
+import { lerp, clamp } from './utils/math';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import Lenis from 'lenis';
 
 import './App.css';
 
@@ -27,6 +29,7 @@ const CameraRig = () => {
     // Parallax logic
     state.camera.position.x = lerp(state.camera.position.x, mouse.x * 0.5, 0.05);
     state.camera.position.y = lerp(state.camera.position.y, mouse.y * 0.5, 0.05);
+    state.camera.position.z = lerp(state.camera.position.z, 4.0, 0.05); // Smoothly reset to default Z
     state.camera.lookAt(0, 0, 0); // Strict focal point
   });
   return null;
@@ -107,9 +110,9 @@ function App() {
   const themeProgressRef = useRef(0);
   const [scrollEnabled, setScrollEnabled] = useState(false);
 
-  // Disable scroll during loader and portal
+  // Disable scroll during loader and intro
   useEffect(() => {
-    if (phase === 'loader' || phase === 'portal') {
+    if (phase === 'loader' || phase === 'intro') {
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
       setScrollEnabled(false);
@@ -125,163 +128,156 @@ function App() {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    let contextCleanup = () => {};
+    let lenis: Lenis | null = null;
+    let context: gsap.Context | null = null;
+    let rafId: number;
 
-    const frame = requestAnimationFrame(() => {
-      const sections = ['#s1-hero', '#s2-about', '#s3-features', '#s4-timeline'];
-      const cards = ['#card-1', '#card-2', '#card-3']
-        .map((id) => document.querySelector<HTMLElement>(id))
-        .filter((el): el is HTMLElement => Boolean(el));
-      const footer = document.querySelector<HTMLElement>('#footer-section');
+    const sections = ['#s1-hero', '#s2-about', '#s3-features', '#s4-timeline'];
+    const cards = ['#card-1', '#card-2', '#card-3']
+      .map((id) => document.querySelector<HTMLElement>(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    const footer = document.querySelector<HTMLElement>('#footer-section');
 
-      if (!document.querySelector('#robot-sections') || !document.querySelector('#theme-section')) {
-        return;
-      }
+    if (!document.querySelector('#robot-sections') || !document.querySelector('#theme-section')) {
+      return;
+    }
 
-      const context = gsap.context(() => {
-        sections.forEach((selector, index) => {
-          const el = document.querySelector<HTMLElement>(selector);
-          if (el) {
-            const active = index === 0;
+    // Initialize Lenis for smooth scrolling
+    lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    });
+
+    const scrollLoop = (time: number) => {
+      lenis?.raf(time);
+      rafId = requestAnimationFrame(scrollLoop);
+    };
+    rafId = requestAnimationFrame(scrollLoop);
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    context = gsap.context(() => {
+      sections.forEach((selector, index) => {
+        const el = document.querySelector<HTMLElement>(selector);
+        if (el) {
+          const active = index === 0;
+          el.style.opacity = active ? '1' : '0';
+          el.style.display = active ? 'block' : 'none';
+          el.style.visibility = active ? 'visible' : 'hidden';
+          el.style.pointerEvents = active ? 'auto' : 'none';
+        }
+      });
+
+      ScrollTrigger.create({
+        trigger: '#robot-sections',
+        pin: true,
+        start: 'top top',
+        end: '+=400%',
+        scrub: 1,
+        onUpdate: (self) => {
+          const p = self.progress;
+          robotProgressRef.current = p;
+
+          const idx = Math.floor(p * 4);
+          sections.forEach((selector, i) => {
+            const el = document.querySelector<HTMLElement>(selector);
+            if (!el) return;
+            const active = i === Math.min(idx, 3);
             el.style.opacity = active ? '1' : '0';
             el.style.display = active ? 'block' : 'none';
             el.style.visibility = active ? 'visible' : 'hidden';
             el.style.pointerEvents = active ? 'auto' : 'none';
-          }
-        });
-
-        // Setup scroll triggers for main content (phase already active)
-        
-        ScrollTrigger.create({
-          trigger: '#robot-sections',
-          pin: true,
-          start: 'top top',
-          end: '+=400%',
-          scrub: 1,
-          onUpdate: (self) => {
-            const p = self.progress;
-            robotProgressRef.current = p;
-
-            const idx = Math.floor(p * 4);
-            sections.forEach((selector, i) => {
-              const el = document.querySelector<HTMLElement>(selector);
-              if (!el) return;
-              const active = i === Math.min(idx, 3);
-              el.style.opacity = active ? '1' : '0';
-              el.style.display = active ? 'block' : 'none';
-              el.style.visibility = active ? 'visible' : 'hidden';
-              el.style.pointerEvents = active ? 'auto' : 'none';
-            });
-          },
-        });
-
-        document.querySelectorAll<HTMLElement>('.t-event').forEach((el) => {
-          gsap.to(el, {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 80%',
-              toggleActions: 'play none none reverse',
-            },
           });
-        });
+        },
+      });
 
-        if (document.querySelector('.timeline-line') && document.querySelector('.timeline-track')) {
-          gsap.to('.timeline-line', {
-            height: '100%',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: '.timeline-track',
-              start: 'top 60%',
-              end: 'bottom 40%',
-              scrub: true,
-            },
-          });
-        }
-
-        ScrollTrigger.create({
-          trigger: '#theme-section',
-          pin: true,
-          start: 'top top',
-          end: '+=500%',
-          scrub: 0.5,
-          onUpdate: (self) => {
-            const p = self.progress;
-            themeProgressRef.current = p;
-
-            if (cards.length !== 3) return;
-
-            const updateCard = (card: HTMLElement, x: number, opacity: number, scale = 1) => {
-              card.style.top = '50%';
-              card.style.left = '50%';
-              card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
-              card.style.opacity = String(opacity);
-            };
-
-            if (p < 0.18) {
-              const cp = p / 0.18;
-              const x = lerp(-110, 0, easeOut(cp));
-              updateCard(cards[0], x, Math.min(cp * 3, 1));
-            }
-
-            if (p >= 0.2 && p < 0.38) {
-              const cp = (p - 0.2) / 0.18;
-              const x = lerp(-110, 0, easeOut(cp));
-              updateCard(cards[1], x, Math.min(cp * 3, 1));
-              updateCard(cards[0], -5, 0.6, 0.96);
-            }
-
-            if (p >= 0.4 && p < 0.58) {
-              const cp = (p - 0.4) / 0.18;
-              const x = lerp(-110, 0, easeOut(cp));
-              updateCard(cards[2], x, Math.min(cp * 3, 1));
-              updateCard(cards[1], -5, 0.6, 0.96);
-              updateCard(cards[0], -10, 0.4, 0.92);
-            }
-
-            if (p >= 0.58 && p < 0.78) {
-              const cp = (p - 0.58) / 0.2;
-              const finalPositions = [-35, 0, 35];
-              cards.forEach((card, i) => {
-                const fromX = i === 0 ? -10 : i === 1 ? -5 : 0;
-                const fromOpacity = i === 0 ? 0.4 : i === 1 ? 0.6 : 1;
-                const fromScale = i === 0 ? 0.92 : i === 1 ? 0.96 : 1;
-                const x = lerp(fromX, finalPositions[i], easeInOut(cp));
-                const opacity = lerp(fromOpacity, 1, cp);
-                const scale = lerp(fromScale, 1, cp);
-                updateCard(card, x, opacity, scale);
-              });
-            }
-
-            if (p >= 0.78) {
-              const cp = (p - 0.78) / 0.22;
-              cards.forEach((card, i) => {
-                const assembledX = i === 0 ? -35 : i === 1 ? 0 : 35;
-                const exitX = assembledX + lerp(0, 140, easeIn(cp));
-                updateCard(card, exitX, Math.max(0, 1 - cp * 0.8));
-              });
-
-              if (footer) {
-                footer.style.opacity = String(Math.max(0, cp - 0.5) * 2);
-              }
-            }
+      document.querySelectorAll<HTMLElement>('.t-event').forEach((el) => {
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
           },
         });
       });
 
-      contextCleanup = () => {
-        context.revert();
-      };
+      if (document.querySelector('.timeline-line') && document.querySelector('.timeline-track')) {
+        gsap.to('.timeline-line', {
+          height: '100%',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.timeline-track',
+            start: 'top 60%',
+            end: 'bottom 40%',
+            scrub: true,
+          },
+        });
+      }
 
-      ScrollTrigger.refresh();
+      ScrollTrigger.create({
+        trigger: '#theme-section',
+        pin: true,
+        start: 'top top',
+        end: '+=500%',
+        scrub: 0.5,
+        onUpdate: (self) => {
+          const p = self.progress;
+          themeProgressRef.current = p;
+
+          if (cards.length !== 3) return;
+
+          const updateCard = (card: HTMLElement, x: number, opacity: number, scale = 1) => {
+            card.style.top = '50%';
+            card.style.left = '50%';
+            card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
+            card.style.opacity = String(opacity);
+          };
+
+          if (p < 0.6) {
+            const perCard = 0.2;
+            cards.forEach((card, i) => {
+              const cardStart = i * perCard;
+              const cardP = clamp((p - cardStart) / perCard, 0, 1);
+              const x = lerp(-120, -5 * (cards.length - 1 - i), easeOut(cardP));
+              const opacity = clamp(cardP * 2, 0, 1);
+              const scale = lerp(1.1, 1 - i * 0.04, cardP);
+              updateCard(card, x, opacity, scale);
+            });
+          } else if (p < 0.85) {
+            const assembleP = clamp((p - 0.6) / 0.25, 0, 1);
+            const gridPositions = [-35, 0, 35];
+            cards.forEach((card, i) => {
+              const fromX = -5 * (cards.length - 1 - i);
+              const toX = gridPositions[i];
+              const x = lerp(fromX, toX, easeInOut(assembleP));
+              updateCard(card, x, 1, 1);
+            });
+          } else {
+            const exitP = clamp((p - 0.85) / 0.15, 0, 1);
+            cards.forEach((card, i) => {
+              const gridX = i === 0 ? -35 : i === 1 ? 0 : 35;
+              const x = gridX + lerp(0, 150, easeIn(exitP));
+              updateCard(card, x, 1 - exitP);
+            });
+            if (footer) {
+              footer.style.opacity = String(exitP);
+              footer.style.transform = `translateY(${lerp(50, 0, exitP)}px)`;
+            }
+          }
+        },
+      });
     });
 
+    ScrollTrigger.refresh();
+
     return () => {
-      cancelAnimationFrame(frame);
-      contextCleanup();
+      cancelAnimationFrame(rafId);
+      lenis?.destroy();
+      context?.revert();
     };
   }, [phase]);
 
@@ -297,8 +293,8 @@ function App() {
           }}
         >
           <Suspense fallback={null}>
-            {phase === 'loader' || phase === 'portal' ? (
-              <LoaderScene progress={loaderProgress} />
+            {phase === 'loader' || phase === 'intro' ? (
+              <LoaderScene progress={loaderProgress} phase={phase} />
             ) : (
               <SceneContainer
                 scrollVal={rawScroll}
@@ -308,6 +304,8 @@ function App() {
                 phase={phase}
               />
             )}
+            
+            
           </Suspense>
         </Canvas>
       </div>

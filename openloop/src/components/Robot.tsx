@@ -1,5 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { useGLTF, useAnimations, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { lerp } from '../utils/math';
 
@@ -19,152 +20,81 @@ export const Robot: React.FC<RobotProps> = ({
   phase,
 }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const headRef = useRef<THREE.Mesh>(null);
-  const leftEyeRef = useRef<THREE.Mesh>(null);
-  const rightEyeRef = useRef<THREE.Mesh>(null);
+  
+  // Using a high-quality cinematic model (DamagedHelmet looks very "Cyber-Robotic")
+  // Using a CDN hosted GLB for robustness if local is missing
+  const { scene, nodes, materials } = useGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb') as any;
 
-  // Better materials for more realistic human-like face
-  const materials = useMemo(() => ({
-    skin: new THREE.MeshStandardMaterial({
-      color: '#d4a574', // Better skin tone
-      metalness: 0.15,
-      roughness: 0.6,
-      emissive: '#1a0f0a',
-    }),
-    metal: new THREE.MeshStandardMaterial({
-      color: '#2a2a2a',
-      metalness: 0.95,
-      roughness: 0.1,
-    }),
-    eyeSclera: new THREE.MeshStandardMaterial({
-      color: '#ffffff',
-      metalness: 0.1,
-      roughness: 0.3,
-    }),
-    eyeIris: new THREE.MeshStandardMaterial({
-      color: '#2c1810',
-      metalness: 0.3,
-      roughness: 0.2,
-      emissive: '#00ff00',
-      emissiveIntensity: 0.8,
-    }),
-    eyeGlow: new THREE.MeshBasicMaterial({
-      color: '#00ff00',
-      transparent: true,
-      opacity: 0.9,
-    }),
-  }), []);
-
-  // Improved geometries for better human likeness
-  const geos = useMemo(() => ({
-    head: new THREE.IcosahedronGeometry(1, 5), // Better subdivision for smoother face
-    jaw: new THREE.BoxGeometry(0.8, 0.35, 0.6),
-    cheekL: new THREE.BoxGeometry(0.4, 0.5, 0.5),
-    cheekR: new THREE.BoxGeometry(0.4, 0.5, 0.5),
-    nose: new THREE.ConeGeometry(0.15, 0.4, 8),
-    eyeSclera: new THREE.SphereGeometry(0.25, 16, 16),
-    eyeIris: new THREE.SphereGeometry(0.16, 16, 16),
-    eyeGlow: new THREE.SphereGeometry(0.27, 8, 8),
-    mouth: new THREE.BoxGeometry(0.4, 0.08, 0.05),
-  }), []);
+  // Refine materials for cinematic look
+  useMemo(() => {
+    if (materials['Material_MR']) {
+      materials['Material_MR'].metalness = 1.0;
+      materials['Material_MR'].roughness = 0.15;
+      materials['Material_MR'].emissive = new THREE.Color('#00ccff');
+      materials['Material_MR'].emissiveIntensity = 0.2;
+    }
+  }, [materials]);
 
   useFrame((state) => {
     if (!groupRef.current || phase !== 'main') return;
 
-    // Normalized scroll progress for main content
+    // Normalized scroll progress (0 to 1)
     const mainScroll = robotProgressRef.current;
 
-    // Robot visibility: disappear before timeline (at ~0.72 progress)
-    const disappearThreshold = 0.72;
+    // Visibility control
+    const disappearThreshold = 0.85; // Disappear before themes
     if (mainScroll >= disappearThreshold) {
       groupRef.current.visible = false;
       return;
     }
-
     groupRef.current.visible = true;
 
-    // Simple proportional rotation mapping
-    // rotationY goes from 0 to 2π * 0.75 (270 degrees)
-    const maxRotation = Math.PI * 2 * 0.75;
-    const targetRotation = mainScroll * maxRotation;
-
-    // Smooth interpolation for jerky motion fix
-    const smoothFactor = 0.08;
-    groupRef.current.rotation.y +=
-      (targetRotation + mouseX * 0.08 - groupRef.current.rotation.y) * smoothFactor;
-
-    // Gentle bobbing motion
-    const bobAmount = Math.sin(state.clock.elapsedTime * 0.8) * 0.08;
-    groupRef.current.position.y = bobAmount;
-
-    // Fade out as we approach timeline
-    const fadeStart = 0.65;
-    const fadeOut = Math.max(0, Math.min(1, (mainScroll - fadeStart) / (disappearThreshold - fadeStart)));
+    // --- ESYA STYLE SCROLL SYSTEM ---
     
-    // Update material opacities
-    materials.eyeGlow.opacity = 0.9 * (1 - fadeOut);
-
-    // Eye color transitions based on scroll progress
-    const eyeColors = [
-      new THREE.Color('#00ff00'), // Green at start
-      new THREE.Color('#00ccff'), // Cyan mid
-      new THREE.Color('#ff9900'), // Orange near end
-    ];
+    // 1. Proportional Rotation (Hero -> Section 2 -> Section 3 -> Timeline)
+    // hero (0) -> s2 (0.25) -> s3 (0.5) -> timeline (0.75)
+    // Let's rotate 270 degrees total (PI * 1.5)
+    const targetRotationY = mainScroll * (Math.PI * 1.5);
     
-    const colorIndex = Math.floor(mainScroll * 2);
-    const colorT = (mainScroll * 2) % 1;
-    const fromColor = eyeColors[Math.min(colorIndex, eyeColors.length - 1)];
-    const toColor = eyeColors[Math.min(colorIndex + 1, eyeColors.length - 1)];
-    
-    const currentColor = fromColor.clone().lerp(toColor, colorT);
-    materials.eyeGlow.color.copy(currentColor);
-    materials.eyeIris.emissive.copy(currentColor);
+    // Smooth Lerp for Jerk-free movement
+    // Added Math.PI offset to face the camera initially
+    const baseRotationY = Math.PI;
+    groupRef.current.rotation.y = lerp(groupRef.current.rotation.y, baseRotationY + targetRotationY + mouseX * 0.1, 0.08);
 
-    // Breathing animation
-    const breathe = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.02;
-    groupRef.current.scale.setScalar(lerp(groupRef.current.scale.x, breathe, 0.05));
+    // 2. Slight X tilt based on scroll transition
+    const tiltX = Math.sin(mainScroll * Math.PI) * 0.15;
+    groupRef.current.rotation.x = lerp(groupRef.current.rotation.x, tiltX, 0.05);
+
+    // --- Color Changing (Emissive) ---
+    if (materials['Material_MR']) {
+      const color1 = new THREE.Color('#00ccff'); // Cyan
+      const color2 = new THREE.Color('#ff0066'); // Pink/Red
+      const lerpedColor = color1.clone().lerp(color2, mainScroll);
+      materials['Material_MR'].emissive.copy(lerpedColor);
+      materials['Material_MR'].emissiveIntensity = lerp(0.5, 2.5, Math.sin(mainScroll * Math.PI));
+    }
+
+    // 3. Backward movement (z-axis) as we exit
+    const exitP = Math.max(0, (mainScroll - 0.7) * 6.6); // 0.7 to 0.85
+    groupRef.current.position.z = lerp(0, -5, exitP);
+    
+    // 4. Opacity/Scale fade
+    const scaleFade = lerp(1.5, 0.8, exitP);
+    groupRef.current.scale.setScalar(scaleFade);
+
+    // 5. Gentle floating animation
+    const float = Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
+    groupRef.current.position.y = float;
   });
 
   return (
-    <group ref={groupRef} position={[0, 0, 0]} scale={[1.2, 1.2, 1.2]}>
-      {/* Main head structure */}
-      <mesh ref={headRef} geometry={geos.head} material={materials.skin} castShadow receiveShadow />
-
-      {/* Jaw */}
-      <mesh geometry={geos.jaw} material={materials.skin} position={[0, -0.55, 0.2]} />
-
-      {/* Cheeks for facial structure */}
-      <mesh geometry={geos.cheekL} material={materials.skin} position={[-0.55, 0, 0.15]} />
-      <mesh geometry={geos.cheekR} material={materials.skin} position={[0.55, 0, 0.15]} />
-
-      {/* Nose */}
-      <mesh geometry={geos.nose} material={materials.skin} position={[0, 0.1, 0.8]} rotation={[Math.PI, 0, 0]} />
-
-      {/* Left Eye */}
-      <group position={[-0.35, 0.25, 0.85]}>
-        {/* Sclera */}
-        <mesh geometry={geos.eyeSclera} material={materials.eyeSclera} />
-        {/* Iris */}
-        <mesh ref={leftEyeRef} geometry={geos.eyeIris} material={materials.eyeIris} position={[0, 0, 0.15]} />
-        {/* Glow effect */}
-        <mesh geometry={geos.eyeGlow} material={materials.eyeGlow} position={[0, 0, 0.2]} />
-      </group>
-
-      {/* Right Eye */}
-      <group position={[0.35, 0.25, 0.85]}>
-        {/* Sclera */}
-        <mesh geometry={geos.eyeSclera} material={materials.eyeSclera} />
-        {/* Iris */}
-        <mesh ref={rightEyeRef} geometry={geos.eyeIris} material={materials.eyeIris} position={[0, 0, 0.15]} />
-        {/* Glow effect */}
-        <mesh geometry={geos.eyeGlow} material={materials.eyeGlow} position={[0, 0, 0.2]} />
-      </group>
-
-      {/* Mouth */}
-      <mesh geometry={geos.mouth} material={materials.metal} position={[0, -0.3, 0.75]} />
-
-      {/* Accent lighting point */}
-      <pointLight color="#00ff00" intensity={1.5} distance={3} position={[0, 0.5, 1.2]} />
+    <group ref={groupRef} scale={[1.5, 1.5, 1.5]}>
+      <primitive object={scene} rotation={[Math.PI / 2, 0, 0]} />
+      {/* Add extra eye glow or light points if needed */}
+      <pointLight color="#00ffff" intensity={2} distance={2} position={[0, 0, 0.5]} />
     </group>
   );
 };
+
+useGLTF.preload('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb');
+
