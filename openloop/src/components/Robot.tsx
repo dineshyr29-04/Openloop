@@ -12,10 +12,13 @@ export const Robot: React.FC<RobotProps> = ({ scrollVal }) => {
   
   // Geometries and materials optimization
   const materials = useMemo(() => ({
-    body: new THREE.MeshStandardMaterial({ color: '#2b303a', roughness: 0.3, metalness: 0.8, transparent: true, opacity: 1 }),
-    eyeGlow: new THREE.MeshStandardMaterial({ color: '#00ccff', emissive: '#00ccff', emissiveIntensity: 2, transparent: true, opacity: 1 }),
-    ring: new THREE.MeshStandardMaterial({ color: '#00ccff', emissive: '#00ccff', emissiveIntensity: 1, wireframe: true, transparent: true, opacity: 0.5 }),
-    ringSolid: new THREE.MeshStandardMaterial({ color: '#ffffff', metalness: 0.9, roughness: 0.1, transparent: true, opacity: 0.8 })
+    skull: new THREE.MeshStandardMaterial({ color: '#0d0d1a', metalness: 0.95, roughness: 0.08, transparent: true, opacity: 1 }),
+    plate: new THREE.MeshStandardMaterial({ color: '#141428', metalness: 0.9, roughness: 0.12, transparent: true, opacity: 1 }),
+    jaw: new THREE.MeshStandardMaterial({ color: '#080812', metalness: 0.98, roughness: 0.05, transparent: true, opacity: 1 }),
+    eyeGlow: new THREE.MeshBasicMaterial({ color: '#00f0ff', transparent: true, opacity: 0.92 }),
+    seam: new THREE.MeshBasicMaterial({ color: '#00f0ff', transparent: true, opacity: 0.6 }),
+    ring: new THREE.MeshStandardMaterial({ color: '#00ccff', emissive: '#00ccff', emissiveIntensity: 0.5, wireframe: true, transparent: true, opacity: 0.12 }),
+    ringSolid: new THREE.MeshStandardMaterial({ color: '#ffffff', metalness: 0.9, roughness: 0.1, transparent: true, opacity: 0.12 })
   }), []);
 
   const geos = useMemo(() => ({
@@ -30,12 +33,12 @@ export const Robot: React.FC<RobotProps> = ({ scrollVal }) => {
     if (!groupRef.current) return;
 
     // Visibility mapping
-    const appearProg = normalize(scrollVal, 0.1, 0.2); // Fade in after loader
+    const appearProg = normalize(scrollVal, 0, 0.15); // Fade in immediately
     const rotationProg = normalize(scrollVal, 0.2, 0.6); // Main rotation mapping
     const exitProg = normalize(scrollVal, 0.75, 0.8); // Exit mapping
 
     // Only render if visible
-    if (appearProg === 0 || scrollVal >= 0.85) {
+    if (scrollVal >= 0.85) {
       groupRef.current.visible = false;
       return;
     } else {
@@ -43,7 +46,7 @@ export const Robot: React.FC<RobotProps> = ({ scrollVal }) => {
     }
 
     // Appearance logic
-    const baseOpacity = lerp(0, 1, Math.min(1, appearProg * 2)); // Ease in fast
+    const baseOpacity = lerp(0.65, 1, Math.min(1, appearProg * 2)); // Always visible at intro
     
     // Extinction logic (0.75 -> 0.8)
     const finalOpacity = lerp(baseOpacity, 0, exitProg);
@@ -52,7 +55,7 @@ export const Robot: React.FC<RobotProps> = ({ scrollVal }) => {
 
     // Update Materials opacity
     Object.values(materials).forEach((mat) => {
-      mat.opacity = finalOpacity * (mat === materials.ring ? 0.5 : (mat === materials.ringSolid ? 0.8 : 1));
+      mat.opacity = finalOpacity * (mat === materials.ring || mat === materials.ringSolid ? 0.12 : 1);
       mat.needsUpdate = true;
     });
 
@@ -71,7 +74,7 @@ export const Robot: React.FC<RobotProps> = ({ scrollVal }) => {
     const targetRotX = Math.sin(rotationProg * Math.PI) * 0.2;
 
     // Lerp transformations
-    groupRef.current.rotation.y = lerp(groupRef.current.rotation.y, targetRotY, 0.08);
+    groupRef.current.rotation.y = lerp(groupRef.current.rotation.y, targetRotY - 0.26, 0.08);
     groupRef.current.rotation.x = lerp(groupRef.current.rotation.x, targetRotX, 0.08);
 
     // Apply Z exit position
@@ -83,16 +86,18 @@ export const Robot: React.FC<RobotProps> = ({ scrollVal }) => {
   });
 
   return (
-    <group ref={groupRef} position={[0, 0, 0]}>
+    <group ref={groupRef} position={[-0.3, -0.1, 0]} scale={[1.4, 1.4, 1.4]}>
       {/* Head */}
-      <mesh geometry={geos.head} material={materials.body} />
+      <mesh geometry={geos.head} material={materials.skull} />
       
       {/* Face Plate */}
-      <mesh geometry={geos.face} material={materials.body} position={[0, 0, 1.15]} rotation={[0, 0, 0]} />
+      <mesh geometry={geos.face} material={materials.plate} position={[0, 0.1, 1.15]} rotation={[0, 0, 0]} />
+      <mesh geometry={geos.face} material={materials.jaw} position={[0, -0.45, 1.07]} rotation={[-0.18, 0, 0]} scale={[0.9, 0.45, 1]} />
       
       {/* Eyes */}
       <mesh geometry={geos.eye} material={materials.eyeGlow} position={[-0.4, 0.1, 1.16]} />
       <mesh geometry={geos.eye} material={materials.eyeGlow} position={[0.4, 0.1, 1.16]} />
+      <mesh geometry={geos.eye} material={materials.seam} position={[0, -0.15, 1.16]} scale={[4, 0.35, 1]} />
 
       {/* Orbiting Rings */}
       <group rotation={[Math.PI / 4, Math.PI / 4, 0]}>

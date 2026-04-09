@@ -1,40 +1,301 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap');
+
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
-body, html {
-  margin: 0;
-  padding: 0;
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: #080808;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
-  background-color: #0d1117; /* Dark background */
-  font-family: 'Inter', -apple-system, sans-serif;
-  color: white;
+}
+
+#webgl {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  z-index: 0;
+}
+
+.app-root {
+  position: relative;
+  min-height: 100vh;
 }
 
 .canvas-container {
   position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#hud-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#site-content {
+  position: relative;
+  z-index: 20;
+  pointer-events: all;
+}
+
+nav {
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  pointer-events: none; /* Let scroll events pass through */
+  right: 0;
+  z-index: 100;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 48px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+  backdrop-filter: blur(4px);
 }
 
-/* Hide scrollbar for a cleaner look */
-::-webkit-scrollbar {
-  width: 8px;
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-::-webkit-scrollbar-track {
-  background: #000;
+nav a {
+  margin: 0 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #00ccff;
+nav a:hover {
+  color: #00f0ff;
+  text-shadow: 0 0 8px #00f0ff;
+}
+
+#hero {
+  min-height: 100vh;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 35% 1fr 30%;
+  padding: 80px 48px 48px;
+}
+
+.hero-title {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  text-align: center;
+  padding-top: 30px;
+}
+
+.hero-bottom-left {
+  grid-column: 1;
+  grid-row: 3;
+  align-self: end;
+  padding-bottom: 48px;
+  max-width: 360px;
+}
+
+.hero-bottom-right {
+  grid-column: 3;
+  grid-row: 2 / 4;
+  align-self: center;
+  justify-self: end;
+}
+
+.heading-primary {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: clamp(52px, 8vw, 96px);
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 60px rgba(255, 255, 255, 0.4), 0 0 120px rgba(0, 200, 255, 0.2);
+}
+
+.body-text-safe {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.5) 80%, transparent 100%);
+  padding: 16px 24px 16px 16px;
+  border-left: 2px solid rgba(0, 240, 255, 0.4);
+  margin-bottom: 16px;
+}
+
+.hud-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: #00f0ff;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.secondary-card {
+  background: rgba(20, 20, 30, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 4px;
+  padding: 16px;
+  max-width: 220px;
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #00aaff;
+.secondary-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+}
+
+.card-tag {
+  font-size: 10px;
+  color: #00f0ff;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.2em;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.secondary-card h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #ffffff;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.secondary-card p {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.6;
+}
+
+.card-image {
+  width: 100%;
+  height: 100px;
+  background: rgba(0, 240, 255, 0.04);
+  border: 1px solid rgba(0, 240, 255, 0.1);
+  border-radius: 2px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #080808;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  background: #00f0ff;
+  color: #000000;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.cta-outline {
+  padding: 8px 20px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cta-outline:hover {
+  border-color: #00f0ff;
+  color: #00f0ff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+.scroll-space {
+  height: 800vh;
+  position: relative;
+}
+
+@media (max-width: 1000px) {
+  nav {
+    padding: 0 20px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  #hero {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto auto;
+    padding: 80px 20px 24px;
+  }
+
+  .hero-title {
+    text-align: left;
+  }
+
+  .hero-bottom-left {
+    grid-column: 1;
+    grid-row: 3;
+    max-width: 100%;
+    padding-bottom: 20px;
+  }
+
+  .hero-bottom-right {
+    grid-column: 1;
+    grid-row: 4;
+    justify-self: start;
+  }
 }
