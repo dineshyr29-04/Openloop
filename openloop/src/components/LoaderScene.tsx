@@ -1,128 +1,170 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { Text } from '@react-three/drei';
-import { lerp, normalize, mapRange } from '../utils/math';
+import { lerp } from '../utils/math';
 
 interface LoaderSceneProps {
-  scrollVal: number;
+  progress: number; // 0 to 1, time-based
 }
 
-export const LoaderScene: React.FC<LoaderSceneProps> = ({ scrollVal }) => {
-  const groupRef = useRef<THREE.Group>(null);
-  const laptopRef = useRef<THREE.Group>(null);
-  const screenRef = useRef<THREE.Group>(null);
-  const portalRef = useRef<THREE.Mesh>(null);
+export const LoaderScene: React.FC<LoaderSceneProps> = ({ progress }) => {
+  const laptopGroupRef = useRef<THREE.Group>(null);
+  const screenRef = useRef<THREE.Mesh>(null);
   const textRef = useRef<THREE.Mesh>(null);
+  const portalRef = useRef<THREE.Group>(null);
 
-  // Materials and Geometries optimization
   const materials = useMemo(() => ({
-    body: new THREE.MeshStandardMaterial({ color: '#2a2a2a', roughness: 0.8 }),
-    screenGlow: new THREE.MeshStandardMaterial({ 
-      color: '#00ccff', 
-      emissive: '#00aaff', 
-      emissiveIntensity: 0,
-      roughness: 0.1
+    casing: new THREE.MeshStandardMaterial({
+      color: '#1a1a1a',
+      metalness: 0.85,
+      roughness: 0.15,
     }),
-    portal: new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0 }),
+    screen: new THREE.MeshStandardMaterial({
+      color: '#000011',
+      metalness: 0.3,
+      roughness: 0.4,
+      emissive: '#001133',
+      emissiveIntensity: 0,
+    }),
+    text: new THREE.MeshBasicMaterial({
+      color: '#ffffff',
+      transparent: true,
+      opacity: 0,
+    }),
+    portal: new THREE.MeshBasicMaterial({
+      color: '#00f0ff',
+      transparent: true,
+      opacity: 0,
+      wireframe: false,
+    }),
   }), []);
 
   const geos = useMemo(() => ({
-    base: new THREE.BoxGeometry(4, 0.2, 3),
-    screen: new THREE.BoxGeometry(4, 2.5, 0.1),
-    portal: new THREE.CircleGeometry(5, 32),
+    base: new THREE.BoxGeometry(2.4, 0.12, 1.8),
+    screen: new THREE.PlaneGeometry(2.2, 1.4),
+    portal: new THREE.CircleGeometry(1.5, 64),
   }), []);
 
-  useFrame(() => {
-    // Scroll 0 -> 0.2 animation sequence
-    const loaderProgress = normalize(scrollVal, 0, 0.2); // 0 to 1
+  useFrame((state) => {
+    if (!laptopGroupRef.current) return;
 
-    if (laptopRef.current) {
-      // 1. Laptop appears (scale 0.5 -> 1)
-      const scaleProg = normalize(loaderProgress, 0, 0.2);
-      const targetScale = mapRange(scaleProg, 0, 1, 0.5, 1.2);
-      laptopRef.current.scale.setScalar(lerp(laptopRef.current.scale.x, targetScale, 0.1));
-
-      // 2. Rotate Y from 90° -> 0°
-      const rotYProg = normalize(loaderProgress, 0, 0.3); // Map so it rotates smoothly on start
-      const targetRotY = mapRange(rotYProg, 0, 1, Math.PI / 2, 0);
-      laptopRef.current.rotation.y = lerp(laptopRef.current.rotation.y, targetRotY, 0.1);
-      
-      // Laptop fades backwards as scroll continues
-      const zPosProg = normalize(loaderProgress, 0.7, 1);
-      const targetZ = mapRange(zPosProg, 0, 1, 0, -10);
-      laptopRef.current.position.z = lerp(laptopRef.current.position.z, targetZ, 0.1);
+    // Phase 1: 0-0.25 - Laptop appears and scales in
+    if (progress < 0.25) {
+      const p = progress / 0.25;
+      const scale = p * p * (3 - 2 * p); // smoothstep easing
+      laptopGroupRef.current.scale.setScalar(scale);
+      laptopGroupRef.current.position.z = lerp(-2.5, 0, p);
+      laptopGroupRef.current.rotation.x = 0;
+    }
+    // Phase 2: 0.25-0.35 - Rotate to front view (along X axis)
+    else if (progress < 0.35) {
+      const p = (progress - 0.25) / 0.1;
+      laptopGroupRef.current.scale.setScalar(1);
+      laptopGroupRef.current.rotation.x = lerp(0, -Math.PI / 2.5, p);
+    }
+    // Phase 3: 0.35-0.55 - Screen opens (screen component rotates)
+    else if (progress < 0.55) {
+      const p = (progress - 0.35) / 0.2;
+      laptopGroupRef.current.rotation.x = -Math.PI / 2.5;
+      if (screenRef.current) {
+        screenRef.current.rotation.x = lerp(-0.08, Math.PI / 2.2, p);
+      }
+    }
+    // Phase 4: 0.55-0.75 - Screen lights up
+    else if (progress < 0.75) {
+      const p = (progress - 0.55) / 0.2;
+      if (screenRef.current) {
+        screenRef.current.rotation.x = Math.PI / 2.2;
+      }
+      materials.screen.emissiveIntensity = p * 2;
+      if (textRef.current && textRef.current.material && !Array.isArray(textRef.current.material)) {
+        (textRef.current.material as THREE.Material & { opacity?: number }).opacity = p * 0.9;
+      }
+    }
+    // Phase 5: 0.75-0.9 - Portal appears and grows from screen center
+    else if (progress < 0.9) {
+      const p = (progress - 0.75) / 0.15;
+      if (portalRef.current) {
+        // Portal grows exponentially
+        portalRef.current.scale.setScalar(p * p * 8);
+        materials.portal.opacity = lerp(0.9, 0.3, p);
+      }
+    }
+    // Phase 6: 0.9-1.0 - Camera moves into portal, laptop fades out
+    else {
+      const p = (progress - 0.9) / 0.1;
+      state.camera.position.z = lerp(3.8, 0, p * p);
+      if (laptopGroupRef.current) {
+        laptopGroupRef.current.visible = false;
+      }
+      if (portalRef.current) {
+        portalRef.current.visible = false;
+      }
     }
 
-    if (screenRef.current) {
-      // 3. Screen rotates open (hinge rotation on X axis)
-      const screenProg = normalize(loaderProgress, 0.3, 0.6);
-      const targetRotX = mapRange(screenProg, 0, 1, Math.PI / 2, -0.1); // Closed to Open slightly back
-      screenRef.current.rotation.x = lerp(screenRef.current.rotation.x, targetRotX, 0.1);
-    }
-
-    // 4. Screen emissive intensity
-    if (materials.screenGlow) {
-      const glowProg = normalize(loaderProgress, 0.5, 0.8);
-      const newIntensity = lerp(
-        materials.screenGlow.emissiveIntensity,
-        mapRange(glowProg, 0, 1, 0, 2),
-        0.1
-      );
-      materials.screenGlow.emissiveIntensity = newIntensity;
-    }
-
-    // Text appearance
-    if (textRef.current) {
-      const textProg = normalize(loaderProgress, 0.6, 0.8);
-      textRef.current.position.y = lerp(textRef.current.position.y, mapRange(textProg, 0, 1, -1, 0), 0.1);
-      (textRef.current.material as THREE.Material).opacity = textProg;
-    }
-
-    // Portal expanding
-    if (portalRef.current) {
-      const portalProg = normalize(loaderProgress, 0.8, 1);
-      const targetScale = lerp(0, 15, Math.pow(portalProg, 2)); // Ease in
-      portalRef.current.scale.setScalar(lerp(portalRef.current.scale.x, targetScale, 0.1));
-      materials.portal.opacity = lerp(materials.portal.opacity, mapRange(portalProg, 0, 1, 0, 1), 0.1);
-    }
-    
-    // Fade out group beyond 0.2
-    if (groupRef.current) {
-      groupRef.current.visible = scrollVal < 0.01;
-    }
+    // Subtle idle animation
+    const pulse = Math.sin(state.clock.elapsedTime * 1.2) * 0.03;
+    laptopGroupRef.current.position.y = pulse * (1 - Math.max(0, progress - 0.5));
   });
 
   return (
-    <group ref={groupRef}>
-      <group ref={laptopRef} position={[0, -1, 0]}>
+    <group>
+      {/* Laptop group */}
+      <group ref={laptopGroupRef} position={[0, -0.5, -2.5]}>
         {/* Base */}
-        <mesh geometry={geos.base} material={materials.body} position={[0, 0, 0]} />
-        
-        {/* Screen Hinge Group */}
-        <group ref={screenRef} position={[0, 0.1, -1.4]} rotation={[Math.PI / 2, 0, 0]}>
-          <mesh geometry={geos.screen} material={materials.body} position={[0, 1.25, 0]} />
-          {/* Inner Screen Glow */}
-          <mesh position={[0, 1.25, 0.06]}>
-            <planeGeometry args={[3.8, 2.3]} />
-            <primitive object={materials.screenGlow} attach="material" />
-          </mesh>
-          <Text
-            ref={textRef as any}
-            position={[0, 1.25, 0.07]}
-            fontSize={0.5}
-            color="#ffffff"
-            anchorX="center"
-            anchorY="middle"
-            material-transparent={true}
-            material-opacity={0}
+        <mesh geometry={geos.base} material={materials.casing} position={[0, 0, 0]} />
+
+        {/* Back panel */}
+        <mesh
+          geometry={new THREE.BoxGeometry(2.4, 1.5, 0.1)}
+          material={materials.casing}
+          position={[0, 0.9, 0.05]}
+        />
+
+        {/* Screen container (hinged group) */}
+        <group position={[0, 0.5, 0.5]} rotation={[-0.08, 0, 0]}>
+          <mesh
+            ref={screenRef}
+            geometry={geos.screen}
+            material={materials.screen}
+            position={[0, 0, 0]}
+            rotation={[-0.08, 0, 0]}
+          />
+
+          {/* Screen text - OPENLOOP */}
+          <mesh
+            ref={textRef}
+            position={[0, 0, 0.1]}
+            scale={[0.001, 0.001, 1]}
           >
-            OPENLOOP
-          </Text>
+            <planeGeometry args={[1400, 400]} />
+            <primitive object={materials.text} attach="material" />
+          </mesh>
         </group>
       </group>
 
-      <mesh ref={portalRef} geometry={geos.portal} material={materials.portal} position={[0, 0, -2]} />
+      {/* Portal effect */}
+      <group ref={portalRef} position={[0, 0.3, 0]}>
+        <mesh geometry={geos.portal} material={materials.portal} position={[0, 0, 0]} />
+        {/* Portal glow ring */}
+        <mesh>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[
+                new Float32Array(
+                  Array.from({ length: 129 }).flatMap((_, i) => {
+                    const angle = (i / 128) * Math.PI * 2;
+                    return [Math.cos(angle) * 1.5, Math.sin(angle) * 1.5, 0.05];
+                  })
+                ),
+                3,
+              ]}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial color="#00f0ff" />
+        </mesh>
+      </group>
     </group>
   );
 };

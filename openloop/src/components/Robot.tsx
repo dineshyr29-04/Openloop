@@ -1,150 +1,170 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { lerp, normalize } from '../utils/math';
+import { lerp } from '../utils/math';
 
 interface RobotProps {
   scrollVal: number;
   robotProgressRef: React.MutableRefObject<number>;
   themeProgressRef: React.MutableRefObject<number>;
   mouseX: number;
+  phase: string;
 }
 
-export const Robot: React.FC<RobotProps> = ({ scrollVal, robotProgressRef, themeProgressRef, mouseX }) => {
+export const Robot: React.FC<RobotProps> = ({
+  scrollVal: _scrollVal,
+  robotProgressRef,
+  themeProgressRef: _themeProgressRef,
+  mouseX,
+  phase,
+}) => {
   const groupRef = useRef<THREE.Group>(null);
-  const spineLightRef = useRef<THREE.PointLight>(null);
-  
-  // Geometries and materials optimization
+  const headRef = useRef<THREE.Mesh>(null);
+  const leftEyeRef = useRef<THREE.Mesh>(null);
+  const rightEyeRef = useRef<THREE.Mesh>(null);
+
+  // Better materials for more realistic human-like face
   const materials = useMemo(() => ({
-    skull: new THREE.MeshStandardMaterial({ color: '#6d0f1f', metalness: 0.9, roughness: 0.18, emissive: '#23070e' }),
-    forehead: new THREE.MeshStandardMaterial({ color: '#c8a45a', metalness: 0.94, roughness: 0.12, emissive: '#2b220e' }),
-    cheek: new THREE.MeshStandardMaterial({ color: '#b89046', metalness: 0.92, roughness: 0.14, emissive: '#241c0b' }),
-    jaw: new THREE.MeshStandardMaterial({ color: '#8e0c1d', metalness: 0.95, roughness: 0.08, emissive: '#22060c' }),
-    socket: new THREE.MeshStandardMaterial({ color: '#0e0e14', metalness: 0.5, roughness: 0.8 }),
-    eyeGlow: new THREE.MeshBasicMaterial({ color: '#dff7ff', transparent: true, opacity: 0.95 }),
-    seam: new THREE.MeshBasicMaterial({ color: '#00f0ff', transparent: true, opacity: 0.6 }),
+    skin: new THREE.MeshStandardMaterial({
+      color: '#d4a574', // Better skin tone
+      metalness: 0.15,
+      roughness: 0.6,
+      emissive: '#1a0f0a',
+    }),
+    metal: new THREE.MeshStandardMaterial({
+      color: '#2a2a2a',
+      metalness: 0.95,
+      roughness: 0.1,
+    }),
+    eyeSclera: new THREE.MeshStandardMaterial({
+      color: '#ffffff',
+      metalness: 0.1,
+      roughness: 0.3,
+    }),
+    eyeIris: new THREE.MeshStandardMaterial({
+      color: '#2c1810',
+      metalness: 0.3,
+      roughness: 0.2,
+      emissive: '#00ff00',
+      emissiveIntensity: 0.8,
+    }),
+    eyeGlow: new THREE.MeshBasicMaterial({
+      color: '#00ff00',
+      transparent: true,
+      opacity: 0.9,
+    }),
   }), []);
 
+  // Improved geometries for better human likeness
   const geos = useMemo(() => ({
-    head: new THREE.SphereGeometry(1.05, 48, 48),
-    plate: new THREE.PlaneGeometry(1.6, 0.9),
-    eyeSlot: new THREE.PlaneGeometry(0.44, 0.1),
-    seam: new THREE.PlaneGeometry(0.55, 0.02),
-    sidePanel: new THREE.PlaneGeometry(0.18, 0.62),
-    socket: new THREE.PlaneGeometry(1.6, 0.4),
+    head: new THREE.IcosahedronGeometry(1, 5), // Better subdivision for smoother face
+    jaw: new THREE.BoxGeometry(0.8, 0.35, 0.6),
+    cheekL: new THREE.BoxGeometry(0.4, 0.5, 0.5),
+    cheekR: new THREE.BoxGeometry(0.4, 0.5, 0.5),
+    nose: new THREE.ConeGeometry(0.15, 0.4, 8),
+    eyeSclera: new THREE.SphereGeometry(0.25, 16, 16),
+    eyeIris: new THREE.SphereGeometry(0.16, 16, 16),
+    eyeGlow: new THREE.SphereGeometry(0.27, 8, 8),
+    mouth: new THREE.BoxGeometry(0.4, 0.08, 0.05),
   }), []);
 
   useFrame((state) => {
-    if (!groupRef.current) return;
+    if (!groupRef.current || phase !== 'main') return;
 
-    const appearProg = normalize(scrollVal, 0, 0.15);
-    const p = robotProgressRef.current;
-    const themeP = themeProgressRef.current;
+    // Normalized scroll progress for main content
+    const mainScroll = robotProgressRef.current;
 
-    let targetY = 0;
-    if (p < 0.25) {
-      targetY = 0;
-    } else if (p < 0.28) {
-      targetY = lerp(0, Math.PI / 2, (p - 0.25) / 0.03);
-    } else if (p < 0.5) {
-      targetY = Math.PI / 2;
-    } else if (p < 0.53) {
-      targetY = lerp(Math.PI / 2, Math.PI, (p - 0.5) / 0.03);
-    } else if (p < 0.75) {
-      targetY = Math.PI;
-    } else if (p < 0.78) {
-      targetY = lerp(Math.PI, (Math.PI * 3) / 2, (p - 0.75) / 0.03);
-    } else {
-      targetY = (Math.PI * 3) / 2;
-    }
-
-    // Robot stays front-facing during the theme section sequence
-    if (themeP > 0) {
-      targetY = 0;
-    }
-
-    if (scrollVal >= 0.85) {
+    // Robot visibility: disappear before timeline (at ~0.72 progress)
+    const disappearThreshold = 0.72;
+    if (mainScroll >= disappearThreshold) {
       groupRef.current.visible = false;
       return;
-    } else {
-      groupRef.current.visible = true;
     }
 
-    const baseOpacity = lerp(0.65, 1, Math.min(1, appearProg * 2));
+    groupRef.current.visible = true;
 
-    // Theme phase C drives robot exit upward
-    const themeExit = themeP > 0.78 ? Math.max(0, Math.min(1, (themeP - 0.78) / 0.22)) : 0;
-    const robotExit = themeExit > 0.3 ? (themeExit - 0.3) / 0.7 : 0;
+    // Simple proportional rotation mapping
+    // rotationY goes from 0 to 2π * 0.75 (270 degrees)
+    const maxRotation = Math.PI * 2 * 0.75;
+    const targetRotation = mainScroll * maxRotation;
 
-    const targetYPos = lerp(-0.1, 14, robotExit * robotExit * robotExit);
-    const targetZ = lerp(0, -2, themeExit);
-    const targetScale = lerp(1.4, 1.1, themeExit);
+    // Smooth interpolation for jerky motion fix
+    const smoothFactor = 0.08;
+    groupRef.current.rotation.y +=
+      (targetRotation + mouseX * 0.08 - groupRef.current.rotation.y) * smoothFactor;
 
-    materials.eyeGlow.opacity = baseOpacity;
-    materials.seam.opacity = baseOpacity * 0.7;
+    // Gentle bobbing motion
+    const bobAmount = Math.sin(state.clock.elapsedTime * 0.8) * 0.08;
+    groupRef.current.position.y = bobAmount;
 
-    // Eye color transitions by section
-    const eyePhaseColors = [
-      new THREE.Color('#00f0ff'),
-      new THREE.Color('#0088ff'),
-      new THREE.Color('#ff9500'),
-      new THREE.Color('#ffd700'),
+    // Fade out as we approach timeline
+    const fadeStart = 0.65;
+    const fadeOut = Math.max(0, Math.min(1, (mainScroll - fadeStart) / (disappearThreshold - fadeStart)));
+    
+    // Update material opacities
+    materials.eyeGlow.opacity = 0.9 * (1 - fadeOut);
+
+    // Eye color transitions based on scroll progress
+    const eyeColors = [
+      new THREE.Color('#00ff00'), // Green at start
+      new THREE.Color('#00ccff'), // Cyan mid
+      new THREE.Color('#ff9900'), // Orange near end
     ];
-    const eyeBand = Math.min(3, Math.floor(p * 4));
-    materials.eyeGlow.color.lerp(eyePhaseColors[eyeBand], 0.08);
-    materials.seam.color.lerp(eyePhaseColors[eyeBand], 0.05);
+    
+    const colorIndex = Math.floor(mainScroll * 2);
+    const colorT = (mainScroll * 2) % 1;
+    const fromColor = eyeColors[Math.min(colorIndex, eyeColors.length - 1)];
+    const toColor = eyeColors[Math.min(colorIndex + 1, eyeColors.length - 1)];
+    
+    const currentColor = fromColor.clone().lerp(toColor, colorT);
+    materials.eyeGlow.color.copy(currentColor);
+    materials.eyeIris.emissive.copy(currentColor);
 
-    groupRef.current.rotation.y = lerp(groupRef.current.rotation.y, targetY + mouseX * 0.08 - 0.26, 0.08);
-    const targetRotX = Math.sin(p * Math.PI) * 0.08;
-    groupRef.current.rotation.x = lerp(groupRef.current.rotation.x, targetRotX, 0.08);
-    groupRef.current.position.z = lerp(groupRef.current.position.z, targetZ, 0.08);
-    groupRef.current.position.y = lerp(groupRef.current.position.y, targetYPos, 0.08);
-
-    // As rotation approaches 180 degrees, back reactor intensity rises toward 4.
-    if (spineLightRef.current) {
-      const distanceToPi = Math.abs(groupRef.current.rotation.y - Math.PI);
-      const withinBand = Math.max(0, 1 - distanceToPi / 0.2);
-      spineLightRef.current.intensity = lerp(spineLightRef.current.intensity, withinBand * 4, 0.1);
-    }
-
-    // Breathing at 1 +/- 0.004
-    const breathe = 1 + Math.sin(state.clock.elapsedTime * 0.8) * 0.004;
-    groupRef.current.scale.setScalar(lerp(groupRef.current.scale.x, targetScale * breathe, 0.08));
+    // Breathing animation
+    const breathe = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.02;
+    groupRef.current.scale.setScalar(lerp(groupRef.current.scale.x, breathe, 0.05));
   });
 
   return (
-    <group ref={groupRef} position={[-0.26, -0.08, 0]} scale={[1.1, 1.1, 1.1]}>
-      {/* Head */}
-      <mesh geometry={geos.head} material={materials.skull} />
+    <group ref={groupRef} position={[0, 0, 0]} scale={[1.2, 1.2, 1.2]}>
+      {/* Main head structure */}
+      <mesh ref={headRef} geometry={geos.head} material={materials.skin} castShadow receiveShadow />
 
-      {/* Forehead and face plates */}
-      <mesh geometry={geos.plate} material={materials.forehead} position={[0, 0.22, 0.96]} rotation={[-0.06, 0, 0]} scale={[0.86, 1.05, 1]} />
-      <mesh geometry={geos.plate} material={materials.jaw} position={[0, -0.48, 0.9]} rotation={[-0.2, 0, 0]} scale={[0.74, 0.34, 1]} />
-      <mesh geometry={geos.socket} material={materials.socket} position={[0, 0.08, 0.99]} rotation={[0, 0, 0]} scale={[0.74, 0.36, 1]} />
-      <mesh geometry={geos.plate} material={materials.cheek} position={[-0.44, -0.06, 0.92]} rotation={[0, 0.2, -0.08]} scale={[0.24, 0.58, 1]} />
-      <mesh geometry={geos.plate} material={materials.cheek} position={[0.44, -0.06, 0.92]} rotation={[0, -0.2, 0.08]} scale={[0.24, 0.58, 1]} />
+      {/* Jaw */}
+      <mesh geometry={geos.jaw} material={materials.skin} position={[0, -0.55, 0.2]} />
 
-      {/* Eye slots */}
-      <mesh geometry={geos.eyeSlot} material={materials.eyeGlow} position={[-0.32, 0.12, 1.04]} rotation={[0, 0.08, -0.12]} scale={[1.05, 1, 1]} />
-      <mesh geometry={geos.eyeSlot} material={materials.eyeGlow} position={[0.32, 0.12, 1.04]} rotation={[0, -0.08, 0.12]} scale={[1.05, 1, 1]} />
-      <mesh geometry={geos.seam} material={materials.forehead} position={[-0.3, 0.2, 1.02]} rotation={[0, 0.04, -0.4]} scale={[0.62, 1.2, 1]} />
-      <mesh geometry={geos.seam} material={materials.forehead} position={[0.3, 0.2, 1.02]} rotation={[0, -0.04, 0.4]} scale={[0.62, 1.2, 1]} />
+      {/* Cheeks for facial structure */}
+      <mesh geometry={geos.cheekL} material={materials.skin} position={[-0.55, 0, 0.15]} />
+      <mesh geometry={geos.cheekR} material={materials.skin} position={[0.55, 0, 0.15]} />
 
-      {/* Seam lines */}
-      <mesh geometry={geos.seam} material={materials.seam} position={[0, 0.38, 1.01]} scale={[0.48, 1, 1]} />
-      <mesh geometry={geos.seam} material={materials.seam} position={[0, -0.12, 1.02]} scale={[0.58, 1, 1]} />
-      <mesh geometry={geos.seam} material={materials.seam} position={[0, -0.34, 0.96]} scale={[0.52, 1, 1]} />
-      <mesh geometry={geos.sidePanel} material={materials.seam} position={[0.72, 0.02, 0.8]} rotation={[0, -0.88, 0]} scale={[0.65, 0.58, 1]} />
-      <mesh geometry={geos.sidePanel} material={materials.seam} position={[-0.72, 0.02, 0.8]} rotation={[0, 0.88, 0]} scale={[0.65, 0.58, 1]} />
+      {/* Nose */}
+      <mesh geometry={geos.nose} material={materials.skin} position={[0, 0.1, 0.8]} rotation={[Math.PI, 0, 0]} />
 
-      {/* Back panel reactor for section 3 emphasis */}
-      <pointLight
-        ref={spineLightRef}
-        color="#ff9500"
-        intensity={0}
-        distance={4}
-        position={[0, 0, -1.2]}
-      />
+      {/* Left Eye */}
+      <group position={[-0.35, 0.25, 0.85]}>
+        {/* Sclera */}
+        <mesh geometry={geos.eyeSclera} material={materials.eyeSclera} />
+        {/* Iris */}
+        <mesh ref={leftEyeRef} geometry={geos.eyeIris} material={materials.eyeIris} position={[0, 0, 0.15]} />
+        {/* Glow effect */}
+        <mesh geometry={geos.eyeGlow} material={materials.eyeGlow} position={[0, 0, 0.2]} />
+      </group>
+
+      {/* Right Eye */}
+      <group position={[0.35, 0.25, 0.85]}>
+        {/* Sclera */}
+        <mesh geometry={geos.eyeSclera} material={materials.eyeSclera} />
+        {/* Iris */}
+        <mesh ref={rightEyeRef} geometry={geos.eyeIris} material={materials.eyeIris} position={[0, 0, 0.15]} />
+        {/* Glow effect */}
+        <mesh geometry={geos.eyeGlow} material={materials.eyeGlow} position={[0, 0, 0.2]} />
+      </group>
+
+      {/* Mouth */}
+      <mesh geometry={geos.mouth} material={materials.metal} position={[0, -0.3, 0.75]} />
+
+      {/* Accent lighting point */}
+      <pointLight color="#00ff00" intensity={1.5} distance={3} position={[0, 0.5, 1.2]} />
     </group>
   );
 };

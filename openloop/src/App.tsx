@@ -1,18 +1,24 @@
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrollProgress } from './hooks/useScrollProgress';
+import { usePhase } from './hooks/usePhase';
 
 // Components
 import { HeroScene } from './components/HeroScene';
 import { Background } from './components/Background';
 import { HeroOverlay } from './components/HeroOverlay';
+import { LoaderScene } from './components/LoaderScene';
 import { useMousePosition } from './hooks/useMousePosition';
 import { lerp } from './utils/math';
 
 import './App.css';
+
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeIn = (t: number) => t * t * t;
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 const CameraRig = () => {
   const mouse = useMousePosition();
@@ -67,11 +73,13 @@ const SceneContainer = ({
   robotProgressRef,
   themeProgressRef,
   mouseX,
+  phase,
 }: {
   scrollVal: number;
   robotProgressRef: React.MutableRefObject<number>;
   themeProgressRef: React.MutableRefObject<number>;
   mouseX: number;
+  phase: string;
 }) => {
   return (
     <>
@@ -84,23 +92,37 @@ const SceneContainer = ({
         robotProgressRef={robotProgressRef}
         themeProgressRef={themeProgressRef}
         mouseX={mouseX}
+        phase={phase}
       />
     </>
   );
 };
 
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-const easeIn = (t: number) => t * t * t;
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
 // Synchronizer between React HTML and ThreeJS loops
 function App() {
   const rawScroll = useScrollProgress();
   const mouse = useMousePosition();
+  const { phase, loaderProgress } = usePhase();
   const robotProgressRef = useRef(0);
   const themeProgressRef = useRef(0);
+  const [scrollEnabled, setScrollEnabled] = useState(false);
+
+  // Disable scroll during loader and portal
+  useEffect(() => {
+    if (phase === 'loader' || phase === 'portal') {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      setScrollEnabled(false);
+    } else {
+      document.documentElement.style.overflow = 'auto';
+      document.body.style.overflow = 'auto';
+      setScrollEnabled(true);
+    }
+  }, [phase]);
 
   useEffect(() => {
+    if (phase !== 'main') return;
+
     gsap.registerPlugin(ScrollTrigger);
 
     let contextCleanup = () => {};
@@ -128,6 +150,8 @@ function App() {
           }
         });
 
+        // Setup scroll triggers for main content (phase already active)
+        
         ScrollTrigger.create({
           trigger: '#robot-sections',
           pin: true,
@@ -259,7 +283,7 @@ function App() {
       cancelAnimationFrame(frame);
       contextCleanup();
     };
-  }, []);
+  }, [phase]);
 
   return (
     <div className="app-root">
@@ -273,21 +297,28 @@ function App() {
           }}
         >
           <Suspense fallback={null}>
-            <SceneContainer
-              scrollVal={rawScroll}
-              robotProgressRef={robotProgressRef}
-              themeProgressRef={themeProgressRef}
-              mouseX={mouse.x}
-            />
+            {phase === 'loader' || phase === 'portal' ? (
+              <LoaderScene progress={loaderProgress} />
+            ) : (
+              <SceneContainer
+                scrollVal={rawScroll}
+                robotProgressRef={robotProgressRef}
+                themeProgressRef={themeProgressRef}
+                mouseX={mouse.x}
+                phase={phase}
+              />
+            )}
           </Suspense>
         </Canvas>
       </div>
 
       <div id="hud-overlay" />
 
-      <div id="site-content">
-        <HeroOverlay />
-      </div>
+      {phase === 'main' && (
+        <div id="site-content" style={{ display: scrollEnabled ? 'block' : 'none' }}>
+          <HeroOverlay />
+        </div>
+      )}
     </div>
   );
 }

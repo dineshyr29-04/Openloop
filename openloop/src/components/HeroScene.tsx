@@ -8,6 +8,7 @@ interface HeroSceneProps {
   robotProgressRef: React.MutableRefObject<number>;
   themeProgressRef: React.MutableRefObject<number>;
   mouseX: number;
+  phase: string;
 }
 
 export const HeroScene: React.FC<HeroSceneProps> = ({
@@ -15,6 +16,7 @@ export const HeroScene: React.FC<HeroSceneProps> = ({
   robotProgressRef,
   themeProgressRef,
   mouseX,
+  phase,
 }) => {
   const glowRef = useRef<THREE.Mesh>(null);
 
@@ -60,6 +62,7 @@ export const HeroScene: React.FC<HeroSceneProps> = ({
         robotProgressRef={robotProgressRef}
         themeProgressRef={themeProgressRef}
         mouseX={mouseX}
+        phase={phase}
       />
     </>
   );
