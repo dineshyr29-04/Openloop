@@ -11,7 +11,7 @@ body,
 }
 
 body {
-  background: #080808;
+  background: radial-gradient(circle at center, #0a0a20 0%, #050510 50%, #020205 100%);
   color: #ffffff;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
@@ -305,6 +305,38 @@ nav a:hover {
 
 .panel-block {
   max-width: 520px;
+  transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.align-left {
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
+.align-right {
+  margin-left: auto;
+  margin-right: 0;
+  text-align: left;
+}
+
+.text-reveal {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.text-reveal.active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.align-left .text-reveal {
+  transform: translateX(-30px);
+}
+
+.align-left .text-reveal.active {
+  transform: translateX(0);
 }
 
 .section-heading {

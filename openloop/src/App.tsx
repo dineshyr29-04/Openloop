@@ -1,6 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrollProgress } from './hooks/useScrollProgress';
@@ -13,7 +12,6 @@ import { HeroOverlay } from './components/HeroOverlay';
 import { LoaderScene } from './components/LoaderScene';
 import { useMousePosition } from './hooks/useMousePosition';
 import { lerp, clamp } from './utils/math';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import Lenis from 'lenis';
 
 import './App.css';
@@ -35,37 +33,16 @@ const CameraRig = () => {
   return null;
 };
 
-const SceneLights = ({ robotProgressRef }: { robotProgressRef: React.MutableRefObject<number> }) => {
-  const eyeLeftRef = useRef<THREE.PointLight>(null);
-  const eyeRightRef = useRef<THREE.PointLight>(null);
-  const leftRimRef = useRef<THREE.DirectionalLight>(null);
-
-  useFrame((state) => {
-    const pulse = Math.sin(state.clock.elapsedTime * 1.8) * 0.8 + 3.2;
-    const p = robotProgressRef.current;
-    const rightProfileProgress = Math.max(0, Math.min(1, (p - 0.75) / 0.03));
-
-    if (eyeLeftRef.current) {
-      eyeLeftRef.current.intensity = pulse;
-    }
-    if (eyeRightRef.current) {
-      eyeRightRef.current.intensity = pulse;
-    }
-    if (leftRimRef.current) {
-      leftRimRef.current.intensity = lerp(0.9, 2.4, rightProfileProgress);
-    }
-  });
-
+const SceneLights = ({ robotProgressRef: _robotProgressRef }: { robotProgressRef: React.MutableRefObject<number> }) => {
   return (
     <>
-      <directionalLight color="#ffffff" intensity={3.5} position={[0, 2, -4]} />
-      <directionalLight ref={leftRimRef} color="#00c8ff" intensity={0.9} position={[-5, 1, -2]} />
-      <directionalLight color="#004488" intensity={0.9} position={[5, 0, -1]} />
-      <directionalLight color="#112233" intensity={0.65} position={[0, 0, 5]} />
-      <ambientLight color="#050510" intensity={0.3} />
-      <pointLight color="#00f0ff" intensity={2.5} distance={6} position={[0, -2, 1]} />
-      <pointLight ref={eyeLeftRef} color="#00f0ff" intensity={4} distance={3} position={[-0.65, 0.28, 1.2]} />
-      <pointLight ref={eyeRightRef} color="#00f0ff" intensity={4} distance={3} position={[0.65, 0.28, 1.2]} />
+      <directionalLight color="#ffffff" intensity={2.0} position={[0, 2, -4]} />
+      <directionalLight color="#00c8ff" intensity={0.5} position={[-5, 1, -2]} />
+      <directionalLight color="#004488" intensity={0.5} position={[5, 0, -1]} />
+      <directionalLight color="#112233" intensity={0.4} position={[0, 0, 5]} />
+      <ambientLight color="#050510" intensity={0.2} />
+      {/* Subtle floor glow */}
+      <pointLight color="#00f0ff" intensity={1.2} distance={8} position={[0, -3, 0]} />
     </>
   );
 };
@@ -113,12 +90,13 @@ function App() {
   // Disable scroll during loader and intro
   useEffect(() => {
     if (phase === 'loader' || phase === 'intro') {
-      document.documentElement.style.overflow = 'hidden';
+      window.scrollTo(0, 0);
       document.body.style.overflow = 'hidden';
+      document.body.style.height = '100vh';
       setScrollEnabled(false);
     } else {
-      document.documentElement.style.overflow = 'auto';
       document.body.style.overflow = 'auto';
+      document.body.style.height = 'auto';
       setScrollEnabled(true);
     }
   }, [phase]);
@@ -133,148 +111,134 @@ function App() {
     let rafId: number;
 
     const sections = ['#s1-hero', '#s2-about', '#s3-features', '#s4-timeline'];
-    const cards = ['#card-1', '#card-2', '#card-3']
-      .map((id) => document.querySelector<HTMLElement>(id))
-      .filter((el): el is HTMLElement => Boolean(el));
-    const footer = document.querySelector<HTMLElement>('#footer-section');
 
-    if (!document.querySelector('#robot-sections') || !document.querySelector('#theme-section')) {
-      return;
-    }
+    const setupTimeout = setTimeout(() => {
+      const cards = ['#card-1', '#card-2', '#card-3']
+        .map((id) => document.querySelector<HTMLElement>(id))
+        .filter((el): el is HTMLElement => Boolean(el));
+      const footer = document.querySelector<HTMLElement>('#footer-section');
 
-    // Initialize Lenis for smooth scrolling
-    lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
 
-    const scrollLoop = (time: number) => {
-      lenis?.raf(time);
+      const scrollLoop = (time: number) => {
+        lenis?.raf(time);
+        rafId = requestAnimationFrame(scrollLoop);
+      };
       rafId = requestAnimationFrame(scrollLoop);
-    };
-    rafId = requestAnimationFrame(scrollLoop);
 
-    lenis.on('scroll', ScrollTrigger.update);
+      lenis.on('scroll', ScrollTrigger.update);
 
-    context = gsap.context(() => {
       sections.forEach((selector, index) => {
         const el = document.querySelector<HTMLElement>(selector);
         if (el) {
-          const active = index === 0;
-          el.style.opacity = active ? '1' : '0';
-          el.style.display = active ? 'block' : 'none';
-          el.style.visibility = active ? 'visible' : 'hidden';
-          el.style.pointerEvents = active ? 'auto' : 'none';
+          el.style.opacity = index === 0 ? '1' : '0';
+          el.style.visibility = index === 0 ? 'visible' : 'hidden';
+          el.style.display = 'block';
         }
       });
 
-      ScrollTrigger.create({
-        trigger: '#robot-sections',
-        pin: true,
-        start: 'top top',
-        end: '+=400%',
-        scrub: 1,
-        onUpdate: (self) => {
-          const p = self.progress;
-          robotProgressRef.current = p;
+      context = gsap.context(() => {
+        ScrollTrigger.create({
+          trigger: '#robot-sections',
+          pin: true,
+          start: 'top top',
+          end: '+=400%',
+          scrub: 1,
+          onUpdate: (self) => {
+            const p = self.progress;
+            robotProgressRef.current = p;
+            const idx = Math.floor(p * 4);
+            sections.forEach((selector, i) => {
+              const el = document.querySelector<HTMLElement>(selector);
+              if (!el) return;
+              const active = i === Math.min(idx, 3);
+              el.style.opacity = active ? '1' : '0';
+              el.style.display = active ? 'block' : 'none';
+              el.style.visibility = active ? 'visible' : 'hidden';
+              el.style.pointerEvents = active ? 'auto' : 'none';
 
-          const idx = Math.floor(p * 4);
-          sections.forEach((selector, i) => {
-            const el = document.querySelector<HTMLElement>(selector);
-            if (!el) return;
-            const active = i === Math.min(idx, 3);
-            el.style.opacity = active ? '1' : '0';
-            el.style.display = active ? 'block' : 'none';
-            el.style.visibility = active ? 'visible' : 'hidden';
-            el.style.pointerEvents = active ? 'auto' : 'none';
+              // Toggle text-reveal active state
+              const reveals = el.querySelectorAll('.text-reveal');
+              reveals.forEach((r) => {
+                if (active) r.classList.add('active');
+                else r.classList.remove('active');
+              });
+            });
+          },
+        });
+
+        document.querySelectorAll<HTMLElement>('.t-event').forEach((el) => {
+          gsap.to(el, {
+            opacity: 1, y: 0, duration: 0.6, ease: 'power2.out',
+            scrollTrigger: { trigger: el, start: 'top 80%', toggleActions: 'play none none reverse' },
           });
-        },
-      });
-
-      document.querySelectorAll<HTMLElement>('.t-event').forEach((el) => {
-        gsap.to(el, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
-          },
         });
-      });
 
-      if (document.querySelector('.timeline-line') && document.querySelector('.timeline-track')) {
-        gsap.to('.timeline-line', {
-          height: '100%',
-          ease: 'none',
-          scrollTrigger: {
-            trigger: '.timeline-track',
-            start: 'top 60%',
-            end: 'bottom 40%',
-            scrub: true,
-          },
-        });
-      }
+        if (document.querySelector('.timeline-line') && document.querySelector('.timeline-track')) {
+          gsap.to('.timeline-line', {
+            height: '100%', ease: 'none',
+            scrollTrigger: { trigger: '.timeline-track', start: 'top 60%', end: 'bottom 40%', scrub: true },
+          });
+        }
 
-      ScrollTrigger.create({
-        trigger: '#theme-section',
-        pin: true,
-        start: 'top top',
-        end: '+=500%',
-        scrub: 0.5,
-        onUpdate: (self) => {
-          const p = self.progress;
-          themeProgressRef.current = p;
-
-          if (cards.length !== 3) return;
-
-          const updateCard = (card: HTMLElement, x: number, opacity: number, scale = 1) => {
-            card.style.top = '50%';
-            card.style.left = '50%';
-            card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
-            card.style.opacity = String(opacity);
-          };
-
-          if (p < 0.6) {
-            const perCard = 0.2;
-            cards.forEach((card, i) => {
-              const cardStart = i * perCard;
-              const cardP = clamp((p - cardStart) / perCard, 0, 1);
-              const x = lerp(-120, -5 * (cards.length - 1 - i), easeOut(cardP));
-              const opacity = clamp(cardP * 2, 0, 1);
-              const scale = lerp(1.1, 1 - i * 0.04, cardP);
-              updateCard(card, x, opacity, scale);
-            });
-          } else if (p < 0.85) {
-            const assembleP = clamp((p - 0.6) / 0.25, 0, 1);
-            const gridPositions = [-35, 0, 35];
-            cards.forEach((card, i) => {
-              const fromX = -5 * (cards.length - 1 - i);
-              const toX = gridPositions[i];
-              const x = lerp(fromX, toX, easeInOut(assembleP));
-              updateCard(card, x, 1, 1);
-            });
-          } else {
-            const exitP = clamp((p - 0.85) / 0.15, 0, 1);
-            cards.forEach((card, i) => {
-              const gridX = i === 0 ? -35 : i === 1 ? 0 : 35;
-              const x = gridX + lerp(0, 150, easeIn(exitP));
-              updateCard(card, x, 1 - exitP);
-            });
-            if (footer) {
-              footer.style.opacity = String(exitP);
-              footer.style.transform = `translateY(${lerp(50, 0, exitP)}px)`;
+        ScrollTrigger.create({
+          trigger: '#theme-section',
+          pin: true,
+          start: 'top top',
+          end: '+=500%',
+          scrub: 0.5,
+          onUpdate: (self) => {
+            const p = self.progress;
+            themeProgressRef.current = p;
+            if (cards.length !== 3) return;
+            const updateCard = (card: HTMLElement, x: number, opacity: number, scale = 1) => {
+              card.style.top = '50%';
+              card.style.left = '50%';
+              card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
+              card.style.opacity = String(opacity);
+            };
+            if (p < 0.6) {
+              const perCard = 0.2;
+              cards.forEach((card, i) => {
+                const cardStart = i * perCard;
+                const cardP = clamp((p - cardStart) / perCard, 0, 1);
+                const x = lerp(-120, -5 * (cards.length - 1 - i), easeOut(cardP));
+                const opacity = clamp(cardP * 2, 0, 1);
+                const scale = lerp(1.1, 1 - i * 0.04, cardP);
+                updateCard(card, x, opacity, scale);
+              });
+            } else if (p < 0.85) {
+              const assembleP = clamp((p - 0.6) / 0.25, 0, 1);
+              const gridPositions = [-35, 0, 35];
+              cards.forEach((card, i) => {
+                const fromX = -5 * (cards.length - 1 - i);
+                const toX = gridPositions[i];
+                const x = lerp(fromX, toX, easeInOut(assembleP));
+                updateCard(card, x, 1, 1);
+              });
+            } else {
+              const exitP = clamp((p - 0.85) / 0.15, 0, 1);
+              cards.forEach((card, i) => {
+                const gridX = i === 0 ? -35 : i === 1 ? 0 : 35;
+                const x = gridX + lerp(0, 150, easeIn(exitP));
+                updateCard(card, x, 1 - exitP);
+              });
+              if (footer) {
+                footer.style.opacity = String(exitP);
+                footer.style.transform = `translateY(${lerp(50, 0, exitP)}px)`;
+              }
             }
-          }
-        },
+          },
+        });
       });
-    });
-
-    ScrollTrigger.refresh();
+      ScrollTrigger.refresh();
+    }, 100);
 
     return () => {
+      clearTimeout(setupTimeout);
       cancelAnimationFrame(rafId);
       lenis?.destroy();
       context?.revert();

@@ -37,23 +37,23 @@ export const HeroOverlay = () => {
         </div>
 
         <div id="s2-about" className="section-overlay">
-          <div className="overlay-content panel-block">
-            <div className="timeline-label">// 002 - ABOUT</div>
-            <h2 className="section-heading">ABOUT CORE</h2>
-            <p className="body-text-safe">
-              Section two rotates to profile view and reveals operational metrics, thermal balancing, and adaptive response telemetry.
+          <div className="overlay-content panel-block align-right">
+            <div className="timeline-label text-reveal">// 002 - ABOUT</div>
+            <h2 className="section-heading text-reveal">ABOUT CORE</h2>
+            <p className="body-text-safe text-reveal">
+              Synthetic profiles transition to profile view, revealing operational metrics and green-spectrum response telemetry.
             </p>
           </div>
         </div>
 
         <div id="s3-features" className="section-overlay">
-          <div className="overlay-content panel-block">
-            <div className="timeline-label">// 003 - FEATURES</div>
-            <h2 className="section-heading">BACK SYSTEMS</h2>
+          <div className="overlay-content panel-block align-left">
+            <div className="timeline-label text-reveal">// 003 - FEATURES</div>
+            <h2 className="section-heading text-reveal">BACK SYSTEMS</h2>
             <div className="feature-grid">
-              <article className="feature-card"><h3>SPINE REACTOR</h3><p>Back panel energy system spikes during 180-degree lock.</p></article>
-              <article className="feature-card"><h3>FUSED ALLOY</h3><p>Low-roughness armor maintains high-contrast rim highlights.</p></article>
-              <article className="feature-card"><h3>TEMPLE ARRAY</h3><p>Profile-side amber seam detail appears in section transitions.</p></article>
+              <article className="feature-card text-reveal"><h3>SPINE REACTOR</h3><p>Back panel energy system spikes during 180-degree lock.</p></article>
+              <article className="feature-card text-reveal"><h3>FUSED ALLOY</h3><p>Low-roughness armor maintains high-contrast rim highlights.</p></article>
+              <article className="feature-card text-reveal"><h3>TEMPLE ARRAY</h3><p>Profile-side amber seam detail appears in section transitions.</p></article>
             </div>
           </div>
         </div>

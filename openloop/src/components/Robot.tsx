@@ -1,8 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF, useAnimations, Environment } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
-import { lerp } from '../utils/math';
 
 interface RobotProps {
   scrollVal: number;
@@ -20,78 +19,107 @@ export const Robot: React.FC<RobotProps> = ({
   phase,
 }) => {
   const groupRef = useRef<THREE.Group>(null);
+  const headLightRef = useRef<THREE.PointLight>(null);
   
-  // Using a high-quality cinematic model (DamagedHelmet looks very "Cyber-Robotic")
-  // Using a CDN hosted GLB for robustness if local is missing
-  const { scene, nodes, materials } = useGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb') as any;
+  const { scene, materials } = useGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb') as any;
 
-  // Refine materials for cinematic look
+  // Refs for smooth lerp state
+  const stateRef = useRef({
+    posX: 0,
+    rotY: 0,
+    scale: 1.8,
+    opacity: 1,
+    greenIntensity: 0,
+  });
+
   useMemo(() => {
     if (materials['Material_MR']) {
       materials['Material_MR'].metalness = 1.0;
       materials['Material_MR'].roughness = 0.15;
-      materials['Material_MR'].emissive = new THREE.Color('#00ccff');
-      materials['Material_MR'].emissiveIntensity = 0.2;
+      materials['Material_MR'].emissive = new THREE.Color('#00ffbb'); // Green base
+      materials['Material_MR'].emissiveIntensity = 0;
     }
   }, [materials]);
 
   useFrame((state) => {
     if (!groupRef.current || phase !== 'main') return;
 
-    // Normalized scroll progress (0 to 1)
-    const mainScroll = robotProgressRef.current;
+    const p = robotProgressRef.current;
+    
+    // Target state determination
+    let targetX = 0;
+    let targetRotY = 0;
+    let targetScale = 1.8;
+    let targetProgress = 1;
+    let targetGreen = 0;
 
-    // Visibility control
-    const disappearThreshold = 0.85; // Disappear before themes
-    if (mainScroll >= disappearThreshold) {
-      groupRef.current.visible = false;
-      return;
+    if (p < 0.2) {
+      // 0. Hero Phase
+      targetX = 0;
+      targetRotY = 0;
+      targetGreen = 0.5;
+    } else if (p < 0.45) {
+      // 1. Section 1 (About) - Profile Left, Robot Left
+      targetX = -1.8;
+      targetRotY = Math.PI / 2;
+      targetGreen = 4;
+    } else if (p < 0.7) {
+      // 2. Section 2 (Features) - Profile Right, Robot Right
+      targetX = 1.8;
+      targetRotY = -Math.PI / 2;
+      targetGreen = 2.5;
+    } else {
+      // 3. Exit Phase (Before Timeline)
+      const exitP = Math.min(1, (p - 0.7) * 5);
+      targetX = 1.8 + exitP * 10;
+      targetRotY = -Math.PI / 1.5;
+      targetProgress = 1 - exitP;
+      targetScale = 1.8 * (1 - exitP * 0.5);
+      targetGreen = 2 * (1 - exitP);
     }
-    groupRef.current.visible = true;
 
-    // --- ESYA STYLE SCROLL SYSTEM ---
+    // Strict Lerp Implementation (0.08 factor)
+    stateRef.current.posX += (targetX - stateRef.current.posX) * 0.08;
+    stateRef.current.rotY += (targetRotY - stateRef.current.rotY) * 0.08;
+    stateRef.current.scale += (targetScale - stateRef.current.scale) * 0.08;
+    stateRef.current.opacity += (targetProgress - stateRef.current.opacity) * 0.08;
+    stateRef.current.greenIntensity += (targetGreen - stateRef.current.greenIntensity) * 0.08;
+
+    groupRef.current.position.x = stateRef.current.posX;
+    groupRef.current.rotation.y = stateRef.current.rotY + mouseX * 0.1;
+    groupRef.current.scale.setScalar(stateRef.current.scale);
+    groupRef.current.visible = stateRef.current.opacity > 0.01;
+
+    // Pulse effect
+    const pulse = Math.sin(state.clock.elapsedTime * 2) * 0.2 + 0.8;
     
-    // 1. Proportional Rotation (Hero -> Section 2 -> Section 3 -> Timeline)
-    // hero (0) -> s2 (0.25) -> s3 (0.5) -> timeline (0.75)
-    // Let's rotate 270 degrees total (PI * 1.5)
-    const targetRotationY = mainScroll * (Math.PI * 1.5);
-    
-    // Smooth Lerp for Jerk-free movement
-    // Added Math.PI offset to face the camera initially
-    const baseRotationY = Math.PI;
-    groupRef.current.rotation.y = lerp(groupRef.current.rotation.y, baseRotationY + targetRotationY + mouseX * 0.1, 0.08);
-
-    // 2. Slight X tilt based on scroll transition
-    const tiltX = Math.sin(mainScroll * Math.PI) * 0.15;
-    groupRef.current.rotation.x = lerp(groupRef.current.rotation.x, tiltX, 0.05);
-
-    // --- Color Changing (Emissive) ---
     if (materials['Material_MR']) {
-      const color1 = new THREE.Color('#00ccff'); // Cyan
-      const color2 = new THREE.Color('#ff0066'); // Pink/Red
-      const lerpedColor = color1.clone().lerp(color2, mainScroll);
-      materials['Material_MR'].emissive.copy(lerpedColor);
-      materials['Material_MR'].emissiveIntensity = lerp(0.5, 2.5, Math.sin(mainScroll * Math.PI));
+      materials['Material_MR'].emissiveIntensity = stateRef.current.greenIntensity * pulse;
+      materials['Material_MR'].opacity = stateRef.current.opacity;
+      materials['Material_MR'].transparent = true;
     }
 
-    // 3. Backward movement (z-axis) as we exit
-    const exitP = Math.max(0, (mainScroll - 0.7) * 6.6); // 0.7 to 0.85
-    groupRef.current.position.z = lerp(0, -5, exitP);
-    
-    // 4. Opacity/Scale fade
-    const scaleFade = lerp(1.5, 0.8, exitP);
-    groupRef.current.scale.setScalar(scaleFade);
+    if (headLightRef.current) {
+      headLightRef.current.intensity = stateRef.current.greenIntensity * 2 * pulse;
+      // Position light to emit toward the content side
+      headLightRef.current.position.x = p < 0.45 ? 1 : -1;
+    }
 
-    // 5. Gentle floating animation
-    const float = Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
-    groupRef.current.position.y = float;
+    // Gentle float
+    groupRef.current.position.y = -0.6 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
   });
 
   return (
-    <group ref={groupRef} scale={[1.5, 1.5, 1.5]}>
-      <primitive object={scene} rotation={[Math.PI / 2, 0, 0]} />
-      {/* Add extra eye glow or light points if needed */}
-      <pointLight color="#00ffff" intensity={2} distance={2} position={[0, 0, 0.5]} />
+    <group ref={groupRef} scale={[1.8, 1.8, 1.8]} position={[0, -0.6, 0]}>
+      <primitive object={scene} rotation={[0, 0, 0]} />
+      {/* Dynamic Emissive Source */}
+      <pointLight 
+        ref={headLightRef} 
+        color="#00ffbb" 
+        intensity={0} 
+        distance={5} 
+        position={[0, 0, 1]} 
+      />
     </group>
   );
 };
