@@ -280,9 +280,6 @@ export default function DesktopLayout() {
           },
         });
       });
-          },
-        });
-      });
       ScrollTrigger.refresh();
     }, 100);
 
