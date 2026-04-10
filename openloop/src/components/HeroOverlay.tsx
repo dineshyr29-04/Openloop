@@ -1,6 +1,4 @@
 import React from 'react';
-import { Typewriter } from './common/Typewriter';
-import { lerp, clamp } from '../utils/math';
 
 interface HeroOverlayProps {
   scrollProgress: number;
@@ -12,17 +10,13 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   // Active state helpers
   const isHeroActive = p >= 0.00 && p < 0.15;
   const isAboutActive = p >= 0.15 && p < 0.30;
-  const isThemesActive = p >= 0.30 && p < 0.55;
-  const isTimelineActive = p >= 0.55 && p < 0.75;
-  const isSponsorsActive = p >= 0.75 && p < 0.80;
-  const isContactActive = p >= 0.80 && p < 0.94;
+  const isContactActive = p >= 0.90 && p < 0.97;
 
   return (
     <>
       <nav>
         <div className="nav-brand hud-label">
-          <span style={{ color: '#fff' }}>OPEN</span>
-          <span style={{ color: '#C6FF00' }}>LOOP</span>
+          <span style={{ backgroundImage: "linear-gradient(to bottom, #C6FF00, #FFFFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>OPEN LOOP</span>
         </div>
         <div className="nav-links">
           <a href="#s1-hero">Core</a>
@@ -52,27 +46,14 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               <div className="body-text-safe">
                 {isHeroActive && (
                   <div className="reveal-text-fast">
-                    Cinematic autonomous intelligence rendered in real time. Scroll to transition through systems, themes, and final state.
+                    Enter. Build. Evolve.
                   </div>
                 )}
               </div>
               <button className="cta-button" type="button">Enter Loop</button>
             </div>
 
-            <aside className="hero-bottom-right secondary-card">
-              <span className="card-tag">National Level Hackathon</span>
-              <div className="card-image">
-                <span className="hud-label">Hackathon</span>
-              </div>
-              <h3>OPENLOOP</h3>
-              <div className="body-text-safe">
-                {isHeroActive && (
-                  <div className="reveal-text-fast">
-                    A National Level Hackathon organized by the Computer Science and Engineering Association (CSEA) of NIT Trichy.
-                  </div>
-                )}
-              </div>
-            </aside>
+            
           </section>
         </div>
 

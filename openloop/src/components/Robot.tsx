@@ -5,7 +5,6 @@ import * as THREE from 'three';
 import { lerp, clamp } from '../utils/math';
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-const easeIn = (t: number) => t * t * t;
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 interface RobotProps {
@@ -111,19 +110,12 @@ export const Robot: React.FC<RobotProps> = ({
       targetScale = 1.7;
       targetGreen = 0;
     }
-    // SPONSORS RE-ENTRY (0.55 -> 0.80): Slide from Left
-    else if (p < 0.80) {
-      const sp = clamp((p - 0.55) / 0.15, 0, 1);
-      targetOpacity = sp;
-      targetX = lerp(-3, -3.5, easeOut(sp)); // Slide from left side
-      targetY = 0;
-      targetZ = 0;
-      targetRotY = Math.PI / 2;
-      targetScale = 1.7;
-      targetGreen = 2;
+    // TIMELINE & SPONSORS (0.55 -> 0.90): Hidden for Focus
+    else if (p < 0.90) {
+      targetOpacity = 0;
     }
-    // CONTACT (0.80 -> 0.94): Stable Left
-    else if (p < 0.94) {
+    // CONTACT (0.90 -> 0.97): Stable Left
+    else if (p < 0.97) {
       targetOpacity = 1;
       targetX = -3.5;
       targetRotY = Math.PI / 2;
@@ -131,9 +123,9 @@ export const Robot: React.FC<RobotProps> = ({
       targetScale = 1.7;
       targetGreen = 2;
     }
-    // FOOTER (0.94 -> 1.00): Exit & Push Back (HIDDEN)
+    // FOOTER (0.97 -> 1.00): Exit & Push Back (HIDDEN)
     else {
-      const fp = clamp((p - 0.94) / 0.06, 0, 1);
+      const fp = clamp((p - 0.97) / 0.03, 0, 1);
       targetOpacity = 1 - fp;
       targetZ = lerp(0, -10, fp);
       targetX = -3.5;

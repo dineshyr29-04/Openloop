@@ -1,6 +1,6 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, Html, Float } from '@react-three/drei';
+import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { lerp, clamp } from '../utils/math';
 
@@ -12,13 +12,13 @@ interface TimelineEvent {
 }
 
 const TIMELINE_DATA: TimelineEvent[] = [
-  { title: 'Registration Opens', date: 'TBA', desc: 'Secure your spot and start forming your team.', range: [0.55, 0.578] },
-  { title: 'Kickoff & Opening', date: 'TBA', desc: 'Get briefed, meet participants, and dive into the challenge.', range: [0.578, 0.606] },
-  { title: 'Hacking Begins', date: 'TBA', desc: 'The clock starts. Build, break, and iterate.', range: [0.606, 0.634] },
-  { title: 'Mentorship & Checkpoints', date: 'TBA', desc: 'Refine your idea with expert feedback and stay on track.', range: [0.634, 0.662] },
-  { title: 'Project Submission', date: 'TBA', desc: 'Submit your final build and prepare to showcase.', range: [0.662, 0.69] },
-  { title: 'Final Presentations', date: 'TBA', desc: 'Pitch your project to judges and the community.', range: [0.69, 0.718] },
-  { title: 'Winners Announced', date: 'TBA', desc: 'Celebrating the best builds, bold ideas, and standout teams.', range: [0.718, 0.75] },
+  { title: 'Registration Opens', date: 'TBA', desc: 'Secure your spot and start forming your team.', range: [0.550, 0.574] },
+  { title: 'Kickoff & Opening', date: 'TBA', desc: 'Get briefed, meet participants, and dive into the challenge.', range: [0.574, 0.598] },
+  { title: 'Hacking Begins', date: 'TBA', desc: 'The clock starts. Build, break, and iterate.', range: [0.598, 0.622] },
+  { title: 'Mentorship & Checkpoints', date: 'TBA', desc: 'Refine your idea with expert feedback and stay on track.', range: [0.622, 0.646] },
+  { title: 'Project Submission', date: 'TBA', desc: 'Submit your final build and prepare to showcase.', range: [0.646, 0.670] },
+  { title: 'Final Presentations', date: 'TBA', desc: 'Pitch your project to judges and the community.', range: [0.670, 0.694] },
+  { title: 'Winners Announced', date: 'TBA', desc: 'Celebrating the best builds, bold ideas, and standout teams.', range: [0.694, 0.720] },
 ];
 
 export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
@@ -27,7 +27,6 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
   if (p < 0.50 || p >= 0.80) return null;
 
   const groupRef = useRef<THREE.Group>(null);
-  const lineRef = useRef<THREE.Mesh>(null);
   const pulseRef = useRef<THREE.Mesh>(null);
 
   // We'll spread nodes along the X axis - Tightened for multiple visibility
@@ -39,17 +38,16 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
     if (!groupRef.current) return;
 
     const p = scrollProgress;
-    // Finish movement by 0.75 for massive buffer before 0.75 Sponsors start
-    const timelineP = clamp((p - 0.55) / 0.20, 0, 1);
     
-    // 1. Move the timeline group horizontally based on scroll
-    // So the active node stays roughly centered, with better clamping at ends
+    // 1. Core Timeline Movement (0.55 -> 0.72)
+    // We clamp the driver so it stops at 0.72
+    const timelineP = clamp((p - 0.55) / 0.17, 0, 1);
+    
+    // Move horizontally centered around nodes
     const targetXOffset = -startX - (timelineP * totalWidth);
-    
-    // Add safety "padding" to the offset to prevent last card clip
     groupRef.current.position.x = lerp(groupRef.current.position.x, targetXOffset, 0.1);
 
-    // 2. Animate the traveling light pulse
+    // 2. Traveling Light Pulse
     if (pulseRef.current) {
       const pulseX = startX + (timelineP * (TIMELINE_DATA.length - 1) * spacing);
       pulseRef.current.position.x = pulseX;
@@ -60,17 +58,33 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
       material.emissiveIntensity = 2 + Math.sin(state.clock.elapsedTime * 10) * 1;
     }
 
-    // 3. Overall visibility - Ensure it fades out COMPLETELY by 0.80
+    // 3. Cinematic Exit Transition (0.65 -> 0.72)
     let opacity = 0;
-    if (p >= 0.50 && p < 0.80) {
-      if (p < 0.55) opacity = (p - 0.50) / 0.05;
-      else if (p > 0.75) opacity = (0.80 - p) / 0.05; 
-      else opacity = 1;
+    let offsetY = 0.5; // Default y baseline
+
+    if (p >= 0.50 && p < 0.75) {
+      // Entry Fade (0.50 -> 0.55)
+      if (p < 0.55) {
+        opacity = (p - 0.50) / 0.05;
+      } 
+      // Main Body (0.55 -> 0.65)
+      else if (p < 0.65) {
+        opacity = 1;
+      }
+      // Cinematic Exit (0.65 -> 0.72)
+      else if (p < 0.72) {
+        const exitP = (p - 0.65) / 0.07;
+        opacity = 1 - exitP;
+        offsetY = 0.5 + (exitP * 0.5); // Rise upwards
+      }
+      // Dead Zone / Buffer (0.72 -> 0.75)
+      else {
+        opacity = 0;
+      }
     }
-    
-    // Explicit safety toggle
-    const isActuallyVisible = p >= 0.50 && p < 0.80;
-    groupRef.current.visible = isActuallyVisible && opacity > 0;
+
+    groupRef.current.position.y = lerp(groupRef.current.position.y, offsetY, 0.1);
+    groupRef.current.visible = p >= 0.50 && p < 0.72 && opacity > 0;
   });
 
   return (

@@ -50,7 +50,7 @@ export const MobileThemesSection: React.FC = () => {
       );
 
       // Cards animation
-      cardRefs.current.forEach((card, i) => {
+      cardRefs.current.forEach((card) => {
         if (!card) return;
         
         gsap.fromTo(card,

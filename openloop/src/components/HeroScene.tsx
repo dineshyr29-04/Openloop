@@ -1,4 +1,4 @@
-import { Environment, Text, Float } from '@react-three/drei';
+import { Environment } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Robot } from './Robot';
 import { Background } from './Background';

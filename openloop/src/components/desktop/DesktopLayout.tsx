@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrollProgress } from '../../hooks/useScrollProgress';
@@ -17,8 +17,7 @@ import Lenis from 'lenis';
 
 import '../../App.css';
 
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
 
 
 
@@ -55,7 +54,6 @@ export default function DesktopLayout() {
     const sections = ['#s1-hero', '#s2-about', '#theme-section', '#s4-timeline', '#sponsors-section', '#contact-section', '#footer-section'];
 
     const setupTimeout = setTimeout(() => {
-      const footer = document.querySelector<HTMLElement>('#footer-section');
 
       lenis = new Lenis({
         duration: 1.2,
@@ -70,7 +68,7 @@ export default function DesktopLayout() {
 
       lenis.on('scroll', ScrollTrigger.update);
 
-      sections.forEach((selector, index) => {
+      sections.forEach((selector) => {
         const el = document.querySelector<HTMLElement>(selector);
         if (el) {
           // All sections start hidden; GSAP onUpdate will handle them
@@ -98,10 +96,10 @@ export default function DesktopLayout() {
               { name: 'HERO', start: 0.00, end: 0.15, id: '#s1-hero' },
               { name: 'ABOUT', start: 0.15, end: 0.30, id: '#s2-about' },
               { name: 'THEMES', start: 0.30, end: 0.55, id: '#theme-section' },
-              { name: 'TIMELINE', start: 0.55, end: 0.75, id: '#s4-timeline' },
-              { name: 'SPONSORS', start: 0.75, end: 0.80, id: '#sponsors-section' },
-              { name: 'CONTACT', start: 0.80, end: 0.94, id: '#contact-section' },
-              { name: 'FOOTER', start: 0.94, end: 1.00, id: '#footer-section' },
+              { name: 'TIMELINE', start: 0.55, end: 0.72, id: '#s4-timeline' },
+              { name: 'SPONSORS', start: 0.75, end: 0.90, id: '#sponsors-section' },
+              { name: 'CONTACT', start: 0.90, end: 0.97, id: '#contact-section' },
+              { name: 'FOOTER', start: 0.97, end: 1.00, id: '#footer-section' },
             ];
 
             // No manual cutoff - handled by Robot component internally
