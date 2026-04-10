@@ -2,7 +2,7 @@ import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-export const Background: React.FC = () => {
+export const Background: React.FC<{ scrollVal: number }> = ({ scrollVal }) => {
   const pointsRef = useRef<THREE.Points>(null);
   const gridRef = useRef<THREE.Group>(null);
   const streaksRef = useRef<THREE.Group>(null);
@@ -15,9 +15,9 @@ export const Background: React.FC = () => {
     const cols = new Float32Array(particlesCount * 3);
     
     const palette = [
-      new THREE.Color('#00ccff'), // Cyan
-      new THREE.Color('#0066ff'), // Blue
-      new THREE.Color('#00ffbb'), // Slight Green
+      new THREE.Color('#C6FF00'), // Neon Green
+      new THREE.Color('#AFFF00'), // Neon Yellow-Green
+      new THREE.Color('#8ab800'), // Darker Neon
     ];
 
     for (let i = 0; i < particlesCount; i++) {
@@ -48,33 +48,33 @@ export const Background: React.FC = () => {
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
+    const s = scrollVal; // Depth layers shift based on s
 
-    // 1. Particle Motion & Glitter
+    // 1. Particle Motion & Glitter (Slightly slower parallax)
     if (pointsRef.current) {
-      pointsRef.current.rotation.y = t * 0.003;
-      pointsRef.current.rotation.x = Math.sin(t * 0.1) * 0.05;
+      pointsRef.current.rotation.y = t * 0.003 + s * 0.05;
+      pointsRef.current.position.y = s * 2.0; // Slower background float
       
       const mat = pointsRef.current.material as THREE.PointsMaterial;
-      // Global subtle breathe
-      mat.opacity = 0.25 + Math.sin(t * 0.4) * 0.05;
+      mat.opacity = 0.2 + Math.sin(t * 0.4) * 0.05;
     }
 
-    // 2. Grid Movement (Forward crawl)
+    // 2. Grid Movement (Mid-speed parallax)
     if (gridRef.current) {
-      gridRef.current.position.z = (t * 0.4) % 4; // Faster crawl
-      gridRef.current.position.y = -6.5;
+      gridRef.current.position.z = ((t * 0.4) % 4);
+      gridRef.current.position.y = -6.5 + s * 4.0; 
     }
 
-    // 3. Streaks Movement (Diagonal data flow)
+    // 3. Streaks Movement (Faster parallax)
     if (streaksRef.current) {
+      streaksRef.current.position.y = s * 6.0;
       streaksRef.current.children.forEach((streak, i) => {
         const data = streaks[i];
         streak.position.y -= data.speed * 1.5;
         streak.position.x += data.speed * 0.8;
         
-        // Flicker streaks
         const streakMat = (streak as THREE.Mesh).material as THREE.MeshBasicMaterial;
-        streakMat.opacity = 0.1 + Math.random() * 0.15;
+        streakMat.opacity = 0.1 + Math.random() * 0.1;
 
         if (streak.position.y < -25) {
           streak.position.y = 25;
@@ -86,7 +86,7 @@ export const Background: React.FC = () => {
 
   return (
     <group>
-      <fog attach="fog" args={['#020205', 5, 35]} />
+      <fog attach="fog" args={['#000000', 5, 35]} />
       
       {/* 1. Particle System */}
       <points ref={pointsRef}>
@@ -114,16 +114,16 @@ export const Background: React.FC = () => {
       {/* 2. Moving Digital Grid */}
       <group ref={gridRef}>
         <gridHelper 
-          args={[120, 40, '#00ccff', '#001122']} 
+          args={[120, 40, '#C6FF00', '#0a1a00']} 
           rotation={[0, 0, 0]} 
           position={[0, -6, 0]} 
         />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -6.01, 0]}>
           <planeGeometry args={[120, 120]} />
           <meshBasicMaterial 
-            color="#001122" 
+            color="#000000" 
             transparent 
-            opacity={0.04} 
+            opacity={0.06} 
             depthWrite={false}
           />
         </mesh>
@@ -135,7 +135,7 @@ export const Background: React.FC = () => {
           <mesh key={i} position={s.position} rotation={[0, 0, Math.PI / 4]}>
             <planeGeometry args={[0.02, s.length]} />
             <meshBasicMaterial 
-              color="#00f0ff" 
+              color="#C6FF00" 
               transparent 
               opacity={0.15} 
               blending={THREE.AdditiveBlending}

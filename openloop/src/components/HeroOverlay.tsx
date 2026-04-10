@@ -1,10 +1,45 @@
+import React from 'react';
 import { Typewriter } from './common/Typewriter';
+import { lerp, clamp } from '../utils/math';
 
-export const HeroOverlay = () => {
+interface HeroOverlayProps {
+  scrollProgress: number;
+}
+
+export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
+  const p = scrollProgress;
+  
+  // High-precision visibility ranges
+  let opacity = 0;
+  let scale = 0.95;
+  let translateY = 0;
+
+  if (p <= 0.1) {
+    // Fade IN: 0 -> 0.1
+    const t = clamp(p / 0.1, 0, 1);
+    opacity = t;
+    scale = lerp(0.95, 1.0, t);
+  } else if (p <= 0.18) {
+    // FULL: 0.1 -> 0.18
+    opacity = 1;
+    scale = 1.0;
+  } else if (p <= 0.25) {
+    // Fade OUT: 0.18 -> 0.25
+    const t = clamp((p - 0.18) / 0.07, 0, 1);
+    opacity = 1 - t;
+    scale = 1.0;
+    translateY = t * -40; // Slight upward movement
+  }
+
+  const isVisible = opacity > 0;
+
   return (
     <>
       <nav>
-        <div className="nav-brand hud-label">OPENLOOP</div>
+        <div className="nav-brand hud-label">
+          <span style={{ color: '#fff' }}>OPEN</span>
+          <span style={{ color: '#C6FF00' }}>LOOP</span>
+        </div>
         <div className="nav-links">
           <a href="#robot-sections">Core</a>
           <a href="#s4-timeline">Timeline</a>
@@ -16,9 +51,24 @@ export const HeroOverlay = () => {
       <section id="robot-sections">
         <div id="s1-hero" className="section-overlay">
           <section id="hero">
-            <div className="hero-split-container">
-              <h1 className="hero-split left">OPEN</h1>
-              <h1 className="hero-split right">LOOP</h1>
+            <div 
+              className="hero-centered-container"
+              style={{ 
+                opacity: opacity,
+                transform: `translate(-50%, calc(-50% + ${translateY}px)) scale(${scale})`,
+                visibility: isVisible ? 'visible' : 'hidden',
+                pointerEvents: opacity > 0.5 ? 'auto' : 'none'
+              }}
+            >
+              <h1 className="hero-main-title">
+                <span className="title-word" style={{ color: '#ffffff' }}>OPEN</span>
+                <span className="title-spacer" />
+                <span className="title-word" style={{ 
+                  color: '#C6FF00',
+                  textShadow: '0 0 20px rgba(198, 255, 0, 0.4)'
+                }}>LOOP</span>
+              </h1>
+              <div className="hero-sub-title">2026</div>
             </div>
 
             <div className="hero-bottom-left">
@@ -29,13 +79,13 @@ export const HeroOverlay = () => {
             </div>
 
             <aside className="hero-bottom-right secondary-card">
-              <span className="card-tag">UNIT PROFILE</span>
+              <span className="card-tag">National Level Hackathon</span>
               <div className="card-image">
-                <span className="hud-label">NOVA-7</span>
+                <span className="hud-label">Hackathon</span>
               </div>
-              <h3>NOVA-7</h3>
+              <h3>OPENLOOP</h3>
               <p>
-                <Typewriter text="Secondary synthetic entity synchronized with OPENLOOP phase telemetry and motion diagnostics." />
+                <Typewriter text="  A National Level Hackathon organized by the Computer Science and Engineering Association (CSEA) of NIT Trichy, where teams from across the country come together to innovate and compete." />
               </p>
             </aside>
           </section>
@@ -79,38 +129,35 @@ export const HeroOverlay = () => {
             <div className="timeline-track">
               <div className="timeline-line" />
               <div className="timeline-events">
-                <div className="t-event t-left">
-                  <div className="t-dot" />
-                  <div className="t-card">
-                    <span className="t-date">2023</span>
-                    <h3>Core Prototype</h3>
-                    <p>Initial face rig and lighting studies established the visual baseline.</p>
-                  </div>
-                </div>
-                <div className="t-event t-right">
-                  <div className="t-dot" />
-                  <div className="t-card">
-                    <span className="t-date">2024</span>
-                    <h3>Reactive Scroll Engine</h3>
-                    <p>Deterministic progress mapping introduced section-coupled motion control.</p>
-                  </div>
-                </div>
-                <div className="t-event t-left">
-                  <div className="t-dot" />
-                  <div className="t-card">
-                    <span className="t-date">2025</span>
-                    <h3>Rim-Lit Identity</h3>
-                    <p>High contrast silhouette and cinematic halos defined the final direction.</p>
-                  </div>
-                </div>
-                <div className="t-event t-right">
-                  <div className="t-dot" />
-                  <div className="t-card">
-                    <span className="t-date">2026</span>
-                    <h3>OPENLOOP Launch</h3>
-                    <p>Unified timeline, theme sequence, and footer handoff in one continuous flow.</p>
-                  </div>
-                </div>
+                {[
+                  { date: '2023', title: 'Core Prototype', desc: 'Initial face rig and lighting studies established the visual baseline.', type: 't-left', range: [0.65, 0.72] },
+                  { date: '2024', title: 'Reactive Scroll Engine', desc: 'Deterministic progress mapping introduced section-coupled motion control.', type: 't-right', range: [0.72, 0.79] },
+                  { date: '2025', title: 'Rim-Lit Identity', desc: 'High contrast silhouette and cinematic halos defined the final direction.', type: 't-left', range: [0.79, 0.86] },
+                  { date: '2026', title: 'OPENLOOP Launch', desc: 'Unified timeline, theme sequence, and footer handoff in one continuous flow.', type: 't-right', range: [0.86, 0.93] },
+                ].map((event, i) => {
+                  const eventP = Math.min(Math.max((scrollProgress - event.range[0]) / (event.range[1] - event.range[0]), 0), 1);
+                  const isVisible = eventP > 0;
+                  
+                  return (
+                    <div 
+                      key={i} 
+                      className={`t-event ${event.type}`}
+                      style={{
+                        opacity: eventP,
+                        transform: `translateY(${lerp(30, 0, eventP)}px) translateZ(${lerp(-100, 0, eventP)}px) scale(${lerp(0.9, 1, eventP)})`,
+                        visibility: isVisible ? 'visible' : 'hidden',
+                        transition: 'none' // GSAP/Logic controlled
+                      }}
+                    >
+                      <div className="t-dot" style={{ boxShadow: `0 0 ${lerp(0, 20, eventP)}px #C6FF00` }} />
+                      <div className="t-card">
+                        <span className="t-date">{event.date}</span>
+                        <h3>{event.title}</h3>
+                        <p>{event.desc}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

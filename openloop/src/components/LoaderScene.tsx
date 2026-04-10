@@ -28,7 +28,7 @@ export const LoaderScene: React.FC<LoaderSceneProps> = ({ progress, phase }) => 
       color: '#000000',
       metalness: 0.5,
       roughness: 0.1,
-      emissive: '#00ccff',
+      emissive: '#C6FF00',
       emissiveIntensity: 0,
     }),
     text: new THREE.MeshStandardMaterial({
@@ -37,7 +37,7 @@ export const LoaderScene: React.FC<LoaderSceneProps> = ({ progress, phase }) => 
       emissiveIntensity: 0,
     }),
     portal: new THREE.MeshBasicMaterial({
-      color: '#00f0ff',
+      color: '#C6FF00',
       transparent: true,
       opacity: 0,
     }),
@@ -125,19 +125,32 @@ export const LoaderScene: React.FC<LoaderSceneProps> = ({ progress, phase }) => 
             </mesh>
             
             <group position={[0, 0, 0.03]}>
-              <Text
-                fontSize={0.22}
-                color="#ffffff"
-                anchorX="center"
-                anchorY="middle"
-                maxWidth={2}
-                textAlign="center"
-                font="https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/audiowide/Audiowide-Regular.ttf"
-                letterSpacing={0.15}
-              >
-                OPENLOOP
-                <meshStandardMaterial ref={textMaterialRef} {...materials.text} />
-              </Text>
+              <group>
+                <Text
+                  fontSize={0.22}
+                  color="#ffffff"
+                  anchorX="right"
+                  anchorY="middle"
+                  position={[0, 0, 0]}
+                  font="https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/audiowide/Audiowide-Regular.ttf"
+                  letterSpacing={0.15}
+                >
+                  OPEN
+                  <meshStandardMaterial ref={textMaterialRef} {...materials.text} />
+                </Text>
+                <Text
+                  fontSize={0.22}
+                  color="#C6FF00"
+                  anchorX="left"
+                  anchorY="middle"
+                  position={[0, 0, 0]}
+                  font="https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/audiowide/Audiowide-Regular.ttf"
+                  letterSpacing={0.15}
+                >
+                  LOOP
+                  <meshStandardMaterial depthWrite={false} transparent opacity={0.9} color="#C6FF00" emissive="#C6FF00" emissiveIntensity={2} />
+                </Text>
+              </group>
 
               {/* Loader HUD */}
               <group position={[0, -0.3, 0.01]}>
@@ -149,7 +162,7 @@ export const LoaderScene: React.FC<LoaderSceneProps> = ({ progress, phase }) => 
                   scale={[progress, 1, 1]}
                   position={[-(1 - progress) * 0.6, 0, 0.01]}
                 >
-                  <meshBasicMaterial color="#00f0ff" />
+                  <meshBasicMaterial color="#C6FF00" />
                 </mesh>
               </group>
               
@@ -164,7 +177,7 @@ export const LoaderScene: React.FC<LoaderSceneProps> = ({ progress, phase }) => 
       
       <ambientLight intensity={1.5} />
       <pointLight position={[5, 10, 5]} intensity={12} />
-      <pointLight position={[-5, 5, 5]} intensity={8} color="#00f0ff" />
+      <pointLight position={[-5, 5, 5]} intensity={8} color="#C6FF00" />
     </group>
   );
 };

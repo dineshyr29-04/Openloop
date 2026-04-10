@@ -108,13 +108,16 @@ export const MobileLoader: React.FC<MobileLoaderProps> = ({ onComplete }) => {
   return (
     <div ref={loaderRef} id="mobile-loader">
       <div ref={lineRef} className="loader-line" />
-      <div ref={textRef} className="loader-brand">OPENLOOP</div>
+      <div ref={textRef} className="loader-brand">
+        <span style={{ color: '#ffffff' }}>OPEN</span>
+        <span style={{ color: '#C6FF00' }}>LOOP</span>
+      </div>
       <div ref={subRef}  className="loader-sub">INITIALIZING SYSTEM</div>
       <div ref={barRef}  className="loader-bar-wrap">
         <div ref={fillRef} className="loader-bar-fill" />
       </div>
       <div ref={percentRef} className="loader-percent">0%</div>
-      <div ref={tagRef}  className="loader-tagline">ANTIGRAVITY 2025</div>
+      <div ref={tagRef}  className="loader-tagline">OPENLOOP 2026</div>
     </div>
   );
 };
