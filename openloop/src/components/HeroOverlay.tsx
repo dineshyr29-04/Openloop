@@ -49,12 +49,13 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
             </div>
 
             <div className="hero-bottom-left">
-              <p className="body-text-safe">
-                <Typewriter 
-                  active={isHeroActive} 
-                  text="Cinematic autonomous intelligence rendered in real time. Scroll to transition through systems, themes, and final state." 
-                />
-              </p>
+              <div className="body-text-safe">
+                {isHeroActive && (
+                  <div className="reveal-text-fast">
+                    Cinematic autonomous intelligence rendered in real time. Scroll to transition through systems, themes, and final state.
+                  </div>
+                )}
+              </div>
               <button className="cta-button" type="button">Enter Loop</button>
             </div>
 
@@ -64,12 +65,13 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
                 <span className="hud-label">Hackathon</span>
               </div>
               <h3>OPENLOOP</h3>
-              <p>
-                <Typewriter 
-                  active={isHeroActive} 
-                  text="A National Level Hackathon organized by the Computer Science and Engineering Association (CSEA) of NIT Trichy." 
-                />
-              </p>
+              <div className="body-text-safe">
+                {isHeroActive && (
+                  <div className="reveal-text-fast">
+                    A National Level Hackathon organized by the Computer Science and Engineering Association (CSEA) of NIT Trichy.
+                  </div>
+                )}
+              </div>
             </aside>
           </section>
         </div>
@@ -80,12 +82,13 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
             <div className="content-right">
               <div className="timeline-label">// 002 - ABOUT</div>
               <h2 className="section-heading">OpenLoop Hack</h2>
-              <p className="body-text-safe">
-                <Typewriter 
-                  active={isAboutActive}
-                  text="OpenLoop is a National Level Hackathon organized by the Yenepoya Technological Club in Yenenpoya School of Engineering and Technology. It is a 24-hour hackathon where teams of 2-4 can participate and showcase their technical skills." 
-                />
-              </p>
+              <div className="body-text-safe">
+                {isAboutActive && (
+                  <div className="reveal-text-fast">
+                    OpenLoop is a National Level Hackathon organized by the Yenepoya Technological Club in Yenenpoya School of Engineering and Technology. It is a 24-hour hackathon where teams of 2-4 can participate and showcase their technical skills.
+                  </div>
+                )}
+              </div>
               <div className="hud-label" style={{ marginTop: '2rem', color: '#C6FF00' }}>STATUS: PROFILE_LOCK_ACTIVE</div>
             </div>
           </div>
@@ -102,12 +105,13 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
             <div className="content-right">
               <div className="timeline-label">// 006 - CONTACT</div>
               <h2 className="section-heading">GET IN TOUCH</h2>
-              <p className="body-text-safe">
-                <Typewriter 
-                  active={isContactActive}
-                  text="System link established. Our team is ready to assist with high-fidelity integration queries and partnership details." 
-                />
-              </p>
+              <div className="body-text-safe">
+                {isContactActive && (
+                  <div className="reveal-text-fast">
+                    System link established. Our team is ready to assist with high-fidelity integration queries and partnership details.
+                  </div>
+                )}
+              </div>
               <div className="contact-details" style={{ marginTop: '3rem' }}>
                 <div className="hud-line" />
                 <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1rem' }}>CONTACT@OPENLOOP.IO</h3>

@@ -22,23 +22,31 @@ const TIMELINE_DATA: TimelineEvent[] = [
 ];
 
 export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
+  const p = scrollProgress;
+  // Deterministic Kill-Switch: If not in range, don't even render.
+  if (p < 0.50 || p >= 0.745) return null;
+
   const groupRef = useRef<THREE.Group>(null);
   const lineRef = useRef<THREE.Mesh>(null);
   const pulseRef = useRef<THREE.Mesh>(null);
 
-  // We'll spread nodes along the X axis
-  const spacing = 4;
+  // We'll spread nodes along the X axis - Tightened for multiple visibility
+  const spacing = 2.2;
   const startX = -((TIMELINE_DATA.length - 1) * spacing) / 2;
+  const totalWidth = (TIMELINE_DATA.length - 1) * spacing;
 
   useFrame((state) => {
     if (!groupRef.current) return;
 
     const p = scrollProgress;
-    const timelineP = clamp((p - 0.55) / 0.20, 0, 1);
+    // Finish movement by 0.70 for massive buffer before 0.75 Sponsors start
+    const timelineP = clamp((p - 0.55) / 0.15, 0, 1);
     
     // 1. Move the timeline group horizontally based on scroll
-    // So the active node stays roughly centered
-    const targetXOffset = -startX - (timelineP * (TIMELINE_DATA.length - 1) * spacing);
+    // So the active node stays roughly centered, with better clamping at ends
+    const targetXOffset = -startX - (timelineP * totalWidth);
+    
+    // Add safety "padding" to the offset to prevent last card clip
     groupRef.current.position.x = lerp(groupRef.current.position.x, targetXOffset, 0.1);
 
     // 2. Animate the traveling light pulse
@@ -52,18 +60,21 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
       material.emissiveIntensity = 2 + Math.sin(state.clock.elapsedTime * 10) * 1;
     }
 
-    // 3. Overall visibility
+    // 3. Overall visibility - Ensure it fades out COMPLETELY by 0.75
     let opacity = 0;
-    if (p >= 0.50 && p <= 0.80) {
+    if (p >= 0.50 && p < 0.75) {
       if (p < 0.55) opacity = (p - 0.50) / 0.05;
-      else if (p > 0.75) opacity = (0.80 - p) / 0.05;
+      else if (p > 0.72) opacity = (0.75 - p) / 0.03; 
       else opacity = 1;
     }
-    groupRef.current.visible = opacity > 0;
+    
+    // Explicit safety toggle
+    const isActuallyVisible = p >= 0.50 && p < 0.75;
+    groupRef.current.visible = isActuallyVisible && opacity > 0;
   });
 
   return (
-    <group ref={groupRef} position={[0, -0.5, -2]}>
+    <group ref={groupRef} position={[0, 0.5, -2]}>
       {/* Main Track Line */}
       <mesh rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.02, 0.02, 30, 8]} />
@@ -158,8 +169,8 @@ const Node: React.FC<NodeProps> = ({ event, xPos, isLeft, scrollProgress }) => {
         <div className="t3d-panel" style={{
           background: 'rgba(0,0,0,0.85)',
           borderLeft: `3px solid ${nodeColor}`,
-          padding: '20px',
-          width: '280px',
+          padding: '12px',
+          width: '200px',
           borderRadius: '2px',
           boxShadow: `0 0 20px rgba(0,0,0,0.4), inset 0 0 10px ${isActive ? 'rgba(198,255,0,0.1)' : 'transparent'}`,
           backdropFilter: 'blur(10px)',

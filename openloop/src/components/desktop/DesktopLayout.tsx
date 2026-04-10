@@ -56,9 +56,6 @@ export default function DesktopLayout() {
     const sections = ['#s1-hero', '#s2-about', '#theme-section', '#s4-timeline', '#sponsors-section', '#contact-section', '#footer-section'];
 
     const setupTimeout = setTimeout(() => {
-      const cards = ['#card-1', '#card-2', '#card-3', '#card-4']
-        .map((id) => document.querySelector<HTMLElement>(id))
-        .filter((el): el is HTMLElement => Boolean(el));
       const footer = document.querySelector<HTMLElement>('#footer-section');
 
       lenis = new Lenis({
@@ -129,9 +126,10 @@ export default function DesktopLayout() {
               const lp = clamp((p - range.start) / (range.end - range.start), 0, 1);
               let op = 0;
               
-              if (lp < 0.25) op = lp / 0.25;
-              else if (lp <= 0.75) op = 1;
-              else op = (1 - lp) / 0.25;
+              const ramp = 0.10; // 10% fade in/out for sharp isolation
+              if (lp < ramp) op = lp / ramp;
+              else if (lp <= (1 - ramp)) op = 1;
+              else op = (1 - lp) / ramp;
 
               // Force absolute clamping
               if (p < range.start || p > range.end) op = 0;
@@ -139,41 +137,18 @@ export default function DesktopLayout() {
               el.style.opacity = String(op);
               el.style.visibility = op > 0.001 ? 'visible' : 'hidden';
               el.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+              
+              // Ensure active layer is always on top (z-index priority)
+              if (op > 0.05) {
+                el.style.zIndex = '100';
+              } else {
+                el.style.zIndex = '10';
+              }
 
               // Specific sub-animations
               if (range.name === 'THEMES' && op > 0) {
-                const themeP = clamp(lp / 0.25, 0, 1); // Enter fully during the fade-in (0% - 25%)
+                const themeP = clamp(lp / 0.25, 0, 1);
                 themeProgressRef.current = themeP;
-                
-                // Re-gather cards if they were missed during initial setup
-                const activeCards = (cards.length > 0 && cards.length === 4) ? cards : (['#card-1', '#card-2', '#card-3', '#card-4']
-                  .map((id) => document.querySelector<HTMLElement>(id))
-                  .filter((el): el is HTMLElement => Boolean(el)));
-
-                activeCards.forEach((card, i) => {
-                  const staggerP = clamp((themeP - i * 0.1) / 0.7, 0, 1);
-                  const cardP = staggerP;
-                  
-                  let x = 0;
-                  let scale = 1;
-                  let zIndex = 10 + i;
-                  
-                  if (staggerP < 1.0) {
-                    // Entry from side
-                    x = lerp(-60, -12 * (activeCards.length - 1 - i), easeOut(staggerP));
-                    scale = lerp(1.1, 1 - i * 0.04, staggerP);
-                  } else {
-                    // Grid assembly (already in place)
-                    x = -12 * (activeCards.length - 1 - i);
-                  }
-                  
-                  card.style.top = '50%';
-                  card.style.left = '50%';
-                  card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
-                  card.style.opacity = String(clamp(op * 2, 0, 1));
-                  card.style.zIndex = String(zIndex);
-                  card.style.visibility = op > 0.1 ? 'visible' : 'hidden'; // Force visibility
-                });
               }
 
               if (range.name === 'FOOTER' && op > 0) {

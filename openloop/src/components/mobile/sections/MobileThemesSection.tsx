@@ -6,22 +6,22 @@ import './MobileThemesSection.css';
 const THEMES = [
   {
     id: '01',
-    title: 'SYNTHESIS',
+    title: 'Learning and developer productivity',
     desc: 'Cyber-Synthesis of high-level protocols and hackathon execution environments.'
   },
   {
     id: '02',
-    title: 'INTEGRATION',
+    title: 'Healthcare and Medtech',
     desc: 'Seamless merging of distributed systems and decentralized intelligence.'
   },
   {
     id: '03',
-    title: 'EXPANSION',
+    title: 'FineTech & Banking',
     desc: 'Scaling autonomous intelligence via multi-node synchronization loops.'
   },
   {
     id: '04',
-    title: 'AUTONOMY',
+    title: 'Open Innovation',
     desc: 'Self-correcting execution environments and deterministic logic arrays.'
   }
 ];

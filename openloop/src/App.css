@@ -17,6 +17,19 @@ body {
   overflow-x: hidden;
 }
 
+.reveal-text-fast {
+  animation: revealFast 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(15px);
+}
+
+@keyframes revealFast {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 #webgl {
   position: fixed;
   inset: 0;
