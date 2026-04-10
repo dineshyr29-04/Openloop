@@ -3,20 +3,22 @@ import { Environment } from '@react-three/drei';
 import { Robot } from './Robot';
 import { Background } from './Background';
 
-interface HeroSceneProps {
+interface SceneContainerProps {
   scrollVal: number;
   robotProgressRef: React.MutableRefObject<number>;
   themeProgressRef: React.MutableRefObject<number>;
   mouseX: number;
   phase: string;
+  isVisible: boolean;
 }
 
-export const HeroScene: React.FC<HeroSceneProps> = ({
+export const SceneContainer: React.FC<SceneContainerProps> = ({
   scrollVal,
   robotProgressRef,
   themeProgressRef,
   mouseX,
   phase,
+  isVisible,
 }) => {
   return (
     <>
@@ -29,6 +31,7 @@ export const HeroScene: React.FC<HeroSceneProps> = ({
         themeProgressRef={themeProgressRef}
         mouseX={mouseX}
         phase={phase}
+        isVisible={isVisible}
       />
     </>
   );

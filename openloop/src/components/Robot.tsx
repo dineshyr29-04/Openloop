@@ -14,6 +14,7 @@ interface RobotProps {
   themeProgressRef: React.MutableRefObject<number>;
   mouseX: number;
   phase: string;
+  isVisible: boolean;
 }
 
 export const Robot: React.FC<RobotProps> = ({
@@ -22,6 +23,7 @@ export const Robot: React.FC<RobotProps> = ({
   themeProgressRef: _themeProgressRef,
   mouseX,
   phase,
+  isVisible,
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const headLightRef = useRef<THREE.PointLight>(null);
@@ -130,12 +132,15 @@ export const Robot: React.FC<RobotProps> = ({
     );
     groupRef.current.rotation.set(stateRef.current.rotX, stateRef.current.rotY, 0);
     groupRef.current.scale.setScalar(stateRef.current.scale);
-    groupRef.current.visible = stateRef.current.opacity > 0.01;
+    
+    // Smooth visibility blend
+    const finalOpacity = stateRef.current.opacity * (isVisible ? 1 : 0);
+    groupRef.current.visible = finalOpacity > 0.001;
 
     const material = materials['Material_MR'];
     if (material) {
       material.emissiveIntensity = stateRef.current.greenIntensity;
-      material.opacity = stateRef.current.opacity;
+      material.opacity = finalOpacity;
     }
 
     if (beamRef.current) {

@@ -1,4 +1,5 @@
 import React from 'react';
+import './ThemesSection.css';
 
 const CARDS_DATA = [
   { id: 1, title: 'SYNTHESIS' },

@@ -107,14 +107,14 @@ export const MobileAbout: React.FC<MobileAboutProps> = ({ scrollTo }) => {
         <span className="word">WHAT</span>{' '}
         <span className="word">IS</span>{' '}
         <span className="word">
-          <span style={{backgroundColor:"#C6FF00"}}>OPEN LOOP</span>
+          <span style={{ backgroundImage: "linear-gradient(to bottom, #C6FF00, #FFFFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>OPEN LOOP</span>
         </span>
       </h2>
 
       <div className="about-body section-body">
         <p>
           OpenLoop is YenTech which is a part of Yenepoya School of 
-          Engineering's hackathon — 24 hours of
+          Engineering's hackathon — 24 hours of 
           raw innovation, sleepless engineering, and breakthrough ideas.
           We bring together the brightest minds to build what doesn't
           exist yet.

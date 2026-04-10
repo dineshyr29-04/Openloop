@@ -6,7 +6,7 @@ import { useScrollProgress } from '../../hooks/useScrollProgress';
 import { usePhase } from '../../hooks/usePhase';
 
 // Components
-import { HeroScene } from '../HeroScene';
+import { SceneContainer } from '../HeroScene';
 import { Background } from '../Background';
 import { HeroOverlay } from '../HeroOverlay';
 import { LoaderScene } from '../LoaderScene';
