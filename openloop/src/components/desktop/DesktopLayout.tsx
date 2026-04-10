@@ -98,6 +98,7 @@ export default function DesktopLayout() {
   const robotProgressRef = useRef(0);
   const themeProgressRef = useRef(0);
   const [scrollEnabled, setScrollEnabled] = useState(false);
+  const [showRobot, setShowRobot] = useState(true);
 
   useEffect(() => {
     if (phase === 'loader' || phase === 'intro') {
@@ -162,6 +163,10 @@ export default function DesktopLayout() {
             const p = self.progress;
             robotProgressRef.current = p;
 
+            // Reactive cutoff for 3D unmounting
+            if (p >= 0.70 && showRobot) setShowRobot(false);
+            if (p < 0.70 && !showRobot) setShowRobot(true);
+
             // Debug HUD Update (if element exists)
             const hud = document.querySelector<HTMLElement>('#debug-hud');
             if (hud) {
@@ -175,78 +180,93 @@ export default function DesktopLayout() {
 
             // Global Visibility Logic
             const getOpacity = (val: number, start: number, end: number, fade = 0.05) => {
-              if (val < start || val > end) return 0;
+              if (val < start - 0.001 || val > end + 0.001) return 0;
+              if (start === 0 && val < fade) return 1; // Always visible at start
               if (val < start + fade) return (val - start) / fade;
               if (val > end - fade) return (end - val) / fade;
               return 1;
             };
 
-            // 1. Hero Overlay
+            // 0. Global Cleanup: Hide all potential robot-phase "ghost" sections past 0.70
+            const ghostSelectors = ['#s1-hero', '#s2-about', '#s3-features', '#s4-timeline', '#theme-section'];
+            if (p >= 0.70) {
+              ghostSelectors.forEach(sel => {
+                const el = document.querySelector<HTMLElement>(sel);
+                if (el) {
+                  el.style.opacity = '0';
+                  el.style.visibility = 'hidden';
+                  el.style.pointerEvents = 'none';
+                }
+              });
+            }
+
+            // 1. Hero Overlay (Visible from 0 to 0.20)
             const heroEl = document.querySelector<HTMLElement>('#s1-hero');
-            if (heroEl) {
-              const op = getOpacity(p, 0.00, 0.20);
+            if (heroEl && p < 0.70) {
+              const op = getOpacity(p, 0.00, 0.20, 0.08);
               heroEl.style.opacity = String(op);
               heroEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
               heroEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+              heroEl.style.display = 'block'; 
             }
 
-            // 2. Timeline Overlay
+            // 2. Timeline Overlay (Visible from 0.20 to 0.45)
             const tlEl = document.querySelector<HTMLElement>('#s4-timeline');
-            if (tlEl) {
+            if (tlEl && p < 0.70) {
               const op = getOpacity(p, 0.20, 0.45);
               tlEl.style.opacity = String(op);
               tlEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
               tlEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+              tlEl.style.display = 'block';
             }
 
-            // 3. Themes Card Visibility
+            // 3. Themes Card Visibility (Visible from 0.45 to 0.70)
             const themeEl = document.querySelector<HTMLElement>('#theme-section');
-            if (themeEl) {
+            if (themeEl && p < 0.70) {
               const op = getOpacity(p, 0.45, 0.70);
               themeEl.style.opacity = String(op);
               themeEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
               themeEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+              themeEl.style.display = 'block';
               
-              // Themes specific card movement
-              if (op > 0) {
-                const themeP = clamp((p - 0.45) / 0.25, 0, 1);
-                themeProgressRef.current = themeP;
+              const themeP = clamp((p - 0.45) / 0.25, 0, 1);
+              themeProgressRef.current = themeP;
+              
+              cards.forEach((card, i) => {
+                const perCard = 0.2;
+                const cardStart = i * perCard * 0.5;
+                const cardP = clamp((themeP - cardStart) / 0.4, 0, 1);
                 
-                cards.forEach((card, i) => {
-                  const perCard = 0.2;
-                  const cardStart = i * perCard * 0.5;
-                  const cardP = clamp((themeP - cardStart) / 0.4, 0, 1);
-                  
-                  // Refined theme layout choreography
-                  let x = 0;
-                  let scale = 1;
-                  let zIndex = 10 + i;
-                  
-                  if (themeP < 0.6) {
-                    x = lerp(-120, -5 * (cards.length - 1 - i), easeOut(cardP));
-                    scale = lerp(1.1, 1 - i * 0.04, cardP);
-                  } else {
-                    const assembleP = clamp((themeP - 0.6) / 0.4, 0, 1);
-                    const gridPositions = [-35, 0, 35];
-                    x = lerp(-5 * (cards.length - 1 - i), gridPositions[i], easeInOut(assembleP));
-                  }
-                  
-                  card.style.top = '50%';
-                  card.style.left = '50%';
-                  card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
-                  card.style.opacity = String(clamp(op * 2, 0, 1));
-                  card.style.zIndex = String(zIndex);
-                });
-              }
+                let x = 0;
+                let scale = 1;
+                let zIndex = 10 + i;
+                
+                if (themeP < 0.6) {
+                  x = lerp(-120, -5 * (cards.length - 1 - i), easeOut(cardP));
+                  scale = lerp(1.1, 1 - i * 0.04, cardP);
+                } else {
+                  const assembleP = clamp((themeP - 0.6) / 0.4, 0, 1);
+                  const gridPositions = [-35, 0, 35];
+                  x = lerp(-5 * (cards.length - 1 - i), gridPositions[i], easeInOut(assembleP));
+                }
+                
+                card.style.top = '50%';
+                card.style.left = '50%';
+                card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
+                card.style.opacity = String(clamp(op * 2, 0, 1));
+                card.style.zIndex = String(zIndex);
+                card.style.display = 'block';
+              });
             }
 
-            // 4. Sponsors Overlay
+            // 4. Sponsors Overlay (Explicitly ON after 0.70)
             const spEl = document.querySelector<HTMLElement>('#sponsors-section');
             if (spEl) {
               const op = getOpacity(p, 0.70, 0.90);
               spEl.style.opacity = String(op);
               spEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
               spEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+              spEl.style.display = 'block';
             }
 
             // 5. Footer Overlay
@@ -255,7 +275,11 @@ export default function DesktopLayout() {
               footer.style.opacity = String(op);
               footer.style.visibility = op > 0.01 ? 'visible' : 'hidden';
               footer.style.transform = `translateY(${lerp(50, 0, op)}px)`;
+              footer.style.display = 'block';
             }
+          },
+        });
+      });
           },
         });
       });
@@ -300,14 +324,16 @@ export default function DesktopLayout() {
           }}
         >
           <Suspense fallback={
-            <mesh>
-              <sphereGeometry args={[1, 32, 32]} />
-              <meshBasicMaterial color="#0a1a00" wireframe />
-            </mesh>
+            showRobot ? (
+              <mesh>
+                <sphereGeometry args={[1, 32, 32]} />
+                <meshBasicMaterial color="#0a1a00" wireframe />
+              </mesh>
+            ) : null
           }>
-            {phase === 'loader' || phase === 'intro' ? (
+            {(phase === 'loader' || phase === 'intro') ? (
               <LoaderScene progress={loaderProgress} phase={phase} />
-            ) : (
+            ) : showRobot ? (
               <SceneContainer
                 scrollVal={rawScroll}
                 robotProgressRef={robotProgressRef}
@@ -315,7 +341,7 @@ export default function DesktopLayout() {
                 mouseX={mouse.x}
                 phase={phase}
               />
-            )}
+            ) : null}
           </Suspense>
         </Canvas>
       </div>

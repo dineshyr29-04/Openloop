@@ -86,7 +86,6 @@ const TimelineItem = ({ data, index, totalProgress }: { data: MilestoneData; ind
             color="#ffffff"
             anchorX="left"
             anchorY="middle"
-            font="https://fonts.gstatic.com/s/rajdhani/v15/L0x5DF02iFML4hGCyOCzSfDV.woff"
           >
             {data.title}
             <meshStandardMaterial transparent opacity={opacity} />
@@ -98,7 +97,6 @@ const TimelineItem = ({ data, index, totalProgress }: { data: MilestoneData; ind
             anchorY="top"
             position={[0, -0.15, 0]}
             maxWidth={1.5}
-            font="https://fonts.gstatic.com/s/rajdhani/v15/L0x5DF02iFML4hGCyOCzSfDV.woff"
           >
             {data.desc}
             <meshStandardMaterial transparent opacity={opacity * 0.5} />

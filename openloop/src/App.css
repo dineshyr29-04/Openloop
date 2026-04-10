@@ -149,21 +149,26 @@ nav a:hover {
   box-shadow: 0 0 15px rgba(198, 255, 0, 0.5);
 }
 
+#site-content {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
 #robot-sections {
   position: relative;
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 
 .section-overlay {
   position: absolute;
   inset: 0;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-}
-
-#s1-hero {
-  opacity: 1;
-  pointer-events: auto;
+  display: block; /* Ensure they are block-level to receive styles */
 }
 
 #hero {
