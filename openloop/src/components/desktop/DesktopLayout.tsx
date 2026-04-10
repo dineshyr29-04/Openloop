@@ -300,7 +300,12 @@ export default function DesktopLayout() {
             gl.domElement.style.pointerEvents = 'none';
           }}
         >
-          <Suspense fallback={null}>
+          <Suspense fallback={
+            <mesh>
+              <sphereGeometry args={[1, 32, 32]} />
+              <meshBasicMaterial color="#0a1a00" wireframe />
+            </mesh>
+          }>
             {phase === 'loader' || phase === 'intro' ? (
               <LoaderScene progress={loaderProgress} phase={phase} />
             ) : (
