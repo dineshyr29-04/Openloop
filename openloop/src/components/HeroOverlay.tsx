@@ -8,14 +8,16 @@ interface HeroOverlayProps {
 
 export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   // Normalize p for hero settling
-  // Robot settles at p=0.2 in its internal scale, which is section 0 (hero)
-  // Mapping: first 20% of the site-wide scroll
-  const heroRevealP = Math.min(Math.max((scrollProgress - 0.05) / 0.15, 0), 1);
-  const heroVisibility = heroRevealP; // Proportional visibility
+  // Adjusted threshold: Reveal starts earlier and more linearly
+  const heroRevealP = Math.min(Math.max((scrollProgress - 0.02) / 0.1, 0), 1);
+  const heroVisibility = heroRevealP;
   return (
     <>
       <nav>
-        <div className="nav-brand hud-label">OPENLOOP</div>
+        <div className="nav-brand hud-label">
+          <span style={{ color: '#fff' }}>OPEN</span>
+          <span style={{ color: '#C6FF00' }}>LOOP</span>
+        </div>
         <div className="nav-links">
           <a href="#robot-sections">Core</a>
           <a href="#s4-timeline">Timeline</a>
@@ -32,13 +34,17 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               style={{ 
                 opacity: heroVisibility,
                 transform: `scale(${0.95 + heroVisibility * 0.05})`,
-                filter: `blur(${(1 - heroVisibility) * 10}px)`
+                filter: `blur(${(1 - heroVisibility) * 10}px)`,
+                pointerEvents: heroVisibility > 0.5 ? 'auto' : 'none'
               }}
             >
               <h1 className="hero-main-title">
-                <span className="title-word">OPEN</span>
+                <span className="title-word" style={{ color: '#ffffff' }}>OPEN</span>
                 <span className="title-spacer" />
-                <span className="title-word">LOOP</span>
+                <span className="title-word" style={{ 
+                  color: '#C6FF00',
+                  textShadow: '0 0 20px rgba(198, 255, 0, 0.4)'
+                }}>LOOP</span>
               </h1>
             </div>
 
@@ -120,7 +126,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
                         transition: 'none' // GSAP/Logic controlled
                       }}
                     >
-                      <div className="t-dot" style={{ boxShadow: `0 0 ${lerp(0, 20, eventP)}px #00f0ff` }} />
+                      <div className="t-dot" style={{ boxShadow: `0 0 ${lerp(0, 20, eventP)}px #C6FF00` }} />
                       <div className="t-card">
                         <span className="t-date">{event.date}</span>
                         <h3>{event.title}</h3>

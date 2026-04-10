@@ -44,7 +44,7 @@ export const Robot: React.FC<RobotProps> = ({
     if (material) {
       material.metalness = 1.0;
       material.roughness = 0.15;
-      material.emissive = new THREE.Color('#00ffbb');
+      material.emissive = new THREE.Color('#C6FF00');
       material.emissiveIntensity = 0;
       material.transparent = true;
     }
@@ -67,8 +67,8 @@ export const Robot: React.FC<RobotProps> = ({
     // Phase 1: Entry (0.0 -> 0.2)
     if (p < 0.2) {
       const entryP = clamp(p / 0.2, 0, 1);
-      targetY = lerp(-2.5, 0.1, easeOut(entryP));
-      targetScale = lerp(1.0, 1.9, easeOut(entryP));
+      targetY = lerp(-2.5, 0, easeOut(entryP));
+      targetScale = lerp(1.2, 2.2, easeOut(entryP));
       targetOpacity = entryP;
       targetGreen = lerp(0, 0.8, entryP);
     } 
@@ -136,7 +136,7 @@ export const Robot: React.FC<RobotProps> = ({
       <primitive object={scene} />
       <pointLight 
         ref={headLightRef} 
-        color="#00ffbb" 
+        color="#C6FF00" 
         intensity={0} 
         distance={6} 
         position={[0, 0, 1.5]} 

@@ -9,7 +9,7 @@ function App() {
   const isMobile = useIsMobile();
 
   return (
-    <Suspense fallback={<div style={{ background: '#050510', height: '100vh' }} />}>
+    <Suspense fallback={<div style={{ background: '#000000', height: '100vh' }} />}>
       {isMobile ? <MobileLayout /> : <DesktopLayout />}
     </Suspense>
   );

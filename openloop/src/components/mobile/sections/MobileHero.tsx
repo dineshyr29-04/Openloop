@@ -81,7 +81,12 @@ export const MobileHero: React.FC = () => {
       </div>
 
       <div className="hero-bottom">
-        <div className="title-line"><span ref={titleRef} className="hero-title">OPENLOOP</span></div>
+        <div className="title-line">
+          <span ref={titleRef} className="hero-title">
+            <span style={{ color: '#ffffff' }}>OPEN</span>
+            <span style={{ color: '#C6FF00' }}>LOOP</span>
+          </span>
+        </div>
         <div className="year-line"><span ref={yearRef} className="hero-year">2026</span></div>
         <p ref={taglineRef} className="hero-tagline">// BUILD. BREAK. TRANSCEND.</p>
       </div>

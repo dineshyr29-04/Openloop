@@ -15,9 +15,9 @@ export const Background: React.FC<{ scrollVal: number }> = ({ scrollVal }) => {
     const cols = new Float32Array(particlesCount * 3);
     
     const palette = [
-      new THREE.Color('#00ccff'), // Cyan
-      new THREE.Color('#0066ff'), // Blue
-      new THREE.Color('#00ffbb'), // Slight Green
+      new THREE.Color('#C6FF00'), // Neon Green
+      new THREE.Color('#AFFF00'), // Neon Yellow-Green
+      new THREE.Color('#8ab800'), // Darker Neon
     ];
 
     for (let i = 0; i < particlesCount; i++) {
@@ -86,7 +86,7 @@ export const Background: React.FC<{ scrollVal: number }> = ({ scrollVal }) => {
 
   return (
     <group>
-      <fog attach="fog" args={['#020205', 5, 35]} />
+      <fog attach="fog" args={['#000000', 5, 35]} />
       
       {/* 1. Particle System */}
       <points ref={pointsRef}>
@@ -114,16 +114,16 @@ export const Background: React.FC<{ scrollVal: number }> = ({ scrollVal }) => {
       {/* 2. Moving Digital Grid */}
       <group ref={gridRef}>
         <gridHelper 
-          args={[120, 40, '#00ccff', '#001122']} 
+          args={[120, 40, '#C6FF00', '#0a1a00']} 
           rotation={[0, 0, 0]} 
           position={[0, -6, 0]} 
         />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -6.01, 0]}>
           <planeGeometry args={[120, 120]} />
           <meshBasicMaterial 
-            color="#001122" 
+            color="#000000" 
             transparent 
-            opacity={0.04} 
+            opacity={0.06} 
             depthWrite={false}
           />
         </mesh>
@@ -135,7 +135,7 @@ export const Background: React.FC<{ scrollVal: number }> = ({ scrollVal }) => {
           <mesh key={i} position={s.position} rotation={[0, 0, Math.PI / 4]}>
             <planeGeometry args={[0.02, s.length]} />
             <meshBasicMaterial 
-              color="#00f0ff" 
+              color="#C6FF00" 
               transparent 
               opacity={0.15} 
               blending={THREE.AdditiveBlending}

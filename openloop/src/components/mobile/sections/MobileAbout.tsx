@@ -106,7 +106,10 @@ export const MobileAbout: React.FC<MobileAboutProps> = ({ scrollTo }) => {
       <h2 className="section-heading">
         <span className="word">WHAT</span>{' '}
         <span className="word">IS</span>{' '}
-        <span className="word">OPENLOOP</span>
+        <span className="word">
+          <span style={{ color: '#ffffff' }}>OPEN</span>
+          <span style={{ color: '#C6FF00' }}>LOOP</span>
+        </span>
       </h2>
 
       <div className="about-body section-body">

@@ -50,11 +50,11 @@ const SceneLights = ({ robotProgressRef: _robotProgressRef }: { robotProgressRef
   return (
     <>
       <directionalLight color="#ffffff" intensity={2.0} position={[0, 2, -4]} />
-      <directionalLight color="#00c8ff" intensity={0.5} position={[-5, 1, -2]} />
-      <directionalLight color="#004488" intensity={0.5} position={[5, 0, -1]} />
-      <directionalLight color="#112233" intensity={0.4} position={[0, 0, 5]} />
-      <ambientLight color="#050510" intensity={0.2} />
-      <pointLight color="#00f0ff" intensity={1.2} distance={8} position={[0, -3, 0]} />
+      <directionalLight color="#C6FF00" intensity={0.5} position={[-5, 1, -2]} />
+      <directionalLight color="#AFFF00" intensity={0.5} position={[5, 0, -1]} />
+      <directionalLight color="#0a1200" intensity={0.4} position={[0, 0, 5]} />
+      <ambientLight color="#000000" intensity={0.2} />
+      <pointLight color="#C6FF00" intensity={1.2} distance={8} position={[0, -3, 0]} />
     </>
   );
 };
@@ -296,7 +296,7 @@ export default function DesktopLayout() {
           id="webgl"
           camera={{ position: [0, 0, 3.8], fov: 45 }}
           onCreated={({ gl }) => {
-            gl.setClearColor(0x080808, 1);
+            gl.setClearColor(0x000000, 1);
             gl.domElement.style.pointerEvents = 'none';
           }}
         >

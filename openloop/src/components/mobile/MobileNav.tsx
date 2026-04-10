@@ -86,7 +86,8 @@ export const MobileNav: React.FC = () => {
             if (isOpen) toggleMenu();
           }}
         >
-          OPENLOOP
+          <span style={{ color: '#ffffff' }}>OPEN</span>
+          <span style={{ color: '#C6FF00' }}>LOOP</span>
         </a>
         <button 
           id="hamburger" 

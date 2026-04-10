@@ -36,7 +36,10 @@ export const MobileFooter: React.FC = () => {
 
       <div ref={brandRef} className="footer-brand">
         <div className="footer-title-wrap">
-          <span className="footer-title">OPENLOOP</span>
+          <span className="footer-title">
+            <span style={{ color: '#ffffff' }}>OPEN</span>
+            <span style={{ color: '#C6FF00' }}>LOOP</span>
+          </span>
         </div>
         <div className="footer-year-wrap">
           <span className="footer-year">2026</span>

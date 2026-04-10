@@ -11,7 +11,7 @@ body,
 }
 
 body {
-  background: radial-gradient(circle at center, #0a0a20 0%, #050510 50%, #020205 100%);
+  background: radial-gradient(circle at center, #050505 0%, #000000 50%, #000000 100%);
   color: #ffffff;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
@@ -105,19 +105,19 @@ nav a {
 }
 
 nav a:hover {
-  color: #00f0ff;
-  text-shadow: 0 0 8px #00f0ff;
+  color: #C6FF00;
+  text-shadow: 0 0 8px #C6FF00;
 }
 
 .hud-label {
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  color: #00f0ff;
+  color: #C6FF00;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
-  background: rgba(0, 240, 255, 0.06);
-  border: 1px solid rgba(0, 240, 255, 0.2);
+  text-shadow: 0 0 8px rgba(198, 255, 0, 0.8);
+  background: rgba(198, 255, 0, 0.06);
+  border: 1px solid rgba(198, 255, 0, 0.2);
   padding: 4px 10px;
   border-radius: 2px;
   display: inline-block;
@@ -126,8 +126,8 @@ nav a:hover {
 .cta-outline {
   padding: 8px 20px;
   background: transparent;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #C6FF00;
+  border: 1px solid rgba(198, 255, 0, 0.5);
   border-radius: 20px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
@@ -135,12 +135,14 @@ nav a:hover {
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 0 10px rgba(198, 255, 0, 0.1);
 }
 
 .cta-outline:hover {
-  border-color: #00f0ff;
-  color: #00f0ff;
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+  background: #C6FF00;
+  border-color: #C6FF00;
+  color: #000000;
+  box-shadow: 0 0 15px rgba(198, 255, 0, 0.5);
 }
 
 #robot-sections {
@@ -212,8 +214,8 @@ nav a:hover {
   align-items: center;
   gap: 10px;
   padding: 14px 32px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #080808;
+  background: #C6FF00;
+  color: #000000;
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
   font-size: 15px;
@@ -223,13 +225,15 @@ nav a:hover {
   border-radius: 40px;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(198, 255, 0, 0.4);
 }
 
 .cta-button:hover {
-  background: #00f0ff;
+  background: #AFFF00;
   color: #000000;
-  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 30px rgba(198, 255, 0, 0.8);
   transform: translateY(-2px);
+  filter: brightness(1.08);
 }
 
 .hero-bottom-right {
@@ -240,8 +244,8 @@ nav a:hover {
 }
 
 .secondary-card {
-  background: rgba(20, 20, 30, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 10, 10, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   padding: 16px;
   max-width: 220px;
@@ -257,12 +261,12 @@ nav a:hover {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+  background: linear-gradient(90deg, transparent, #C6FF00, transparent);
 }
 
 .card-tag {
   font-size: 10px;
-  color: #00f0ff;
+  color: #C6FF00;
   font-family: 'Share Tech Mono', monospace;
   letter-spacing: 0.2em;
   margin-bottom: 8px;
@@ -323,17 +327,17 @@ nav a:hover {
 .hero-main-title {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 900;
-  font-size: clamp(6rem, 15vw, 18rem);
+  font-size: clamp(8rem, 20vw, 24rem);
   line-height: 0.8;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-shadow: 0 0 40px rgba(0, 240, 255, 0.5), 0 0 100px rgba(0, 240, 255, 0.2);
+  text-shadow: 0 0 60px rgba(198, 255, 0, 0.45), 0 0 120px rgba(198, 255, 0, 0.2);
 }
 
 .title-spacer {
-  width: 8vw; /* Adjustable spacing */
+  width: 12vw; /* Adjustable spacing for robot face framing */
 }
 
 .title-word {
@@ -406,7 +410,7 @@ nav a:hover {
 
 /* Ensure typewriter looks natural */
 .typewriter-cursor {
-  border-right: 2px solid #00f0ff;
+  border-right: 2px solid #C6FF00;
   animation: blink 0.8s step-end infinite;
 }
 
@@ -457,7 +461,7 @@ nav a:hover {
 .timeline-label {
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  color: #00f0ff;
+  color: #C6FF00;
   letter-spacing: 0.24em;
   text-transform: uppercase;
 }
@@ -469,8 +473,8 @@ nav a:hover {
 }
 
 .feature-card {
-  background: rgba(0, 240, 255, 0.03);
-  border: 1px solid rgba(0, 240, 255, 0.18);
+  background: rgba(198, 255, 0, 0.03);
+  border: 1px solid rgba(198, 255, 0, 0.18);
   border-radius: 4px;
   padding: 16px;
   backdrop-filter: blur(12px);
@@ -505,10 +509,10 @@ nav a:hover {
   top: 0;
   width: 2px;
   height: 0%;
-  background: linear-gradient(180deg, #00f0ff, #0066ff);
+  background: linear-gradient(180deg, #C6FF00, #AFFF00);
   transform: translateX(-50%);
   transition: height 0.1s;
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 15px rgba(198, 255, 0, 0.5);
 }
 
 .timeline-events {
@@ -535,29 +539,29 @@ nav a:hover {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 2px solid #00f0ff;
-  background: #080808;
+  border: 2px solid #C6FF00;
+  background: #000000;
   flex-shrink: 0;
   position: relative;
   z-index: 2;
-  box-shadow: 0 0 12px #00f0ff;
+  box-shadow: 0 0 12px #C6FF00;
 }
 
 .t-card {
-  background: rgba(0, 240, 255, 0.05);
-  border: 1px solid rgba(0, 240, 255, 0.25);
+  background: rgba(198, 255, 0, 0.05);
+  border: 1px solid rgba(198, 255, 0, 0.25);
   border-radius: 16px;
   padding: 24px 28px;
   max-width: 320px;
   margin: 0 32px;
   backdrop-filter: blur(20px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(0, 240, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(198, 255, 0, 0.05);
 }
 
 .t-date {
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  color: #00f0ff;
+  color: #C6FF00;
   letter-spacing: 0.2em;
   display: block;
   margin-bottom: 6px;
@@ -583,7 +587,7 @@ nav a:hover {
   position: relative;
   height: 100vh;
   overflow: hidden;
-  background: rgba(3, 1, 10, 0.94);
+  background: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -595,7 +599,7 @@ nav a:hover {
   left: 48px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  color: #00f0ff;
+  color: #C6FF00;
   letter-spacing: 0.3em;
 }
 
@@ -604,28 +608,28 @@ nav a:hover {
   top: 50%;
   left: 50%;
   width: min(340px, 85vw);
-  background: rgba(0, 240, 255, 0.05); /* Slightly darker */
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  border-top: 2px solid #00f0ff;
+  background: rgba(198, 255, 0, 0.05); /* Slightly darker */
+  border: 1px solid rgba(198, 255, 0, 0.3);
+  border-top: 2px solid #C6FF00;
   border-radius: 24px; /* Refined to user's request */
   padding: 36px 32px;
   backdrop-filter: blur(24px);
   transform: translateX(-110vw) translateY(-50%);
   opacity: 0;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
-              0 0 20px rgba(0, 240, 255, 0.15);
+              0 0 20px rgba(198, 255, 0, 0.15);
   transition: box-shadow 0.3s ease;
 }
 
 .theme-card:hover {
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 
-              0 0 30px rgba(0, 240, 255, 0.3);
+              0 0 30px rgba(198, 255, 0, 0.3);
 }
 
 .theme-card .card-number {
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  color: #00f0ff;
+  color: #C6FF00;
   letter-spacing: 0.3em;
   margin-bottom: 16px;
   display: block;
@@ -638,7 +642,7 @@ nav a:hover {
   letter-spacing: 0.06em;
   color: #ffffff;
   text-transform: uppercase;
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+  text-shadow: 0 0 20px rgba(198, 255, 0, 0.25);
   margin-bottom: 12px;
 }
 
@@ -653,13 +657,13 @@ nav a:hover {
 .theme-card .card-icon {
   width: 52px;
   height: 52px;
-  border: 1px solid rgba(0, 240, 255, 0.3);
+  border: 1px solid rgba(198, 255, 0, 0.3);
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
-  background: rgba(0, 240, 255, 0.05);
+  background: rgba(198, 255, 0, 0.05);
   font-family: 'Exo 2', sans-serif;
   font-weight: 600;
 }
@@ -681,7 +685,7 @@ nav a:hover {
   place-items: center;
   text-align: center;
   padding: 24px;
-  background: radial-gradient(circle at 50% 120%, rgba(0, 170, 255, 0.15), rgba(5, 5, 8, 0.98) 60%);
+  background: radial-gradient(circle at 50% 120%, rgba(198, 255, 0, 0.1), rgba(0, 0, 0, 1) 60%);
 }
 
 #footer-section h2 {
