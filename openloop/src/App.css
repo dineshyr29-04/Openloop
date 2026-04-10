@@ -66,9 +66,10 @@ body {
 }
 
 #site-content {
-  position: relative;
-  z-index: 20;
-  pointer-events: all;
+  position: fixed;
+  inset: 0;
+  z-index: 2; /* UI Section Layer (REQUIRED) */
+  pointer-events: none;
 }
 
 nav {
@@ -149,10 +150,14 @@ nav a:hover {
   box-shadow: 0 0 15px rgba(198, 255, 0, 0.5);
 }
 
+.app-root.is-main {
+  height: 500vh; /* Mandatory scroll height for range mapping */
+}
+
 #site-content {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  z-index: 2; /* UI Section Layer (REQUIRED) */
   pointer-events: none;
 }
 

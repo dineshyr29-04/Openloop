@@ -9,29 +9,8 @@ interface HeroOverlayProps {
 export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
   
-  // High-precision visibility ranges
-  let opacity = 0;
-  let scale = 0.95;
-  let translateY = 0;
-
-  if (p <= 0.1) {
-    // Fade IN: 0 -> 0.1
-    const t = clamp(p / 0.1, 0, 1);
-    opacity = t;
-    scale = lerp(0.95, 1.0, t);
-  } else if (p <= 0.18) {
-    // FULL: 0.1 -> 0.18
-    opacity = 1;
-    scale = 1.0;
-  } else if (p <= 0.25) {
-    // Fade OUT: 0.18 -> 0.25
-    const t = clamp((p - 0.18) / 0.07, 0, 1);
-    opacity = 1 - t;
-    scale = 1.0;
-    translateY = t * -40; // Slight upward movement
-  }
-
-  const isVisible = opacity > 0;
+export const HeroOverlay: React.FC<HeroOverlayProps> = () => {
+  // Visibility and opacity are now strictly controlled by the parent orchestrator (DesktopLayout)
 
   return (
     <>
@@ -51,15 +30,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
       <section id="robot-sections">
         <div id="s1-hero" className="section-overlay">
           <section id="hero">
-            <div 
-              className="hero-centered-container"
-              style={{ 
-                opacity: opacity,
-                transform: `translate(-50%, calc(-50% + ${translateY}px)) scale(${scale})`,
-                visibility: isVisible ? 'visible' : 'hidden',
-                pointerEvents: opacity > 0.5 ? 'auto' : 'none'
-              }}
-            >
+            <div className="hero-centered-container">
               <h1 className="hero-main-title">
                 <span className="title-word" style={{ color: '#ffffff' }}>OPEN</span>
                 <span className="title-spacer" />

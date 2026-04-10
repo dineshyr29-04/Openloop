@@ -21,22 +21,12 @@ const SPONSORS: Sponsor[] = [
   { name: "SHINRA", tier: "Community" },
 ];
 
-export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
-  // Strict visibility range: 0.70 -> 0.90
-  const opacity = clamp((scrollProgress - 0.70) / 0.1, 0, 1) * clamp((0.95 - scrollProgress) / 0.05, 0, 1);
-  const translateY = lerp(40, 0, opacity);
-
-  if (opacity <= 0.01) return null;
-
+export const SponsorsSection: React.FC<{ scrollProgress: number }> = () => {
+  // Logic removed; parent orchestrator now strictly handles visibility/pointer-events
   return (
     <div 
       id="sponsors-section" 
       className="section-overlay sponsors-container"
-      style={{ 
-        opacity,
-        transform: `translateY(${translateY}px)`,
-        pointerEvents: opacity > 0.5 ? 'auto' : 'none'
-      }}
     >
       <div className="sponsors-header">
         <span className="hud-line"></span>

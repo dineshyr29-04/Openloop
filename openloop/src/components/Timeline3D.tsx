@@ -25,8 +25,8 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
   useFrame(() => {
     if (!groupRef.current) return;
     
-    // Unified mapping for Timeline window (0.20 -> 0.45)
-    const mappedP = clamp((scrollProgress - 0.20) / 0.25, 0, 1);
+    // STRICT window: 0.30 -> 0.50
+    const mappedP = clamp((scrollProgress - 0.30) / 0.20, 0, 1);
     const zOffset = lerp(0, 22, mappedP);
     
     groupRef.current.position.z = zOffset;
@@ -50,13 +50,13 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
 const TimelineItem = ({ data, index, totalProgress }: { data: MilestoneData; index: number; totalProgress: number }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   
-  // High-precision activation within the 0.20 -> 0.45 window
-  const timelineStart = 0.20;
-  const step = 0.25 / MILESTONES.length;
+  // STRICT window: 0.30 -> 0.50
+  const timelineStart = 0.30;
+  const range = 0.20;
+  const step = range / MILESTONES.length;
   const startAt = timelineStart + index * step;
   
   const activeP = clamp((totalProgress - startAt) / step, 0, 1);
-  const opacity = activeP > 0 ? 1 : 0; // Hide until active to avoid Z-noise
   const scale = lerp(0.8, 1.2, activeP);
 
   return (
@@ -69,14 +69,14 @@ const TimelineItem = ({ data, index, totalProgress }: { data: MilestoneData; ind
           emissive="#C6FF00" 
           emissiveIntensity={lerp(0.2, 2.5, activeP)} 
           transparent
-          opacity={opacity}
+          opacity={1}
         />
       </mesh>
 
       {/* Glow Ring */}
       <mesh rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.12, 0.004, 16, 100]} />
-        <meshBasicMaterial color="#C6FF00" transparent opacity={opacity * 0.4} />
+        <meshBasicMaterial color="#C6FF00" transparent opacity={activeP * 0.4} />
       </mesh>
 
       <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
@@ -88,7 +88,6 @@ const TimelineItem = ({ data, index, totalProgress }: { data: MilestoneData; ind
             anchorY="middle"
           >
             {data.title}
-            <meshStandardMaterial transparent opacity={opacity} />
           </Text>
           <Text
             fontSize={0.07}
@@ -99,7 +98,6 @@ const TimelineItem = ({ data, index, totalProgress }: { data: MilestoneData; ind
             maxWidth={1.5}
           >
             {data.desc}
-            <meshStandardMaterial transparent opacity={opacity * 0.5} />
           </Text>
         </group>
       </Float>

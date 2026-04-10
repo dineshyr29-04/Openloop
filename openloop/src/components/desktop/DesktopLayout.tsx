@@ -12,6 +12,7 @@ import { HeroOverlay } from '../HeroOverlay';
 import { LoaderScene } from '../LoaderScene';
 import { Timeline3D } from '../Timeline3D';
 import { SponsorsSection } from '../SponsorsSection';
+import { ThemesSection } from '../ThemesSection';
 import { useMousePosition } from '../../hooks/useMousePosition';
 import { lerp, clamp } from '../../utils/math';
 import Lenis from 'lenis';
@@ -167,121 +168,93 @@ export default function DesktopLayout() {
             if (p >= 0.70 && showRobot) setShowRobot(false);
             if (p < 0.70 && !showRobot) setShowRobot(true);
 
-            // Debug HUD Update (if element exists)
+            // 1. Precise Range Mapping (MANDATORY)
+            const ranges = [
+              { name: 'LOADER', start: 0.00, end: 0.15, id: null },
+              { name: 'HERO', start: 0.15, end: 0.30, id: '#s1-hero' },
+              { name: 'TIMELINE', start: 0.30, end: 0.50, id: '#s4-timeline' },
+              { name: 'THEMES', start: 0.50, end: 0.70, id: '#theme-section' },
+              { name: 'SPONSORS', start: 0.70, end: 0.90, id: '#sponsors-section' },
+              { name: 'FOOTER', start: 0.90, end: 1.00, id: '#footer-section' },
+            ];
+
+            // 2. Debug HUD Update
             const hud = document.querySelector<HTMLElement>('#debug-hud');
             if (hud) {
-              let activeSection = 'HERO';
-              if (p >= 0.20 && p < 0.45) activeSection = 'TIMELINE';
-              else if (p >= 0.45 && p < 0.70) activeSection = 'THEMES';
-              else if (p >= 0.70 && p < 0.90) activeSection = 'SPONSORS';
-              else if (p >= 0.90) activeSection = 'FOOTER';
-              hud.innerText = `P: ${p.toFixed(3)} | SECTION: ${activeSection}`;
+              const active = ranges.find(r => p >= r.start && p < r.end) || ranges[0];
+              hud.innerText = `P: ${p.toFixed(3)} | ${active.name}`;
             }
 
-            // Global Visibility Logic
-            const getOpacity = (val: number, start: number, end: number, fade = 0.05) => {
-              if (val < start - 0.001 || val > end + 0.001) return 0;
-              if (start === 0 && val < fade) return 1; // Always visible at start
-              if (val < start + fade) return (val - start) / fade;
-              if (val > end - fade) return (end - val) / fade;
-              return 1;
-            };
+            // 3. Centralized Styled Control (20/60/20 ramp)
+            ranges.forEach(range => {
+              if (!range.id) return;
+              const el = document.querySelector<HTMLElement>(range.id);
+              if (!el) return;
 
-            // 0. Global Cleanup: Hide all potential robot-phase "ghost" sections past 0.70
-            const ghostSelectors = ['#s1-hero', '#s2-about', '#s3-features', '#s4-timeline', '#theme-section'];
-            if (p >= 0.70) {
-              ghostSelectors.forEach(sel => {
-                const el = document.querySelector<HTMLElement>(sel);
-                if (el) {
-                  el.style.opacity = '0';
-                  el.style.visibility = 'hidden';
-                  el.style.pointerEvents = 'none';
-                }
-              });
-            }
-
-            // 1. Hero Overlay (Visible from 0 to 0.20)
-            const heroEl = document.querySelector<HTMLElement>('#s1-hero');
-            if (heroEl && p < 0.70) {
-              const op = getOpacity(p, 0.00, 0.20, 0.08);
-              heroEl.style.opacity = String(op);
-              heroEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
-              heroEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
-              heroEl.style.display = 'block'; 
-            }
-
-            // 2. Timeline Overlay (Visible from 0.20 to 0.45)
-            const tlEl = document.querySelector<HTMLElement>('#s4-timeline');
-            if (tlEl && p < 0.70) {
-              const op = getOpacity(p, 0.20, 0.45);
-              tlEl.style.opacity = String(op);
-              tlEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
-              tlEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
-              tlEl.style.display = 'block';
-            }
-
-            // 3. Themes Card Visibility (Visible from 0.45 to 0.70)
-            const themeEl = document.querySelector<HTMLElement>('#theme-section');
-            if (themeEl && p < 0.70) {
-              const op = getOpacity(p, 0.45, 0.70);
-              themeEl.style.opacity = String(op);
-              themeEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
-              themeEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
-              themeEl.style.display = 'block';
+              const lp = clamp((p - range.start) / (range.end - range.start), 0, 1);
+              let op = 0;
               
-              const themeP = clamp((p - 0.45) / 0.25, 0, 1);
-              themeProgressRef.current = themeP;
-              
-              cards.forEach((card, i) => {
-                const perCard = 0.2;
-                const cardStart = i * perCard * 0.5;
-                const cardP = clamp((themeP - cardStart) / 0.4, 0, 1);
-                
-                let x = 0;
-                let scale = 1;
-                let zIndex = 10 + i;
-                
-                if (themeP < 0.6) {
-                  x = lerp(-120, -5 * (cards.length - 1 - i), easeOut(cardP));
-                  scale = lerp(1.1, 1 - i * 0.04, cardP);
-                } else {
-                  const assembleP = clamp((themeP - 0.6) / 0.4, 0, 1);
-                  const gridPositions = [-35, 0, 35];
-                  x = lerp(-5 * (cards.length - 1 - i), gridPositions[i], easeInOut(assembleP));
-                }
-                
-                card.style.top = '50%';
-                card.style.left = '50%';
-                card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
-                card.style.opacity = String(clamp(op * 2, 0, 1));
-                card.style.zIndex = String(zIndex);
-                card.style.display = 'block';
-              });
-            }
+              if (lp < 0.2) op = lp / 0.2;
+              else if (lp <= 0.8) op = 1;
+              else op = (1 - lp) / 0.2;
 
-            // 4. Sponsors Overlay (Explicitly ON after 0.70)
-            const spEl = document.querySelector<HTMLElement>('#sponsors-section');
-            if (spEl) {
-              const op = getOpacity(p, 0.70, 0.90);
-              spEl.style.opacity = String(op);
-              spEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
-              spEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
-              spEl.style.display = 'block';
-            }
+              // Force absolute clamping
+              if (p < range.start || p > range.end) op = 0;
 
-            // 5. Footer Overlay
-            if (footer) {
-              const op = getOpacity(p, 0.90, 1.00);
-              footer.style.opacity = String(op);
-              footer.style.visibility = op > 0.01 ? 'visible' : 'hidden';
-              footer.style.transform = `translateY(${lerp(50, 0, op)}px)`;
-              footer.style.display = 'block';
-            }
+              el.style.opacity = String(op);
+              el.style.visibility = op > 0.001 ? 'visible' : 'hidden';
+              el.style.pointerEvents = op > 0.9 ? 'auto' : 'none';
+
+              // Specific sub-animations
+              if (range.name === 'THEMES' && op > 0) {
+                const themeP = clamp((lp - 0.2) / 0.6, 0, 1); // use middle 60% for cards
+                themeProgressRef.current = themeP;
+                
+                cards.forEach((card, i) => {
+                  const perCard = 0.2;
+                  const cardStart = i * perCard * 0.5;
+                  const cardP = clamp((themeP - cardStart) / 0.4, 0, 1);
+                  
+                  let x = 0;
+                  let scale = 1;
+                  let zIndex = 10 + i;
+                  
+                  if (themeP < 0.6) {
+                    x = lerp(-120, -5 * (cards.length - 1 - i), easeOut(cardP));
+                    scale = lerp(1.1, 1 - i * 0.04, cardP);
+                  } else {
+                    const assembleP = clamp((themeP - 0.6) / 0.4, 0, 1);
+                    const gridPositions = [-35, 0, 35];
+                    x = lerp(-5 * (cards.length - 1 - i), gridPositions[i], easeInOut(assembleP));
+                  }
+                  
+                  card.style.top = '50%';
+                  card.style.left = '50%';
+                  card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
+                  card.style.opacity = String(clamp(op * 2, 0, 1));
+                  card.style.zIndex = String(zIndex);
+                });
+              }
+
+              if (range.name === 'FOOTER' && op > 0) {
+                el.style.transform = `translateY(${lerp(50, 0, op)}px)`;
+              }
+            });
+
+            // Cleanup any ghosting elements NOT in a range (like s2, s3)
+            ['#s2-about', '#s3-features'].forEach(sel => {
+              const el = document.querySelector<HTMLElement>(sel);
+              if (el) {
+                el.style.opacity = '0';
+                el.style.visibility = 'hidden';
+                el.style.pointerEvents = 'none';
+              }
+            });
           },
         });
       });
       ScrollTrigger.refresh();
-    }, 100);
+    }, 1000);
 
     return () => {
       clearTimeout(setupTimeout);
@@ -348,6 +321,7 @@ export default function DesktopLayout() {
       {phase === 'main' && (
         <div id="site-content" style={{ display: scrollEnabled ? 'block' : 'none' }}>
           <HeroOverlay scrollProgress={rawScroll} />
+          <ThemesSection scrollProgress={rawScroll} />
           <SponsorsSection scrollProgress={rawScroll} />
         </div>
       )}
