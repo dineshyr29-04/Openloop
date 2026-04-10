@@ -88,10 +88,7 @@ export const MobileTeam: React.FC = () => {
       <div className="team-grid section-body">
         {members.map((m, i) => (
           <div key={i} ref={el => { cardsRef.current[i] = el; }} className="team-card">
-            <div className="team-avatar">
-              <img src={m.photo} alt={m.name} />
-              <div className="avatar-ring" />
-            </div>
+            
             <div className="team-info">
               <div className="team-name">{m.name}</div>
               <div className="team-role">{m.role}</div>

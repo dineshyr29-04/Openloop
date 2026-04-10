@@ -7,10 +7,8 @@ import { usePhase } from '../../hooks/usePhase';
 
 // Components
 import { SceneContainer } from '../HeroScene';
-import { Background } from '../Background';
 import { HeroOverlay } from '../HeroOverlay';
 import { LoaderScene } from '../LoaderScene';
-import { Timeline3D } from '../Timeline3D';
 import { SponsorsSection } from '../SponsorsSection';
 import { ThemesSection } from '../ThemesSection';
 import { useMousePosition } from '../../hooks/useMousePosition';
@@ -58,7 +56,7 @@ export default function DesktopLayout() {
     const sections = ['#s1-hero', '#s2-about', '#theme-section', '#s4-timeline', '#sponsors-section', '#contact-section', '#footer-section'];
 
     const setupTimeout = setTimeout(() => {
-      const cards = ['#card-1', '#card-2', '#card-3']
+      const cards = ['#card-1', '#card-2', '#card-3', '#card-4']
         .map((id) => document.querySelector<HTMLElement>(id))
         .filter((el): el is HTMLElement => Boolean(el));
       const footer = document.querySelector<HTMLElement>('#footer-section');
@@ -165,10 +163,9 @@ export default function DesktopLayout() {
                   } else {
                     // Grid assembly
                     const assembleP = clamp((themeP - 0.5) / 0.5, 0, 1);
-                    // Adjusted grid positions for 4 wider 500px cards
-                    // From left to right: -60, -20, 20, 60? 
-                    // Let's use 38vw spacing
-                    const gridPositions = [-60, -20, 20, 60];
+                    // Adjusted grid positions for 4 narrower cards (each ~23vw)
+                    // relative to center. Spacing of ~25vw
+                    const gridPositions = [-37.5, -12.5, 12.5, 37.5];
                     x = lerp(-12 * (activeCards.length - 1 - i), gridPositions[i], easeInOut(assembleP));
                   }
                   

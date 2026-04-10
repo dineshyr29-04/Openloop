@@ -22,8 +22,8 @@
 
 .theme-card {
   position: absolute;
-  width: 400px;
-  height: 550px;
+  width: 350px;
+  height: 500px;
   background: rgba(10, 10, 10, 0.98);
   border: 1px solid rgba(198, 255, 0, 0.2);
   box-shadow: 0 0 80px rgba(0, 0, 0, 0.95), inset 0 0 30px rgba(198, 255, 0, 0.05);
