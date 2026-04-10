@@ -14,7 +14,6 @@ interface RobotProps {
   themeProgressRef: React.MutableRefObject<number>;
   mouseX: number;
   phase: string;
-  isVisible: boolean;
 }
 
 export const Robot: React.FC<RobotProps> = ({
@@ -23,7 +22,6 @@ export const Robot: React.FC<RobotProps> = ({
   themeProgressRef: _themeProgressRef,
   mouseX,
   phase,
-  isVisible,
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const headLightRef = useRef<THREE.PointLight>(null);
@@ -55,9 +53,19 @@ export const Robot: React.FC<RobotProps> = ({
   }, [materials]);
 
   useFrame((state) => {
-    if (!groupRef.current || phase !== 'main') return;
+    if (!groupRef.current) return;
+    
+    // Fail-safe: if not main phase, keep default but hidden/offset
+    if (phase !== 'main') {
+      stateRef.current.posY = -3;
+      stateRef.current.opacity = 0;
+      groupRef.current.visible = false;
+      return;
+    }
 
-    const p = robotProgressRef.current;
+    const pRaw = robotProgressRef.current;
+    // Fail-safe for invalid progress
+    const p = (isNaN(pRaw) || pRaw === undefined) ? 0 : clamp(pRaw, 0, 1);
     
     // Continuous Target State
     let targetX = 0;
@@ -71,18 +79,20 @@ export const Robot: React.FC<RobotProps> = ({
     let targetBeam = 0;
 
     // --- Deterministic State Machine (Scroll Controlled ONLY) ---
-    // HERO (0.00 -> 0.18): Rise from Bottom
-    if (p < 0.18) {
-      const hp = clamp(p / 0.18, 0, 1);
-      targetOpacity = hp; // Fade in as we rise
-      targetY = lerp(-3, 0, easeOut(hp)); // Rise from -3
+    
+    // HERO (0.00 -> 0.15): Rise from Bottom
+    if (p < 0.15) {
+      const hp = clamp(p / 0.15, 0, 1);
+      targetOpacity = hp; 
+      targetY = lerp(-3, 0, easeOut(hp)); 
       targetX = 0;
       targetRotY = 0;
       targetScale = 2.0;
+      targetGreen = 0;
     }
-    // ABOUT (0.18 -> 0.36): Shift Left + Profile
-    else if (p < 0.36) {
-      const ap = (p - 0.18) / 0.18;
+    // ABOUT (0.15 -> 0.30): Shift Left + Profile
+    else if (p < 0.30) {
+      const ap = clamp((p - 0.15) / 0.15, 0, 1);
       targetOpacity = 1;
       targetX = lerp(0, -3.5, easeInOut(ap));
       targetY = 0;
@@ -91,19 +101,21 @@ export const Robot: React.FC<RobotProps> = ({
       targetBeam = ap > 0.5 ? (ap - 0.5) * 2 : 0;
       targetGreen = 2 + targetBeam * 3;
     }
-    // THEMES & TIMELINE (0.36 -> 0.65): Fade Out & Push Back
-    else if (p < 0.65) {
-      const tp = clamp((p - 0.36) / 0.10, 0, 1);
+    // THEMES & TIMELINE (0.30 -> 0.55): Fade Out & Push Back (HIDDEN)
+    else if (p < 0.55) {
+      const tp = clamp((p - 0.30) / 0.10, 0, 1);
       targetOpacity = 1 - tp;
       targetZ = lerp(0, -6, tp);
       targetX = -3.5;
       targetRotY = Math.PI / 2;
+      targetScale = 1.7;
+      targetGreen = 0;
     }
-    // SPONSORS RE-ENTRY (0.65 -> 0.80): Slide from Left
+    // SPONSORS RE-ENTRY (0.55 -> 0.80): Slide from Left
     else if (p < 0.80) {
-      const sp = clamp((p - 0.65) / 0.15, 0, 1);
+      const sp = clamp((p - 0.55) / 0.15, 0, 1);
       targetOpacity = sp;
-      targetX = lerp(-10, -3.5, easeOut(sp)); // Slide from far left
+      targetX = lerp(-3, -3.5, easeOut(sp)); // Slide from left side
       targetY = 0;
       targetZ = 0;
       targetRotY = Math.PI / 2;
@@ -119,19 +131,22 @@ export const Robot: React.FC<RobotProps> = ({
       targetScale = 1.7;
       targetGreen = 2;
     }
-    // FOOTER (0.92 -> 1.00): Exit & Push Back
+    // FOOTER (0.92 -> 1.00): Exit & Push Back (HIDDEN)
     else {
       const fp = clamp((p - 0.92) / 0.08, 0, 1);
       targetOpacity = 1 - fp;
       targetZ = lerp(0, -10, fp);
       targetX = -3.5;
       targetRotY = Math.PI / 2;
+      targetScale = 1.7;
+      targetGreen = 0;
     }
 
     // Add mouse parallax
     targetX += mouseX * 0.45;
     targetRotY += mouseX * 0.15;
 
+    // Smooth lerp for state
     const factor = 0.08;
     stateRef.current.posX += (targetX - stateRef.current.posX) * factor;
     stateRef.current.posY += (targetY - stateRef.current.posY) * factor;
@@ -152,13 +167,12 @@ export const Robot: React.FC<RobotProps> = ({
     groupRef.current.scale.setScalar(stateRef.current.scale);
     
     // Smooth visibility blend
-    const finalOpacity = stateRef.current.opacity * (isVisible ? 1 : 0);
-    groupRef.current.visible = finalOpacity > 0.001;
+    groupRef.current.visible = stateRef.current.opacity > 0.001;
 
     const material = materials['Material_MR'];
     if (material) {
       material.emissiveIntensity = stateRef.current.greenIntensity;
-      material.opacity = finalOpacity;
+      material.opacity = stateRef.current.opacity;
     }
 
     if (beamRef.current) {

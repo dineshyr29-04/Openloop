@@ -10,9 +10,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
 
   // Active state helpers
-  const isHeroActive = p >= 0.00 && p < 0.18;
-  const isAboutActive = p >= 0.18 && p < 0.36;
-  const isThemesActive = p >= 0.36 && p < 0.55;
+  const isHeroActive = p >= 0.00 && p < 0.15;
+  const isAboutActive = p >= 0.15 && p < 0.30;
+  const isThemesActive = p >= 0.30 && p < 0.55;
   const isTimelineActive = p >= 0.55 && p < 0.75;
   const isSponsorsActive = p >= 0.75 && p < 0.88;
   const isContactActive = p >= 0.88 && p < 0.96;

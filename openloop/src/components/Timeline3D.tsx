@@ -24,7 +24,7 @@ const TIMELINE_DATA: TimelineEvent[] = [
 export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
   const p = scrollProgress;
   // Deterministic Kill-Switch: If not in range, don't even render.
-  if (p < 0.50 || p >= 0.745) return null;
+  if (p < 0.50 || p >= 0.80) return null;
 
   const groupRef = useRef<THREE.Group>(null);
   const lineRef = useRef<THREE.Mesh>(null);
@@ -39,8 +39,8 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
     if (!groupRef.current) return;
 
     const p = scrollProgress;
-    // Finish movement by 0.70 for massive buffer before 0.75 Sponsors start
-    const timelineP = clamp((p - 0.55) / 0.15, 0, 1);
+    // Finish movement by 0.75 for massive buffer before 0.75 Sponsors start
+    const timelineP = clamp((p - 0.55) / 0.20, 0, 1);
     
     // 1. Move the timeline group horizontally based on scroll
     // So the active node stays roughly centered, with better clamping at ends
@@ -60,16 +60,16 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
       material.emissiveIntensity = 2 + Math.sin(state.clock.elapsedTime * 10) * 1;
     }
 
-    // 3. Overall visibility - Ensure it fades out COMPLETELY by 0.75
+    // 3. Overall visibility - Ensure it fades out COMPLETELY by 0.80
     let opacity = 0;
-    if (p >= 0.50 && p < 0.75) {
+    if (p >= 0.50 && p < 0.80) {
       if (p < 0.55) opacity = (p - 0.50) / 0.05;
-      else if (p > 0.72) opacity = (0.75 - p) / 0.03; 
+      else if (p > 0.75) opacity = (0.80 - p) / 0.05; 
       else opacity = 1;
     }
     
     // Explicit safety toggle
-    const isActuallyVisible = p >= 0.50 && p < 0.75;
+    const isActuallyVisible = p >= 0.50 && p < 0.80;
     groupRef.current.visible = isActuallyVisible && opacity > 0;
   });
 

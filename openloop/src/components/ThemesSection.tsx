@@ -13,9 +13,9 @@ const CARDS_DATA = [
 
 export const ThemesSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
   const p = scrollProgress;
-  // Local Range: 0.36 -> 0.55
-  const isInRange = p >= 0.36 && p <= 0.55;
-  const lp = clamp((p - 0.36) / (0.55 - 0.36), 0, 1);
+  // Local Range: 0.30 -> 0.55
+  const isInRange = p >= 0.30 && p <= 0.55;
+  const lp = clamp((p - 0.30) / (0.55 - 0.30), 0, 1);
   
   // Section entrance opacity
   let sectionOp = 0;
@@ -47,11 +47,13 @@ export const ThemesSection: React.FC<{ scrollProgress: number }> = ({ scrollProg
           const cardZIndex = 110 + index;
           
           if (staggerP < 1.0) {
-            x = lerp(-60, -12 * (CARDS_DATA.length - 1 - index), easeOut(staggerP));
-            scale = lerp(1.1, 1 - index * 0.04, staggerP);
+            // Slide in from further left to their centered positions
+            const targetX = (index - (CARDS_DATA.length - 1) / 2) * 22; // Spread cards across center
+            x = lerp(-100, targetX, easeOut(staggerP));
+            scale = lerp(1.1, 1, staggerP);
           } else {
-            x = -12 * (CARDS_DATA.length - 1 - index);
-            scale = 1 - index * 0.04;
+            x = (index - (CARDS_DATA.length - 1) / 2) * 22;
+            scale = 1;
           }
 
           return (

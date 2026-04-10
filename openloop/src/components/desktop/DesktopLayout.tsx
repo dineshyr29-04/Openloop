@@ -92,9 +92,9 @@ export default function DesktopLayout() {
 
             // 1. Precise Range Mapping (MANDATORY - 7 SECTIONS)
             const ranges = [
-              { name: 'HERO', start: 0.00, end: 0.18, id: '#s1-hero' },
-              { name: 'ABOUT', start: 0.18, end: 0.36, id: '#s2-about' },
-              { name: 'THEMES', start: 0.36, end: 0.55, id: '#theme-section' },
+              { name: 'HERO', start: 0.00, end: 0.15, id: '#s1-hero' },
+              { name: 'ABOUT', start: 0.15, end: 0.30, id: '#s2-about' },
+              { name: 'THEMES', start: 0.30, end: 0.55, id: '#theme-section' },
               { name: 'TIMELINE', start: 0.55, end: 0.75, id: '#s4-timeline' },
               { name: 'SPONSORS', start: 0.75, end: 0.88, id: '#sponsors-section' },
               { name: 'CONTACT', start: 0.88, end: 0.96, id: '#contact-section' },
@@ -206,7 +206,6 @@ export default function DesktopLayout() {
                 themeProgressRef={themeProgressRef}
                 mouseX={mouse.x}
                 phase={phase}
-                isVisible={true}
               />
             ) }
           </Suspense>

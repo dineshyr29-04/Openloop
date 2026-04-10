@@ -45,7 +45,7 @@ body {
 }
 
 .app-root.is-main {
-  height: 800vh; /* Unified scroll duration */
+  height: 1200vh; /* Mandatory scroll height for range mapping */
 }
 
 .canvas-container {
