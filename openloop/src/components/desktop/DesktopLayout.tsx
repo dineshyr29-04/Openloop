@@ -19,7 +19,6 @@ import Lenis from 'lenis';
 import '../../App.css';
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-const easeIn = (t: number) => t * t * t;
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 const CameraRig = ({ robotProgressRef }: { robotProgressRef: React.MutableRefObject<number> }) => {
@@ -153,130 +152,109 @@ export default function DesktopLayout() {
       });
 
       context = gsap.context(() => {
-        // Main Robot Sections (Pinned for longer to ensure full separation from Themes)
+        // Single Unified Scroll Orchestration
         ScrollTrigger.create({
-          trigger: '#robot-sections',
-          pin: true,
+          trigger: '.app-root',
           start: 'top top',
-          end: '+=600%', // Increased for more "air" between phases
-          scrub: 1,
+          end: 'bottom bottom',
+          scrub: true,
           onUpdate: (self) => {
             const p = self.progress;
             robotProgressRef.current = p;
-            
-            // Smoother section reveal logic with wider gaps
-            sections.forEach((selector, i) => {
-              const el = document.querySelector<HTMLElement>(selector);
-              if (!el) return;
-              
-              const sectionRange = 1 / sections.length;
-              const sectionStart = i * sectionRange;
-              const sectionEnd = (i + 1) * sectionRange;
-              
-              let opacity = 0;
-              if (p >= sectionStart && p <= sectionEnd) {
-                // Sharper transitions to avoid cross-phase ghosting
-                const margin = 0.08; 
-                if (p < sectionStart + margin) opacity = (p - sectionStart) / margin;
-                else if (p > sectionEnd - margin) opacity = (sectionEnd - p) / margin;
-                else opacity = 1;
-              }
-              
-              // Hard toggle visibility for performance and overlap prevention
-              const active = opacity > 0.05;
-              el.style.opacity = String(opacity);
-              el.style.display = active ? 'block' : 'none';
-              el.style.visibility = active ? 'visible' : 'hidden';
-              el.style.pointerEvents = active ? 'auto' : 'none';
 
-              const reveals = el.querySelectorAll('.text-reveal');
-              reveals.forEach((r) => {
-                if (opacity > 0.5) r.classList.add('active');
-                else r.classList.remove('active');
-              });
-            });
-          },
-        });
-
-        // Specific Timeline Animation (Sync with Scroll)
-        document.querySelectorAll<HTMLElement>('.t-event').forEach((el) => {
-          gsap.fromTo(el, 
-            { opacity: 0, x: -30, scale: 0.95 },
-            { 
-              opacity: 1, x: 0, scale: 1, duration: 1, ease: 'power2.out',
-              scrollTrigger: {
-                trigger: el,
-                start: 'top 85%',
-                end: 'top 35%',
-                scrub: 1,
-                toggleActions: 'play none none reverse'
-              }
+            // Debug HUD Update (if element exists)
+            const hud = document.querySelector<HTMLElement>('#debug-hud');
+            if (hud) {
+              let activeSection = 'HERO';
+              if (p >= 0.20 && p < 0.45) activeSection = 'TIMELINE';
+              else if (p >= 0.45 && p < 0.70) activeSection = 'THEMES';
+              else if (p >= 0.70 && p < 0.90) activeSection = 'SPONSORS';
+              else if (p >= 0.90) activeSection = 'FOOTER';
+              hud.innerText = `P: ${p.toFixed(3)} | SECTION: ${activeSection}`;
             }
-          );
-        });
 
-        if (document.querySelector('.timeline-line') && document.querySelector('.timeline-track')) {
-          gsap.to('.timeline-line', {
-            height: '100%', ease: 'none',
-            scrollTrigger: { 
-              trigger: '#s4-timeline', 
-              start: 'top 40%', 
-              end: 'bottom bottom', 
-              scrub: true 
-            },
-          });
-        }
-
-        // Theme Section (Pinned separate with clear start delay)
-        ScrollTrigger.create({
-          trigger: '#theme-section',
-          pin: true,
-          start: 'top top',
-          end: '+=700%', 
-          scrub: 0.5,
-          onUpdate: (self) => {
-            const p = self.progress;
-            themeProgressRef.current = p;
-            if (cards.length !== 3) return;
-
-            const updateCard = (card: HTMLElement, x: number, opacity: number, scale = 1, zIndex = 1) => {
-              card.style.top = '50%';
-              card.style.left = '50%';
-              card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
-              card.style.opacity = String(opacity);
-              card.style.zIndex = String(zIndex);
+            // Global Visibility Logic
+            const getOpacity = (val: number, start: number, end: number, fade = 0.05) => {
+              if (val < start || val > end) return 0;
+              if (val < start + fade) return (val - start) / fade;
+              if (val > end - fade) return (end - val) / fade;
+              return 1;
             };
 
-            if (p < 0.6) {
-              const perCard = 0.2;
-              cards.forEach((card, i) => {
-                const cardStart = i * perCard;
-                const cardP = clamp((p - cardStart) / perCard, 0, 1);
-                const x = lerp(-120, -5 * (cards.length - 1 - i), easeOut(cardP));
-                const opacity = clamp(cardP * 2, 0, 1);
-                const scale = lerp(1.1, 1 - i * 0.04, cardP);
-                updateCard(card, x, opacity, scale, 10 + i);
-              });
-            } else if (p < 0.85) {
-              const assembleP = clamp((p - 0.6) / 0.25, 0, 1);
-              const gridPositions = [-35, 0, 35];
-              cards.forEach((card, i) => {
-                const fromX = -5 * (cards.length - 1 - i);
-                const toX = gridPositions[i];
-                const x = lerp(fromX, toX, easeInOut(assembleP));
-                updateCard(card, x, 1, 1, 10 + i);
-              });
-            } else {
-              const exitP = clamp((p - 0.85) / 0.15, 0, 1);
-              cards.forEach((card, i) => {
-                const gridX = i === 0 ? -35 : i === 1 ? 0 : 35;
-                const x = gridX + lerp(0, 150, easeIn(exitP));
-                updateCard(card, x, 1 - exitP, 1, 10 + i);
-              });
-              if (footer) {
-                footer.style.opacity = String(exitP);
-                footer.style.transform = `translateY(${lerp(50, 0, exitP)}px)`;
+            // 1. Hero Overlay
+            const heroEl = document.querySelector<HTMLElement>('#s1-hero');
+            if (heroEl) {
+              const op = getOpacity(p, 0.00, 0.20);
+              heroEl.style.opacity = String(op);
+              heroEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
+              heroEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+            }
+
+            // 2. Timeline Overlay
+            const tlEl = document.querySelector<HTMLElement>('#s4-timeline');
+            if (tlEl) {
+              const op = getOpacity(p, 0.20, 0.45);
+              tlEl.style.opacity = String(op);
+              tlEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
+              tlEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+            }
+
+            // 3. Themes Card Visibility
+            const themeEl = document.querySelector<HTMLElement>('#theme-section');
+            if (themeEl) {
+              const op = getOpacity(p, 0.45, 0.70);
+              themeEl.style.opacity = String(op);
+              themeEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
+              themeEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+              
+              // Themes specific card movement
+              if (op > 0) {
+                const themeP = clamp((p - 0.45) / 0.25, 0, 1);
+                themeProgressRef.current = themeP;
+                
+                cards.forEach((card, i) => {
+                  const perCard = 0.2;
+                  const cardStart = i * perCard * 0.5;
+                  const cardP = clamp((themeP - cardStart) / 0.4, 0, 1);
+                  
+                  // Refined theme layout choreography
+                  let x = 0;
+                  let scale = 1;
+                  let zIndex = 10 + i;
+                  
+                  if (themeP < 0.6) {
+                    x = lerp(-120, -5 * (cards.length - 1 - i), easeOut(cardP));
+                    scale = lerp(1.1, 1 - i * 0.04, cardP);
+                  } else {
+                    const assembleP = clamp((themeP - 0.6) / 0.4, 0, 1);
+                    const gridPositions = [-35, 0, 35];
+                    x = lerp(-5 * (cards.length - 1 - i), gridPositions[i], easeInOut(assembleP));
+                  }
+                  
+                  card.style.top = '50%';
+                  card.style.left = '50%';
+                  card.style.transform = `translateX(calc(${x}vw - 50%)) translateY(-50%) scale(${scale})`;
+                  card.style.opacity = String(clamp(op * 2, 0, 1));
+                  card.style.zIndex = String(zIndex);
+                });
               }
+            }
+
+            // 4. Sponsors Overlay
+            const spEl = document.querySelector<HTMLElement>('#sponsors-section');
+            if (spEl) {
+              const op = getOpacity(p, 0.70, 0.90);
+              spEl.style.opacity = String(op);
+              spEl.style.visibility = op > 0.01 ? 'visible' : 'hidden';
+              spEl.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+            }
+
+            // 5. Footer Overlay
+            if (footer) {
+              const op = getOpacity(p, 0.90, 1.00);
+              footer.style.opacity = String(op);
+              footer.style.visibility = op > 0.01 ? 'visible' : 'hidden';
+              footer.style.transform = `translateY(${lerp(50, 0, op)}px)`;
             }
           },
         });
@@ -293,7 +271,25 @@ export default function DesktopLayout() {
   }, [phase]);
 
   return (
-    <div className="app-root">
+    <div className={`app-root ${phase === 'main' ? 'is-main' : ''}`}>
+      {phase === 'main' && (
+        <div id="debug-hud" style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '20px',
+          background: 'rgba(0,0,0,0.8)',
+          color: '#C6FF00',
+          padding: '8px 12px',
+          borderRadius: '4px',
+          fontFamily: 'monospace',
+          fontSize: '12px',
+          zIndex: 1000,
+          border: '1px solid #C6FF00'
+        }}>
+          P: 0.000 | SECTION: HERO
+        </div>
+      )}
+
       <div className="canvas-container">
         <Canvas
           id="webgl"

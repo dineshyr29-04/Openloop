@@ -57,45 +57,47 @@ export const Robot: React.FC<RobotProps> = ({
     
     // Continuous Target State
     let targetX = 0;
-    let targetY = 0.1;
+    let targetY = 0; // VERTICAL CENTERING FIX
     let targetRotY = 0;
     let targetRotX = 0;
-    let targetScale = 1.9;
+    let targetScale = 2.0;
     let targetOpacity = 1;
-    let targetGreen = 0.5;
+    let targetGreen = 0.8;
 
-    // Phase 1: Entry (0.0 -> 0.08) - Rapid stabilization
+    // Phase 1: Stabilization (0.0 -> 0.08) - Rapid entry
     if (p < 0.08) {
       const entryP = clamp(p / 0.08, 0, 1);
       targetY = lerp(-2.5, 0, easeOut(entryP));
       targetScale = lerp(1.2, 2.2, easeOut(entryP));
       targetOpacity = entryP;
-      targetGreen = lerp(0, 0.8, entryP);
+      targetGreen = lerp(0, 1.2, entryP);
     } 
-    // Phase 2: Static Stay / Start of system movement (0.08 -> 0.45)
+    // Phase 2: Hero -> Timeline transition (0.08 -> 0.45)
     else if (p < 0.45) {
-      const p2 = clamp((p - 0.2) / 0.25, 0, 1);
-      targetX = lerp(0, -2.2, easeInOut(p2));
-      targetRotY = lerp(0, Math.PI / 2.2, easeInOut(p2));
-      targetGreen = lerp(0.8, 4, p2);
-      targetScale = 1.9;
+      // Localized movement for Timeline window
+      const timelineP = clamp((p - 0.20) / 0.25, 0, 1);
+      targetX = lerp(0, -2.4, easeInOut(timelineP));
+      targetRotY = lerp(0, Math.PI / 2.2, easeInOut(timelineP));
+      targetGreen = lerp(1.2, 4, timelineP);
+      targetScale = 2.0;
     } 
-    // Phase 3: Hardware Details (0.45 -> 0.75)
-    else if (p < 0.75) {
-      const p3 = clamp((p - 0.45) / 0.3, 0, 1);
-      targetX = lerp(-2.2, 2.2, easeInOut(p3));
-      targetRotY = lerp(Math.PI / 2.2, -Math.PI / 2.2, easeInOut(p3));
-      targetGreen = lerp(4, 2.5, p3);
-      targetScale = 1.9;
+    // Phase 3: Timeline -> Themes transition (0.45 -> 0.70)
+    else if (p < 0.70) {
+      const themeP = clamp((p - 0.45) / 0.25, 0, 1);
+      targetX = lerp(-2.4, 2.4, easeInOut(themeP));
+      targetRotY = lerp(Math.PI / 2.2, -Math.PI / 2.2, easeInOut(themeP));
+      targetGreen = lerp(4, 3, themeP);
+      targetScale = 2.0;
+      targetOpacity = 1;
     } 
-    // Phase 4: Final State & Exit (0.75 -> 1.0)
+    // Phase 4: Final State & Exit (0.70 -> 1.0)
     else {
-      const finalP = clamp((p - 0.75) / 0.25, 0, 1);
-      targetX = lerp(2.2, 15, easeIn(finalP)); // Fly out
-      targetRotY = lerp(-Math.PI / 2.2, -Math.PI / 1.2, finalP);
+      const finalP = clamp((p - 0.70) / 0.15, 0, 1);
+      targetX = lerp(2.4, 8, easeIn(finalP)); // Fly out
+      targetRotY = lerp(-Math.PI / 2.2, -Math.PI / 1.1, finalP);
       targetOpacity = lerp(1, 0, finalP);
-      targetScale = lerp(1.9, 1.2, finalP);
-      targetGreen = lerp(2.5, 0, finalP);
+      targetScale = lerp(2.0, 1.4, finalP);
+      targetGreen = lerp(3, 0, finalP);
     }
 
     // Add mouse parallax on top of scroll targets

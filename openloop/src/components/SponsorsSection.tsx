@@ -1,4 +1,5 @@
 import React from 'react';
+import { lerp, clamp } from '../utils/math';
 import './SponsorsSection.css';
 
 interface Sponsor {
@@ -21,13 +22,11 @@ const SPONSORS: Sponsor[] = [
 ];
 
 export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
-  // Sponsors typically sit at the very end, after Themes.
-  // In DesktopLayout, themes end at a certain p. Let's say Sponsors is the final block.
-  
-  const opacity = Math.min(Math.max((scrollProgress - 0.85) / 0.1, 0), 1);
-  const translateY = (1 - opacity) * 50;
+  // Strict visibility range: 0.70 -> 0.90
+  const opacity = clamp((scrollProgress - 0.70) / 0.1, 0, 1) * clamp((0.95 - scrollProgress) / 0.05, 0, 1);
+  const translateY = lerp(40, 0, opacity);
 
-  if (opacity <= 0) return null;
+  if (opacity <= 0.01) return null;
 
   return (
     <div 

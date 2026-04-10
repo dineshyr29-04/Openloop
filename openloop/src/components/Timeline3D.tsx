@@ -25,8 +25,8 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
   useFrame(() => {
     if (!groupRef.current) return;
     
-    // We want the group to move forward as we scroll
-    const mappedP = clamp((scrollProgress - 0.75) / 0.25, 0, 1);
+    // Unified mapping for Timeline window (0.20 -> 0.45)
+    const mappedP = clamp((scrollProgress - 0.20) / 0.25, 0, 1);
     const zOffset = lerp(0, 22, mappedP);
     
     groupRef.current.position.z = zOffset;
@@ -50,13 +50,13 @@ export const Timeline3D: React.FC<{ scrollProgress: number }> = ({ scrollProgres
 const TimelineItem = ({ data, index, totalProgress }: { data: MilestoneData; index: number; totalProgress: number }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   
-  // High-precision activation
-  const timelineStart = 0.75;
+  // High-precision activation within the 0.20 -> 0.45 window
+  const timelineStart = 0.20;
   const step = 0.25 / MILESTONES.length;
   const startAt = timelineStart + index * step;
   
   const activeP = clamp((totalProgress - startAt) / step, 0, 1);
-  const opacity = activeP > 0 ? 1 : 0.2;
+  const opacity = activeP > 0 ? 1 : 0; // Hide until active to avoid Z-noise
   const scale = lerp(0.8, 1.2, activeP);
 
   return (
