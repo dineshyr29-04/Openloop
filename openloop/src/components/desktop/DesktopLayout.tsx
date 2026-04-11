@@ -11,6 +11,7 @@ import { HeroOverlay } from '../HeroOverlay';
 import { LoaderScene } from '../LoaderScene';
 import { SponsorsSection } from '../SponsorsSection';
 import { ThemesSection } from '../ThemesSection';
+import { FooterSection } from '../FooterSection';
 import { useMousePosition } from '../../hooks/useMousePosition';
 import { lerp, clamp } from '../../utils/math';
 import Lenis from 'lenis';
@@ -213,14 +214,27 @@ export default function DesktopLayout() {
         </Canvas>
       </div>
 
-      <div id="hud-overlay" />
-
       {phase === 'main' && (
-        <div id="site-content" style={{ display: scrollEnabled ? 'block' : 'none' }}>
-          <HeroOverlay scrollProgress={rawScroll} />
-          <ThemesSection scrollProgress={rawScroll} />
-          <SponsorsSection scrollProgress={rawScroll} />
-        </div>
+        <>
+          <FooterSection scrollVal={rawScroll} />
+          <div 
+            id="site-content" 
+            style={{ 
+              display: scrollEnabled ? 'block' : 'none',
+              transform: rawScroll > 0.96 
+                ? `translateY(${lerp(0, -400, (rawScroll - 0.96) / 0.04)}px)` 
+                : 'translateY(0)',
+              zIndex: 20,
+              position: 'fixed',
+              inset: 0,
+              pointerEvents: 'none' // Important to let scroll through to Lenis
+            }}
+          >
+            <HeroOverlay scrollProgress={rawScroll} />
+            <ThemesSection scrollProgress={rawScroll} />
+            <SponsorsSection scrollProgress={rawScroll} />
+          </div>
+        </>
       )}
     </div>
   );

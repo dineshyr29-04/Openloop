@@ -42,7 +42,7 @@ export const ThemesSection: React.FC<{ scrollProgress: number }> = ({ scrollProg
       <div className="themes-content-wrapper">
         <div className="themes-header">
           <span className="themes-tag">// SYSTEM_CATEGORIES</span>
-          <h2 className="themes-main-title">THEMES</h2>
+          <h2 className="themes-main-title">TRACKS</h2>
           <div className="themes-header-line" />
         </div>
 

@@ -133,15 +133,6 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           </div>
         </div>
 
-        {/* PHASE 7: FOOTER */}
-        <footer id="footer-section" className="section-overlay">
-          <div style={{ textAlign: 'center' }}>
-            <h2 className="section-heading">OPENLOOP 2026</h2>
-            <p className="hud-label">TERMINAL_HANDOFF_COMPLETE</p>
-            <div className="hud-line" style={{ margin: '4rem auto', width: '200px' }} />
-            <p>© 2026 CSEA NIT TRICHY. ALL SYSTEMS GO.</p>
-          </div>
-        </footer>
       </section>
     </>
   );
