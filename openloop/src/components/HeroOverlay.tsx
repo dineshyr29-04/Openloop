@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 interface HeroOverlayProps {
   scrollProgress: number;
@@ -152,7 +153,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               {[
                 { name: 'Radhesh Pai',     role: 'Lead Organizer',       phone: '+91 89513 49166', initials: 'RP' },
                 { name: 'Mohammed',         role: 'Secretary',             phone: '+91 6282 679 146', initials: 'MO' },
-                { name: 'Jagadhish Naik',  role: 'Web Development Head',  phone: '+91 80732 36744', initials: 'JN' },
+                { name: 'Jagadish Naik',  role: 'Web Development Head',  phone: '+91 80732 36744', initials: 'JN' },
               ].map((person, i) => (
                 <div key={i} className="contact-card" style={{ animationDelay: `${i * 0.12}s` }}>
                   <div className="contact-card-glow" />
@@ -174,10 +175,26 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               ))}
             </div>
 
-            <div className="contact-footer-row">
-              <div className="hud-line" style={{ width: '60px' }} />
-              <span className="hud-label">AVAILABILITY: 24/7_SYNC</span>
-              <div className="hud-line" style={{ width: '60px' }} />
+            <div className="contact-footer-row" style={{ flexDirection: 'column', gap: '2rem' }}>
+              <Link 
+                to="/crew" 
+                className="cta-button" 
+                style={{ 
+                  textDecoration: 'none', 
+                  pointerEvents: 'auto',
+                  background: 'transparent',
+                  border: '1px solid #C6FF00',
+                  color: '#C6FF00',
+                  padding: '12px 40px'
+                }}
+              >
+                MEET THE CREW
+              </Link>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', justifyContent: 'center' }}>
+                <div className="hud-line" style={{ width: '60px' }} />
+                <span className="hud-label">AVAILABILITY: 24/7_SYNC</span>
+                <div className="hud-line" style={{ width: '60px' }} />
+              </div>
             </div>
           </div>
         </div>
