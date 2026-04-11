@@ -24,7 +24,7 @@ const CameraRig = ({ robotProgressRef }: { robotProgressRef: React.MutableRefObj
     }
     
     // 3. Move camera slightly more into depth for Timeline
-    if (p >= 0.50 && p <= 0.80) {
+    if (p >= 0.58 && p <= 0.82) {
       targetZ = 4.2; // Move back a bit to see the 3D timeline nodes better
     }
 

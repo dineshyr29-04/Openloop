@@ -5,16 +5,16 @@ import { lerp, clamp } from '../utils/math';
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 const CARDS_DATA = [
-  { id: 1, title: 'Learning and developer productivity' },
-  { id: 2, title: 'Healthcare and Medtech' },
-  { id: 3, title: 'FineTech & Banking' },
+  { id: 1, title: 'Learning & developer productivity' },
+  { id: 2, title: 'Healthcare & Medtech' },
+  { id: 3, title: 'FinTech & Banking' },
   { id: 4, title: 'Open Innovation' }
 ];
 
 export const ThemesSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
   const p = scrollProgress;
-  // Local Range: 0.30 -> 0.55 — GSAP controls outer opacity, we only drive card animations
-  const lp = clamp((p - 0.30) / (0.55 - 0.30), 0, 1);
+  // Local Range: 0.35 -> 0.50 — GSAP controls outer opacity
+  const lp = clamp((p - 0.35) / (0.50 - 0.35), 0, 1);
   const themeP = clamp(lp / 0.7, 0, 1); // Card stagger driver
 
   return (
@@ -30,7 +30,8 @@ export const ThemesSection: React.FC<{ scrollProgress: number }> = ({ scrollProg
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 100,
-        pointerEvents: 'none'
+        pointerEvents: 'none',
+        opacity: 0 // Start hidden, managed by DesktopLayout
       }}
     >
       <div className="themes-background-decor">
@@ -42,7 +43,7 @@ export const ThemesSection: React.FC<{ scrollProgress: number }> = ({ scrollProg
       <div className="themes-content-wrapper">
         <div className="themes-header">
           <span className="themes-tag">// SYSTEM_CATEGORIES</span>
-          <h2 className="themes-main-title">THEMES</h2>
+          <h2 className="themes-main-title">TRACKS</h2>
           <div className="themes-header-line" />
         </div>
 

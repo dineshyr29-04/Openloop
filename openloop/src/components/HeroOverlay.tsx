@@ -7,6 +7,24 @@ interface HeroOverlayProps {
 export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
 
+  // Navigation targets based on DesktopLayout ranges
+  const NAV_ITEMS = [
+    { label: 'Core', target: 0.06 },
+    { label: 'About', target: 0.215 },
+    { label: 'Themes', target: 0.425 },
+    { label: 'Timeline', target: 0.72 },
+    { label: 'Sponsors', target: 0.94 },
+    { label: 'Contact', target: 0.98 },
+  ];
+
+  const handleNavClick = (targetProgress: number) => {
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo({
+      top: targetProgress * maxScroll,
+      behavior: 'smooth'
+    });
+  };
+
   // Active state helpers
   const isHeroActive = p >= 0.00 && p < 0.15;
   const isAboutActive = p >= 0.15 && p < 0.30;
@@ -19,11 +37,24 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           <span style={{ backgroundImage: "linear-gradient(to bottom, #C6FF00, #FFFFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>OPEN LOOP</span>
         </div>
         <div className="nav-links">
-          <a href="#s1-hero">Core</a>
-          <a href="#s4-timeline">Timeline</a>
-          <a href="#theme-section">Themes</a>
+          {NAV_ITEMS.map((item) => (
+            <a 
+              key={item.label} 
+              href={`#${item.label.toLowerCase()}`}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick(item.target);
+              }}
+              style={{
+                color: (p >= item.target - 0.05 && p <= item.target + 0.05) ? '#C6FF00' : undefined,
+                textShadow: (p >= item.target - 0.05 && p <= item.target + 0.05) ? '0 0 10px #C6FF00' : undefined
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
         </div>
-        <button className="cta-outline" type="button">Try Now</button>
+        <button className="cta-outline" type="button">Register Now</button>
       </nav>
 
       <section id="robot-sections">
@@ -58,7 +89,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         </div>
 
         {/* PHASE 2: ABOUT (ROBOT LEFT / TEXT RIGHT) */}
-        <div id="s2-about" className="section-overlay">
+        <div id="s2-about" className="section-overlay" style={{ opacity: 0 }}>
           <div className="composition-grid">
             <div className="content-right">
               <div className="timeline-label">// 002 - ABOUT</div>
@@ -75,13 +106,13 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           </div>
         </div>
 
-        {/* PHASE 4: TIMELINE (3D Immersive - Content removed here to show canvas) */}
-        <section id="s4-timeline" className="section-overlay">
+        {/* PHASE 4: TIMELINE (3D Immersive) */}
+        <section id="s4-timeline" className="section-overlay" style={{ opacity: 0 }}>
           {/* 2D Content removed - 3D Timeline takes over the viewport */}
         </section>
 
         {/* PHASE 6: CONTACT */}
-        <div id="contact-section" className="section-overlay contact-fullscreen">
+        <div id="contact-section" className="section-overlay contact-fullscreen" style={{ opacity: 0 }}>
           <div className="contact-inner">
             <div className="contact-header">
               <span className="timeline-label">// 006 — CONTACT</span>
@@ -97,9 +128,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
 
             <div className="contact-cards-grid">
               {[
-                { name: 'Radhesh Pai',     role: 'Lead Organizer',       email: 'radhesh@openloop.dev',   phone: '+91 98765 43210', initials: 'RP' },
-                { name: 'Mohammed',         role: 'Secretary',             email: 'mohammed@openloop.dev',  phone: '+91 87654 32109', initials: 'MO' },
-                { name: 'Jagadhish Naik',  role: 'Web Development Head',  email: 'jagadhish@openloop.dev', phone: '+91 76543 21098', initials: 'JN' },
+                { name: 'Radhesh Pai',     role: 'Lead Organizer',       phone: '+91 89513 49166', initials: 'RP' },
+                { name: 'Mohammed',         role: 'Secretary',             phone: '+91 6282 679 146', initials: 'MO' },
+                { name: 'Jagadhish Naik',  role: 'Web Development Head',  phone: '+91 80732 36744', initials: 'JN' },
               ].map((person, i) => (
                 <div key={i} className="contact-card" style={{ animationDelay: `${i * 0.12}s` }}>
                   <div className="contact-card-glow" />
@@ -111,10 +142,6 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
                     <h3 className="contact-name">{person.name}</h3>
                     <span className="contact-role">{person.role}</span>
                     <div className="contact-divider" />
-                    <a href={`mailto:${person.email}`} className="contact-link">
-                      <span className="contact-link-icon">@</span>
-                      {person.email}
-                    </a>
                     <div className="contact-link">
                       <span className="contact-link-icon">#</span>
                       {person.phone}
@@ -133,15 +160,6 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           </div>
         </div>
 
-        {/* PHASE 7: FOOTER */}
-        <footer id="footer-section" className="section-overlay">
-          <div style={{ textAlign: 'center' }}>
-            <h2 className="section-heading">OPENLOOP 2026</h2>
-            <p className="hud-label">TERMINAL_HANDOFF_COMPLETE</p>
-            <div className="hud-line" style={{ margin: '4rem auto', width: '200px' }} />
-            <p>© 2026 CSEA NIT TRICHY. ALL SYSTEMS GO.</p>
-          </div>
-        </footer>
       </section>
     </>
   );

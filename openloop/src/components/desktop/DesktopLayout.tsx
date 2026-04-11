@@ -11,6 +11,7 @@ import { HeroOverlay } from '../HeroOverlay';
 import { LoaderScene } from '../LoaderScene';
 import { SponsorsSection } from '../SponsorsSection';
 import { ThemesSection } from '../ThemesSection';
+import { FooterSection } from '../FooterSection';
 import { useMousePosition } from '../../hooks/useMousePosition';
 import { lerp, clamp } from '../../utils/math';
 import Lenis from 'lenis';
@@ -93,13 +94,13 @@ export default function DesktopLayout() {
 
             // 1. Precise Range Mapping (MANDATORY - 7 SECTIONS)
             const ranges = [
-              { name: 'HERO', start: 0.00, end: 0.15, id: '#s1-hero' },
-              { name: 'ABOUT', start: 0.15, end: 0.30, id: '#s2-about' },
-              { name: 'THEMES', start: 0.30, end: 0.55, id: '#theme-section' },
-              { name: 'TIMELINE', start: 0.55, end: 0.72, id: '#s4-timeline' },
-              { name: 'SPONSORS', start: 0.75, end: 0.90, id: '#sponsors-section' },
-              { name: 'CONTACT', start: 0.90, end: 0.97, id: '#contact-section' },
-              { name: 'FOOTER', start: 0.97, end: 1.00, id: '#footer-section' },
+              { name: 'HERO', start: 0.00, end: 0.12, id: '#s1-hero' },
+              { name: 'ABOUT', start: 0.15, end: 0.28, id: '#s2-about' },
+              { name: 'THEMES', start: 0.35, end: 0.50, id: '#theme-section' },
+              { name: 'TIMELINE', start: 0.58, end: 0.88, id: '#s4-timeline' },
+              { name: 'SPONSORS', start: 0.91, end: 0.97, id: '#sponsors-section' },
+              { name: 'CONTACT', start: 0.97, end: 0.99, id: '#contact-section' },
+              { name: 'FOOTER', start: 0.99, end: 1.00, id: '#footer-section' },
             ];
 
             // No manual cutoff - handled by Robot component internally
@@ -128,8 +129,14 @@ export default function DesktopLayout() {
               else if (lp <= (1 - ramp)) op = 1;
               else op = (1 - lp) / ramp;
 
-              // Force absolute clamping
-              if (p < range.start || p > range.end) op = 0;
+              // FINAL FIX: Ensure FOOTER stays at opacity 1 once it reaches peak, and never fades out
+              if (range.name === 'FOOTER') {
+                if (lp > 0.5) op = 1; // Stay fully visible after mid-reveal
+              }
+
+              // Force absolute clamping - allow Footer to persist if progress is at or slightly past 1.0
+              const isPastEnd = p > range.end && range.name !== 'FOOTER';
+              if (p < range.start || isPastEnd) op = 0;
 
               el.style.opacity = String(op);
               el.style.visibility = op > 0.001 ? 'visible' : 'hidden';
@@ -188,7 +195,13 @@ export default function DesktopLayout() {
         </div>
       )}
 
-      <div className="canvas-container">
+      <div 
+        className="canvas-container"
+        style={{
+          opacity: rawScroll > 0.94 ? lerp(1, 0, (rawScroll - 0.94) / 0.04) : 1,
+          transition: 'opacity 0.3s ease-out'
+        }}
+      >
         <Canvas
           id="webgl"
           camera={{ position: [0, 0, 3.8], fov: 45 }}
@@ -213,13 +226,21 @@ export default function DesktopLayout() {
         </Canvas>
       </div>
 
-      <div id="hud-overlay" />
-
       {phase === 'main' && (
-        <div id="site-content" style={{ display: scrollEnabled ? 'block' : 'none' }}>
+        <div 
+          id="site-content" 
+          style={{ 
+            display: scrollEnabled ? 'block' : 'none',
+            zIndex: 20,
+            position: 'fixed',
+            inset: 0,
+            pointerEvents: 'none'
+          }}
+        >
           <HeroOverlay scrollProgress={rawScroll} />
           <ThemesSection scrollProgress={rawScroll} />
           <SponsorsSection scrollProgress={rawScroll} />
+          <FooterSection scrollVal={rawScroll} />
         </div>
       )}
     </div>

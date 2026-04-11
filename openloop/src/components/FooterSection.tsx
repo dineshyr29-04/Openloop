@@ -1,48 +1,157 @@
 import React from 'react';
-import { normalize, mapRange } from '../utils/math';
 
 interface FooterSectionProps {
   scrollVal: number;
 }
 
 export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
-  // Scroll: 0.95 -> 1.0
-  const progress = normalize(scrollVal, 0.95, 1);
-  const isVisible = scrollVal >= 0.94; // Render early slightly for smoothing
+  const isVisible = scrollVal >= 0.96;
 
   if (!isVisible) return null;
 
-  // Fade in footer (opacity 0 -> 1) 
-  // Slight upward motion
-  const opacity = mapRange(progress, 0, 1, 0, 1);
-  const translateY = mapRange(progress, 0, 1, 100, 0); // Up to 0 form 100
-
   return (
     <footer
+      id="footer-section"
       style={{
-        position: 'fixed',
-        bottom: '0',
-        left: '0',
+        position: 'absolute',
+        inset: 0,
         width: '100%',
-        padding: '2rem',
-        textAlign: 'center',
-        background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+        height: '100vh',
+        background: '#050505',
         color: '#fff',
-        opacity,
-        transform: `translateY(${translateY}px)`,
-        pointerEvents: 'auto', // allow click if any links
-        zIndex: 10
+        pointerEvents: 'auto',
+        zIndex: 100,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        borderTop: '1px solid rgba(198, 255, 0, 0.1)',
       }}
     >
-      <div style={{ maxWidth: '800px', margin: '0 auto', fontSize: '1rem', color: '#00ccff' }}>
-        <h3 style={{ textTransform: 'uppercase', letterSpacing: '4px', margin: '0 0 1rem 0' }}>OPENLOOP</h3>
-        <p style={{ margin: 0, opacity: 0.8 }}>© 2026 OpenLoop Industries. All rights reserved.</p>
-        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '2rem' }}>
-          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }}>SYSTEMS</span>
-          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }}>ARCHIVE</span>
-          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }}>CONTACT</span>
+      {/* Background Glow */}
+      <div style={{
+          position: 'absolute',
+          top: '-150px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80%',
+          height: '300px',
+          background: 'radial-gradient(ellipse at center, rgba(198, 255, 0, 0.05) 0%, transparent 70%)',
+          pointerEvents: 'none'
+      }} />
+
+      <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto', 
+          width: '100%',
+          padding: '0 40px',
+          display: 'grid',
+          gridTemplateColumns: '1.5fr 1fr 1fr 1fr',
+          gap: '40px',
+          position: 'relative'
+      }}>
+        {/* Brand Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 style={{ 
+              fontFamily: 'Audiowide, sans-serif', 
+              fontSize: '24px', 
+              letterSpacing: '2px',
+              color: '#C6FF00',
+              margin: 0
+          }}>OPENLOOP</h3>
+          <p style={{ 
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.5)',
+              lineHeight: '1.6',
+              maxWidth: '300px'
+          }}>
+            Pushing the boundaries of decentralized innovation. Join the next generation of building.
+          </p>
+        </div>
+
+        {/* Navigation */}
+        <div>
+          <h4 style={headerStyle}>Navigation</h4>
+          <ul style={listStyle}>
+            <li><a href="#about" style={linkStyle}>About</a></li>
+            <li><a href="#themes" style={linkStyle}>Themes</a></li>
+            <li><a href="#timeline" style={linkStyle}>Timeline</a></li>
+            <li><a href="#sponsors" style={linkStyle}>Sponsors</a></li>
+          </ul>
+        </div>
+
+        {/* Support */}
+        <div>
+          <h4 style={headerStyle}>Connect</h4>
+          <ul style={listStyle}>
+            <li><a href="#" style={linkStyle}>Twitter/X</a></li>
+            <li><a href="#" style={linkStyle}>Discord</a></li>
+            <li><a href="#" style={linkStyle}>GitHub</a></li>
+            <li><a href="mailto:hello@openloop.dev" style={linkStyle}>Email</a></li>
+          </ul>
+        </div>
+
+        {/* Legal */}
+        <div>
+          <h4 style={headerStyle}>Legal</h4>
+          <ul style={listStyle}>
+            <li><a href="#" style={linkStyle}>Privacy Policy</a></li>
+            <li><a href="#" style={linkStyle}>Terms of Service</a></li>
+            <li><a href="#" style={linkStyle}>Code of Conduct</a></li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div style={{
+          marginTop: '60px',
+          paddingTop: '30px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+          maxWidth: '1200px',
+          margin: '60px auto 0 auto',
+          width: '100%',
+          padding: '0 40px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontFamily: 'Share Tech Mono, monospace',
+          fontSize: '11px',
+          color: 'rgba(255, 255, 255, 0.3)',
+          letterSpacing: '1px'
+      }}>
+        <span>© 2026 OPENLOOP HACKATHON. ALL RIGHTS RESERVED.</span>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <span>YENTECH INDUSTRIES</span>
+          <span style={{ color: '#C6FF00' }}>v1.0.4-BETA</span>
         </div>
       </div>
     </footer>
   );
+};
+
+const headerStyle: React.CSSProperties = {
+    fontFamily: 'Rajdhani, sans-serif',
+    fontWeight: 700,
+    fontSize: '15px',
+    color: '#fff',
+    textTransform: 'uppercase',
+    letterSpacing: '1.5px',
+    marginBottom: '20px'
+};
+
+const listStyle: React.CSSProperties = {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px'
+};
+
+const linkStyle: React.CSSProperties = {
+    fontFamily: 'Inter, sans-serif',
+    fontSize: '13px',
+    color: 'rgba(255, 255, 255, 0.6)',
+    textDecoration: 'none',
+    transition: 'color 0.2s ease',
 };
