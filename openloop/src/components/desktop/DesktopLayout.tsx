@@ -129,8 +129,14 @@ export default function DesktopLayout() {
               else if (lp <= (1 - ramp)) op = 1;
               else op = (1 - lp) / ramp;
 
-              // Force absolute clamping
-              if (p < range.start || p > range.end) op = 0;
+              // FINAL FIX: Ensure FOOTER stays at opacity 1 once it reaches peak, and never fades out
+              if (range.name === 'FOOTER') {
+                if (lp > 0.5) op = 1; // Stay fully visible after mid-reveal
+              }
+
+              // Force absolute clamping - allow Footer to persist if progress is at or slightly past 1.0
+              const isPastEnd = p > range.end && range.name !== 'FOOTER';
+              if (p < range.start || isPastEnd) op = 0;
 
               el.style.opacity = String(op);
               el.style.visibility = op > 0.001 ? 'visible' : 'hidden';
@@ -189,7 +195,13 @@ export default function DesktopLayout() {
         </div>
       )}
 
-      <div className="canvas-container">
+      <div 
+        className="canvas-container"
+        style={{
+          opacity: rawScroll > 0.94 ? lerp(1, 0, (rawScroll - 0.94) / 0.04) : 1,
+          transition: 'opacity 0.3s ease-out'
+        }}
+      >
         <Canvas
           id="webgl"
           camera={{ position: [0, 0, 3.8], fov: 45 }}
@@ -215,26 +227,21 @@ export default function DesktopLayout() {
       </div>
 
       {phase === 'main' && (
-        <>
+        <div 
+          id="site-content" 
+          style={{ 
+            display: scrollEnabled ? 'block' : 'none',
+            zIndex: 20,
+            position: 'fixed',
+            inset: 0,
+            pointerEvents: 'none'
+          }}
+        >
+          <HeroOverlay scrollProgress={rawScroll} />
+          <ThemesSection scrollProgress={rawScroll} />
+          <SponsorsSection scrollProgress={rawScroll} />
           <FooterSection scrollVal={rawScroll} />
-          <div 
-            id="site-content" 
-            style={{ 
-              display: scrollEnabled ? 'block' : 'none',
-              transform: rawScroll > 0.96 
-                ? `translateY(${lerp(0, -400, (rawScroll - 0.96) / 0.04)}px)` 
-                : 'translateY(0)',
-              zIndex: 20,
-              position: 'fixed',
-              inset: 0,
-              pointerEvents: 'none' // Important to let scroll through to Lenis
-            }}
-          >
-            <HeroOverlay scrollProgress={rawScroll} />
-            <ThemesSection scrollProgress={rawScroll} />
-            <SponsorsSection scrollProgress={rawScroll} />
-          </div>
-        </>
+        </div>
       )}
     </div>
   );

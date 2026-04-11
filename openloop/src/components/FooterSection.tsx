@@ -1,34 +1,26 @@
 import React from 'react';
-import { normalize, mapRange } from '../utils/math';
 
 interface FooterSectionProps {
   scrollVal: number;
 }
 
 export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
-  const progress = normalize(scrollVal, 0.96, 1);
-  const isVisible = scrollVal >= 0.95;
+  const isVisible = scrollVal >= 0.96;
 
   if (!isVisible) return null;
-
-  const opacity = mapRange(progress, 0, 0.5, 0, 1);
-  const translateY = mapRange(progress, 0, 1, 50, 0);
 
   return (
     <footer
       id="footer-section"
       style={{
-        position: 'fixed',
-        bottom: '0',
-        left: '0',
+        position: 'absolute',
+        inset: 0,
         width: '100%',
-        height: '400px', // Fixed height for reveal
+        height: '100vh',
         background: '#050505',
         color: '#fff',
-        opacity,
-        transform: `translateY(${translateY}px)`,
         pointerEvents: 'auto',
-        zIndex: 5,
+        zIndex: 100,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',

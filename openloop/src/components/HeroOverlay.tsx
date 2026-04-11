@@ -7,6 +7,24 @@ interface HeroOverlayProps {
 export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
 
+  // Navigation targets based on DesktopLayout ranges
+  const NAV_ITEMS = [
+    { label: 'Core', target: 0.05 },
+    { label: 'About', target: 0.20 },
+    { label: 'Themes', target: 0.35 },
+    { label: 'Timeline', target: 0.60 },
+    { label: 'Sponsors', target: 0.82 },
+    { label: 'Contact', target: 0.93 },
+  ];
+
+  const handleNavClick = (targetProgress: number) => {
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo({
+      top: targetProgress * maxScroll,
+      behavior: 'smooth'
+    });
+  };
+
   // Active state helpers
   const isHeroActive = p >= 0.00 && p < 0.15;
   const isAboutActive = p >= 0.15 && p < 0.30;
@@ -19,11 +37,24 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           <span style={{ backgroundImage: "linear-gradient(to bottom, #C6FF00, #FFFFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>OPEN LOOP</span>
         </div>
         <div className="nav-links">
-          <a href="#s1-hero">Core</a>
-          <a href="#s4-timeline">Timeline</a>
-          <a href="#theme-section">Themes</a>
+          {NAV_ITEMS.map((item) => (
+            <a 
+              key={item.label} 
+              href={`#${item.label.toLowerCase()}`}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick(item.target);
+              }}
+              style={{
+                color: (p >= item.target - 0.05 && p <= item.target + 0.05) ? '#C6FF00' : undefined,
+                textShadow: (p >= item.target - 0.05 && p <= item.target + 0.05) ? '0 0 10px #C6FF00' : undefined
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
         </div>
-        <button className="cta-outline" type="button">Try Now</button>
+        <button className="cta-outline" type="button">Register Now</button>
       </nav>
 
       <section id="robot-sections">

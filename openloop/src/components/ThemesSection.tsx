@@ -5,9 +5,9 @@ import { lerp, clamp } from '../utils/math';
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 const CARDS_DATA = [
-  { id: 1, title: 'Learning and developer productivity' },
-  { id: 2, title: 'Healthcare and Medtech' },
-  { id: 3, title: 'FineTech & Banking' },
+  { id: 1, title: 'Learning & developer productivity' },
+  { id: 2, title: 'Healthcare & Medtech' },
+  { id: 3, title: 'FinTech & Banking' },
   { id: 4, title: 'Open Innovation' }
 ];
 
