@@ -9,10 +9,10 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
 
   // Navigation targets based on DesktopLayout ranges
   const NAV_ITEMS = [
-    { label: 'Core', target: 0.05 },
-    { label: 'About', target: 0.20 },
-    { label: 'Themes', target: 0.35 },
-    { label: 'Timeline', target: 0.60 },
+    { label: 'Core', target: 0.108 },
+    { label: 'About', target: 0.277 },
+    { label: 'Themes', target: 0.45 },
+    { label: 'Timeline', target: 0.56 },
     { label: 'Sponsors', target: 0.82 },
     { label: 'Contact', target: 0.93 },
   ];
@@ -128,9 +128,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
 
             <div className="contact-cards-grid">
               {[
-                { name: 'Radhesh Pai',     role: 'Lead Organizer',       email: 'radhesh@openloop.dev',   phone: '+91 98765 43210', initials: 'RP' },
-                { name: 'Mohammed',         role: 'Secretary',             email: 'mohammed@openloop.dev',  phone: '+91 87654 32109', initials: 'MO' },
-                { name: 'Jagadhish Naik',  role: 'Web Development Head',  email: 'jagadhish@openloop.dev', phone: '+91 76543 21098', initials: 'JN' },
+                { name: 'Radhesh Pai',     role: 'Lead Organizer',       phone: '+91 89513 49166', initials: 'RP' },
+                { name: 'Mohammed',         role: 'Secretary',             phone: '+91 6282 679 146', initials: 'MO' },
+                { name: 'Jagadhish Naik',  role: 'Web Development Head',  phone: '+91 80732 36744', initials: 'JN' },
               ].map((person, i) => (
                 <div key={i} className="contact-card" style={{ animationDelay: `${i * 0.12}s` }}>
                   <div className="contact-card-glow" />
@@ -142,10 +142,6 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
                     <h3 className="contact-name">{person.name}</h3>
                     <span className="contact-role">{person.role}</span>
                     <div className="contact-divider" />
-                    <a href={`mailto:${person.email}`} className="contact-link">
-                      <span className="contact-link-icon">@</span>
-                      {person.email}
-                    </a>
                     <div className="contact-link">
                       <span className="contact-link-icon">#</span>
                       {person.phone}
