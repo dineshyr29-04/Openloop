@@ -12,9 +12,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
     { label: 'Core', target: 0.06 },
     { label: 'About', target: 0.235 },
     { label: 'Themes', target: 0.450 },
-    { label: 'Timeline', target: 0.715 },
+    { label: 'Timeline', target: 0.602 },
     { label: 'Sponsors', target: 0.905 },
-    { label: 'Contact', target: 0.967 },
+    { label: 'Contact', target: 0.985 },
   ];
 
   const handleNavClick = (targetProgress: number) => {
