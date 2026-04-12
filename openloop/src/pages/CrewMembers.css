@@ -55,6 +55,12 @@
 /* --- Top Navigation --- */
 .crew-top-nav {
   margin-bottom: 2rem;
+  position: relative !important;
+  background: none !important;
+  backdrop-filter: none !important;
+  height: auto !important;
+  padding: 0 !important;
+  pointer-events: auto;
 }
 
 .back-link {
@@ -90,10 +96,13 @@
 
 .crew-title {
   font-family: 'Audiowide', sans-serif;
-  font-size: clamp(3rem, 10vw, 6rem);
+  font-size: clamp(2rem, 10vw, 6rem);
   letter-spacing: 0.1em;
   margin: 0;
-  color: #ffffff;
+  background-image:linear-gradient(to bottom, #C6FF00, #9c5c5c);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   text-shadow: 0 0 30px rgba(198, 255, 0, 0.15);
   line-height: 1;
 }
@@ -240,7 +249,10 @@
 .avatar-text {
   font-family: 'Audiowide', sans-serif;
   font-size: 24px;
-  color: #fff;
+  background-image:linear-gradient(to bottom, #C6FF00, #9c5c5c);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   z-index: 2;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
@@ -262,7 +274,10 @@
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
   font-size: 22px;
-  color: #ffffff;
+  background-image:linear-gradient(to bottom, #ace458, #cc68dd);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: 1px;
   margin: 0 0 4px 0;
   text-transform: uppercase;
