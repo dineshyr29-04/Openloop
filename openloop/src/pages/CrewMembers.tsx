@@ -28,19 +28,24 @@ interface Member {
 }
 
 const members: Member[] = [
-  { name: 'Radhesh Pai', role: 'Lead Organizer', github: 'https://github.com', icon: <Shield size={20} />, color: '#C6FF00' },
-  { name: 'Mohammed', role: 'Secretary', github: 'https://github.com', icon: <UsersRound size={20} />, color: '#00ccff' },
-  { name: 'Jagadhish Naik', role: 'Web Development Head', github: 'https://github.com', icon: <Zap size={20} />, color: '#ff2244' },
-  { name: 'Dinesh A', role: 'Designer', github: 'https://github.com', icon: <Earth size={20} />, color: '#C6FF00' },
-  { name: 'Dhanush Shenoy H', role: 'AI/ML Head', github: 'https://github.com', icon: <Zap size={20} />, color: '#00ccff' },
-  { name: 'Anand', role: 'Media/Graphics Head', github: 'https://github.com', icon: <Shield size={20} />, color: '#ff2244' },
-  { name: 'Srithan', role: 'MediaTech Member', github: 'https://github.com', icon: <Shield size={20} />, color: '#C6FF00' },
-  { name: '', role: 'Frontend Architect', github: 'https://github.com', icon: <Zap size={20} />, color: '#00ccff' },
-  { name: 'Marcus Vane', role: 'Backend Engineer', github: 'https://github.com', icon: <UsersRound size={20} />, color: '#ff2244' },
-  { name: 'Luna Lovegood', role: 'Creative Director', github: 'https://github.com', icon: <Earth size={20} />, color: '#C6FF00' },
-  { name: 'Alex Rivera', role: 'DevOps Lead', github: 'https://github.com', icon: <Zap size={20} />, color: '#00ccff' },
-  { name: 'Maya Gupta', role: 'Product Manager', github: 'https://github.com', icon: <Shield size={20} />, color: '#ff2244' },
-  { name: 'Chris Jordan', role: 'Community Manager', github: 'https://github.com', icon: <UsersRound size={20} />, color: '#C6FF00' },
+  { name: 'Radhesh Pai', role: 'President', github: 'https://github.com/radheshpai87', icon: <Shield size={20} />, color: '#C6FF00' },
+  { name:'DevKeerthana Pradeep', role: 'Secretary', github: 'https://github.com', icon: <UsersRound size={20} />, color: '#ff2244' },
+  { name: 'Mohammed Shameer', role: 'Vice President', github: 'http://github.com/Muhammed-Shameer-PK', icon: <UsersRound size={20} />, color: '#00ccff' },
+  { name: 'Jagadhish S Naik', role: 'Web Development Head', github: 'https://github.com/Jagadish-s-naik', icon: <Zap size={20} />, color: '#ff2244' },
+  { name: 'Ashwin Nethan', role: 'Web Development Head', github: 'https://github.com/Ashwinnethan64-maker', icon: <Zap size={20} />, color: '#ff2244' },
+  { name: 'Dinesh A', role: 'Designer', github: 'https://github.com/dineshyr29-04', icon: <Earth size={20} />, color: '#C6FF00' },
+  { name: 'Dhanush Shenoy H', role: 'AI/ML Head', github: 'https://github.com/abbysallord', icon: <Zap size={20} />, color: '#00ccff' },
+  { name: 'Ashwin R', role: 'AI/ML Head', github: 'https://github.com', icon: <Zap size={20} />, color: '#00ccff' },
+  { name: 'Anand M', role: 'Media/Graphics Head', github: 'https://github.com/anandmahadev', icon: <Shield size={20} />, color: '#ff2244' },
+  { name: 'Sana Zainaba', role: 'Media/Graphics Head', github: 'https://github.com', icon: <Shield size={20} />, color: '#C6FF00' },
+  { name: 'Srithan', role: 'Social Co-ordinator', github: 'https://github.com', icon: <Earth size={20} />, color: '#C6FF00' },
+  { name: 'Rinu Manoj', role: 'Program Manager', github: 'https://github.com', icon: <Zap size={20} />, color: '#00ccff' },
+  { name: 'Safwan M', role: 'Multi Media Manager', github: 'https://github.com', icon: <Shield size={20} />, color: '#ff2244' },
+  { name: 'Amal VS ', role: 'Organising Committee', github: 'https://github.com/Amal-v-s', icon: <UsersRound size={20} />, color: '#C6FF00' },
+  { name: 'Mohammed Reehan', role: 'Organising Committee', github: 'https://github.com', icon: <UsersRound size={20} />, color: '#C6FF00' },
+  { name: 'Divya Shettar', role: 'Organising Committee', github: 'https://github.com/divya5623', icon: <UsersRound size={20} />, color: '#C6FF00' },
+  { name: 'Chethan M', role: 'Organising Committee', github: 'https://github.com ', icon: <Shield size={20} />, color: '#ff2244' },
+
 ];
 
 export const CrewMembers: React.FC = () => {
