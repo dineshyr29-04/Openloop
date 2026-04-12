@@ -98,32 +98,36 @@ export const CrewMembers: React.FC = () => {
         <div className="crew-grid">
           {members.map((member, i) => (
             <div key={i} className="crew-card">
-              <div className="card-glass-depth" />
-              <div className="card-border-glow" />
+              <div className="card-cyber-lines" />
               
-              <div className="card-image-wrapper">
-                <div className="image-placeholder">
-                  <span className="placeholder-initials">
-                    {member.name.split(' ').map(n => n[0]).join('')}
+              <div className="card-top-bar">
+                <span className="card-id">ID: {String(i + 1).padStart(3, '0')}</span>
+                <span className="card-status">ACTIVE</span>
+              </div>
+
+              <div className="card-visual">
+                <div className="avatar-frame">
+                  <div className="avatar-bg" style={{ '--acc': member.color } as React.CSSProperties} />
+                  <span className="avatar-text">
+                    {member.name.split(' ').map(n => n.charAt(0)).slice(0, 2).join('')}
                   </span>
-                  <div className="image-ring" style={{'--accent': member.color} as React.CSSProperties} />
                 </div>
               </div>
 
-              <div className="card-info">
-                <h3 className="member-name">{member.name}</h3>
-                <span className="member-role">{member.role}</span>
+              <div className="card-data">
+                <h3 className="card-name">{member.name}</h3>
+                <div className="card-role">{member.role}</div>
               </div>
 
-              <div className="card-actions">
+              <div className="card-bottom">
                 <a 
-                  href={member.github} 
+                  href={member.github || '#'} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="social-btn github-btn"
+                  className="cyber-btn"
                 >
-                  <GithubIcon size={20} />
-                  <span>GITHUB</span>
+                  <GithubIcon size={16} />
+                  <span>INIT_LINK</span>
                 </a>
               </div>
             </div>

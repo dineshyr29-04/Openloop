@@ -124,151 +124,197 @@
   padding-bottom: 60px;
 }
 
-/* --- Crew Card --- */
+/* --- Ultra Premium Cyber Card --- */
 .crew-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.08); /* Boosted from 0.03 for visibility */
-  backdrop-filter: blur(16px); /* Boosted blur */
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.15); /* Boosted border */
-  border-radius: 20px;
-  padding: 32px 24px;
+  background: rgba(10, 10, 15, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px; /* Slightly sharp */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05); /* Added shadow for pop */
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-.card-glass-depth {
+.crew-card:before {
+  content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
-  pointer-events: none;
-}
-
-.card-border-glow {
-  position: absolute;
-  inset: 0;
-  border: 1px solid transparent;
-  border-radius: inherit;
-  transition: all 0.4s ease;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(198, 255, 0, 0.8), transparent);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 5;
 }
 
 .crew-card:hover {
-  transform: translateY(-10px) scale(1.02);
-  background: rgba(255, 255, 255, 0.12); /* Boosted hover bg */
-  border-color: rgba(198, 255, 0, 0.5); /* Stronger hover border */
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.6),
-    0 0 25px rgba(198, 255, 0, 0.2);
+  transform: translateY(-10px);
+  border-color: rgba(198, 255, 0, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 40px rgba(198, 255, 0, 0.1);
+  background: transparent; /* Makes the backdrop-filter pop more */
 }
 
-.crew-card:hover .card-border-glow {
-  border-color: rgba(198, 255, 0, 0.5);
-  box-shadow: inset 0 0 20px rgba(198, 255, 0, 0.15);
-}
-
-/* --- Image / Placeholder --- */
-.card-image-wrapper {
-  position: relative;
-  margin-bottom: 24px;
-}
-
-.image-placeholder {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: transform 0.4s ease;
-}
-
-.placeholder-initials {
-  font-family: 'Audiowide', sans-serif;
-  font-size: 28px;
-  color: #C6FF00;
-  opacity: 0.8;
-}
-
-.image-ring {
-  position: absolute;
-  inset: -6px;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  opacity: 0.3;
-  transition: all 0.4s ease;
-}
-
-.crew-card:hover .image-placeholder {
-  transform: scale(1.05);
-}
-
-.crew-card:hover .image-ring {
+.crew-card:hover:before {
   opacity: 1;
-  inset: -8px;
-  box-shadow: 0 0 15px var(--accent);
 }
 
-/* --- Member Info --- */
-.card-info {
-  margin-bottom: 24px;
+/* Background Cyber Lines */
+.card-cyber-lines {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px) 0 0 / 20px 20px;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 0.5s ease;
+  z-index: 1;
 }
 
-.member-name {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  color: #ffffff;
-  letter-spacing: 0.5px;
+.crew-card:hover .card-cyber-lines {
+  opacity: 1;
 }
 
-.member-role {
+/* Top Bar */
+.card-top-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  z-index: 2;
 }
 
-/* --- Actions --- */
-.card-actions {
-  margin-top: auto;
-  width: 100%;
+.card-id {
+  color: rgba(255, 255, 255, 0.4);
 }
 
-.social-btn {
+.card-status {
+  color: #C6FF00;
+  text-shadow: 0 0 8px rgba(198, 255, 0, 0.5);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Visual Frame */
+.card-visual {
+  padding: 40px 0 20px;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.avatar-frame {
+  width: 90px;
+  height: 90px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 12px 20px;
-  background: rgba(198, 255, 0, 0.05); /* Very subtle brand color */
-  border: 1px solid rgba(198, 255, 0, 0.2);
-  border-radius: 8px;
+}
+
+.avatar-bg {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--acc);
+  transform: rotate(45deg);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  background: rgba(0,0,0,0.5);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+.crew-card:hover .avatar-bg {
+  transform: rotate(135deg) scale(1.1);
+  box-shadow: inset 0 0 20px var(--acc), 0 0 20px rgba(198, 255, 0, 0.2);
+  background: rgba(198, 255, 0, 0.05);
+}
+
+.avatar-text {
+  font-family: 'Audiowide', sans-serif;
+  font-size: 24px;
+  color: #fff;
+  z-index: 2;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.crew-card:hover .avatar-text {
   color: #C6FF00;
-  text-decoration: none;
+  text-shadow: 0 0 10px #C6FF00;
+}
+
+/* Data */
+.card-data {
+  text-align: center;
+  padding: 0 20px 20px;
+  z-index: 2;
+  flex-grow: 1;
+}
+
+.card-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #ffffff;
+  letter-spacing: 1px;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+}
+
+.card-role {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Bottom Action */
+.card-bottom {
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 2;
+}
+
+.cyber-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(198, 255, 0, 0.2);
+  color: #C6FF00;
   font-family: 'Share Tech Mono', monospace;
   font-size: 13px;
+  text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
+  border-radius: 4px;
   transition: all 0.3s ease;
-  width: 100%;
+  position: relative;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
-.social-btn:hover {
-  background: #C6FF00; /* Solid brand color on hover */
-  border-color: #C6FF00;
-  color: #030800; /* Dark text for contrast */
-  transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(198, 255, 0, 0.3);
+.cyber-btn:hover {
+  background: #C6FF00;
+  color: #000;
+  box-shadow: 0 0 20px rgba(198, 255, 0, 0.4);
+}
+
+.cyber-btn:hover svg {
+  stroke: #000;
 }
 
 /* --- Page Footer --- */
