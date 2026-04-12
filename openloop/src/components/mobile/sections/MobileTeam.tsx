@@ -21,7 +21,7 @@ const members = [
     github: '#'
   },
   { 
-    name: 'Jagadhish Naik', 
+    name: 'Jagadish Naik', 
     role: 'Web Development Head', 
     photo: 'https://via.placeholder.com/150', 
     email: 'marcus@openloop.dev',
