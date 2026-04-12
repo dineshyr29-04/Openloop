@@ -341,10 +341,23 @@
   background: var(--neon);
   color: #000;
   box-shadow: 0 0 20px rgba(198, 255, 0, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  will-change: transform, box-shadow;
+  border-radius: 999px;
 }
-.btn-hero.primary:hover{
-  box-shadow:0 0 20px #AFFF00;
-  color: #000;
+.btn-hero.primary:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 
+    0 0 25px rgba(198, 255, 0, 0.6),
+    0 0 50px rgba(198, 255, 0, 0.3);
+  filter: brightness(1.1);
+}
+.btn-hero.primary:active {
+  transform: scale(0.97);
+  box-shadow: 
+    0 0 10px rgba(198, 255, 0, 0.4);
 }
 .btn-hero.outline {
   border: 1px solid rgba(198, 255, 0, 0.3);
@@ -354,6 +367,7 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  border-radius:999px;
 }
 .btn-hero.outline:hover{
   
