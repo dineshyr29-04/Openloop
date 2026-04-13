@@ -31,6 +31,7 @@ export const MobileHero: React.FC = () => {
         <div style={{
           display: 'flex',
           justifyContent: 'center',
+          flexDirection:"column",
           width: '100%',
           marginBottom: '8px',
         }}>
@@ -53,6 +54,9 @@ export const MobileHero: React.FC = () => {
                 display: 'block',
               }}
             />
+            
+            <p className="hero-subtitle" style={{ fontSize: '10px', color: '#C6FF00' }}>Affiliated to Yenepoya Deemed to be University</p>  
+            
           </div>
         </div>
 
