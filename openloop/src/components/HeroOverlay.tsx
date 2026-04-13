@@ -53,10 +53,10 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         }}>
           <div style={{
             background: 'transparent',
-            backdropFilter: 'blur(8px)',
             borderRadius: '12px',
             padding: '8px 20px',
-            display: 'inline-flex',
+            display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
           }}>
             <img
@@ -69,6 +69,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
                 display: 'block',
               }}
             />
+            <p className="hero-subtitle" style={{ fontSize: '12px', color: 'white' }}>Affiliated to Yenepoya Deemed to be University</p>
           </div>
         </div>
 

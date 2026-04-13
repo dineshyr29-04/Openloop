@@ -39,7 +39,8 @@ export const MobileHero: React.FC = () => {
            
             borderRadius: '10px',
             padding: '5px 14px 5px 10px',
-            display: 'inline-flex',
+            display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             
           
@@ -55,7 +56,7 @@ export const MobileHero: React.FC = () => {
               }}
             />
             
-            <p className="hero-subtitle" style={{ fontSize: '10px', color: '#C6FF00' }}>Affiliated to Yenepoya Deemed to be University</p>  
+            <p className="hero-subtitle" style={{ fontSize: '12px', color: 'white' }}>Affiliated to Yenepoya Deemed to be University</p>  
             
           </div>
         </div>
