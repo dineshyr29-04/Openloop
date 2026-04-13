@@ -39,9 +39,9 @@
   padding: 1rem;
   overflow: hidden;
   cursor: pointer;
-  /* Smooth all transitions */
+  /* Smooth transitions, fast follow for transform magnetic effect */
   transition:
-    transform 0.45s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 0.1s ease-out,
     border-color 0.35s ease,
     box-shadow 0.35s ease,
     background 0.35s ease;
@@ -76,7 +76,6 @@
 
 /* ── HOVER STATE ── */
 .sponsor-box:hover {
-  transform: translateY(-6px) scale(1.04);
   background: rgba(198, 255, 0, 0.03);
   border-color: rgba(198, 255, 0, 0.45);
   box-shadow:
@@ -99,20 +98,17 @@
   width: 70%;
   height: 55%;
   object-fit: contain;
-  /* Cyber default: desaturated */
-  filter: grayscale(1) brightness(1.6);
-  opacity: 0.65;
+  /* Keep images as they are without grayscale */
+  opacity: 0.9;
   transition:
-    filter 0.45s ease,
     opacity 0.45s ease,
     transform 0.45s ease;
   display: block;
 }
 
 .sponsor-box:hover .sponsor-logo-img {
-  filter: grayscale(0) brightness(1);
   opacity: 1;
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 /* ── Sponsor name label (revealed on hover) ── */

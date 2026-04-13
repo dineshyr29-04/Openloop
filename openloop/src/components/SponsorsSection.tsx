@@ -49,7 +49,21 @@ export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollPr
 
         <div className="sponsors-grid-new">
           {SPONSORS.map((s, i) => (
-            <div key={i} className={`sponsor-box tier-${s.tier.toLowerCase()}`}>
+            <div 
+              key={i} 
+              className={`sponsor-box tier-${s.tier.toLowerCase()}`}
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                e.currentTarget.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px) scale(1.06)`;
+                e.currentTarget.style.zIndex = '5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = `translate(0px, 0px) scale(1)`;
+                e.currentTarget.style.zIndex = '1';
+              }}
+            >
               {s.logoImg ? (
                 <img src={s.logoImg} alt={s.name} className="sponsor-logo-img" />
               ) : (
@@ -64,9 +78,7 @@ export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollPr
           ))}
         </div>
 
-        <div className="hud-label" style={{ marginTop: '2rem' }}>
-          Interested in partnering? CONTACT@OPENLOOP.IO
-        </div>
+        
       </div>
     </div>
   );
