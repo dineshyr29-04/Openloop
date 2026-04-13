@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -27,47 +27,42 @@ const day2Events: TimelineEvent[] = [
 ];
 
 export const MobileTimeline: React.FC = () => {
-  const [activeDay, setActiveDay] = useState(1);
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  const currentEvents = activeDay === 1 ? day1Events : day2Events;
+  // Construct unified timeline with a unique marker interjected instead of just joining
+  const allEvents = [
+    { isMarker: true, label: 'DAY 01 INIT' },
+    ...day1Events.map(e => ({ ...e, isMarker: false })),
+    { isMarker: true, label: 'NIGHT_PHASE_OVERRIDE_DAY_02' },
+    ...day2Events.map(e => ({ ...e, isMarker: false }))
+  ];
 
   const animateEvents = () => {
     gsap.to('.tl-spine', {
       height: '100%',
-      duration: 1.2,
+      duration: 2.2,
       ease: 'power2.inOut'
     });
     gsap.to('.tl-event', {
       opacity: 1,
       x: 0,
-      stagger: 0.07,
-      duration: 0.4,
+      stagger: 0.1,
+      duration: 0.5,
       ease: 'power2.out'
+    });
+    gsap.to('.tl-day-marker-box', {
+      opacity: 1,
+      scale: 1,
+      stagger: 0.2,
+      duration: 0.6,
+      ease: 'back.out(1.5)'
     });
     gsap.fromTo('.tl-dot',
       { scale: 0 },
-      { scale: 1, stagger: 0.07, duration: 0.3, ease: 'back.out(2)', delay: 0.1 }
+      { scale: 1, stagger: 0.1, duration: 0.4, ease: 'back.out(2)', delay: 0.1 }
     );
-  };
-
-  const switchDay = (day: number) => {
-    if (day === activeDay) return;
-    
-    gsap.to('.tl-event', {
-      opacity: 0,
-      x: -20,
-      stagger: 0.04,
-      duration: 0.25,
-      ease: 'power2.in',
-      onComplete: () => {
-        setActiveDay(day);
-        setTimeout(() => animateEvents(), 50);
-      }
-    });
-    gsap.to('.tl-spine', { height: '0%', duration: 0.3 });
   };
 
   useEffect(() => {
@@ -108,30 +103,35 @@ export const MobileTimeline: React.FC = () => {
         <span className="word">SCHEDULE</span>
       </h2>
 
-      <div className="day-tabs section-body">
-        <button className={`day-tab ${activeDay === 1 ? 'active' : ''}`} onClick={() => switchDay(1)}>
-          DAY 01
-        </button>
-        <button className={`day-tab ${activeDay === 2 ? 'active' : ''}`} onClick={() => switchDay(2)}>
-          DAY 02
-        </button>
-      </div>
-
-      <div ref={trackRef} className="timeline-track section-body">
+      <div ref={trackRef} className="timeline-track section-body" style={{ marginTop: '24px' }}>
         <div className="tl-spine" />
-        {currentEvents.map((event, i) => (
-          <div key={`${activeDay}-${i}`} ref={el => { eventsRef.current[i] = el; }}
-               className={`tl-event tl-${event.type}`}>
-            <div className="tl-dot-wrap">
-              <div className="tl-dot" />
+        {allEvents.map((item, i) => {
+          if (item.isMarker) {
+            return (
+              <div key={`marker-${i}`} className="tl-day-marker-box tl-event">
+                <div className="marker-hud-glitch">
+                  <span className="marker-hud-text">{(item as any).label}</span>
+                  <div className="marker-hud-line"/>
+                </div>
+              </div>
+            );
+          }
+
+          const event = item as TimelineEvent;
+          return (
+            <div key={`event-${i}`} ref={el => { eventsRef.current[i] = el; }}
+                 className={`tl-event tl-${event.type}`}>
+              <div className="tl-dot-wrap">
+                <div className="tl-dot" />
+              </div>
+              <div className="tl-content">
+                <div className="tl-time">{event.time}</div>
+                <div className="tl-title">{event.title}</div>
+                {event.description && <div className="tl-desc">{event.description}</div>}
+              </div>
             </div>
-            <div className="tl-content">
-              <div className="tl-time">{event.time}</div>
-              <div className="tl-title">{event.title}</div>
-              {event.description && <div className="tl-desc">{event.description}</div>}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

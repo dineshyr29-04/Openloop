@@ -1,51 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import gsap from 'gsap';
+import React from 'react';
 
 export const MobileHero: React.FC = () => {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const badgeRef = useRef<HTMLDivElement>(null);
-  const subRef = useRef<HTMLParagraphElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLSpanElement>(null);
-  const yearRef = useRef<HTMLSpanElement>(null);
-  const taglineRef = useRef<HTMLParagraphElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const buttonsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ delay: 0.2 });
-
-      // Hologram Boot-Up Sequence (Scale + Blur + Exposure)
-      tl.fromTo(['.hero-title', '.hero-year'], 
-        { y: 0, scale: 1.5, opacity: 0, filter: 'blur(20px) brightness(3)' },
-        { y: 0, scale: 1, opacity: 1, filter: 'blur(0px) brightness(1)', duration: 2, ease: 'power4.out', stagger: 0.3 }
-      )
-      // High-speed lateral data feed
-      .fromTo([badgeRef.current, subRef.current, statsRef.current, buttonsRef.current],
-        { y: 0, x: -50, opacity: 0, skewX: 15 },
-        { x: 0, opacity: 1, skewX: 0, duration: 0.8, stagger: 0.1, ease: 'back.out(2)' },
-        '-=1.4'
-      )
-      // System Flicker Boot for tagline
-      .fromTo(taglineRef.current,
-        { opacity: 0, y: 0, scale: 1.1 },
-        { opacity: 1, scale: 1, duration: 0.08, repeat: 4, yoyo: true, ease: 'steps(1)' },
-        '-=0.5'
-      )
-      // Elastic drop for scroll cue
-      .fromTo(scrollRef.current,
-        { opacity: 0, y: -40, scaleY: 2 },
-        { opacity: 1, y: 0, scaleY: 1, duration: 1.2, ease: 'elastic.out(1, 0.5)' },
-        '-=0.2'
-      );
-
-    }, heroRef);
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <section id="hero" ref={heroRef}>
+    <section id="hero" style={{ justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
       <div className="hero-cyber-grid-wrap">
         <div className="cyber-grid-plane" />
         <div className="cyber-grid-glow" />
@@ -58,37 +15,116 @@ export const MobileHero: React.FC = () => {
         </div>
       </div>
 
-      <div className="hero-top">
-        <div ref={badgeRef} className="hero-badge">// HACKATHON 2026</div>
-        <p ref={subRef} className="hero-sub">
-          24 hours. One chance. Redefine what's possible.
-        </p>
-        <div ref={statsRef} className="hero-stats">
-          <div className="stat"><span className="num">20+</span><span className="lbl">Teams of HACKERS</span></div>
-          <div className="stat"><span className="num">24H</span><span className="lbl">DURATION</span></div>
-          <div className="stat"><span className="num">₹1.5L</span><span className="lbl">PRIZES</span></div>
-        </div>
+      <div style={{ 
+        zIndex: 2, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        gap: '24px', 
+        textAlign: 'center', 
+        width: '100%',
+        marginTop: '-40px' 
+      }}>
         
-        <div ref={buttonsRef} className="hero-buttons">
-          <a href="https://unstop.com/college-fests/openloop-26-yenepoya-school-of-engineering-and-technology-458231" target="_blank" rel="noopener noreferrer" className="btn-hero primary">Registration</a>
-          <a href="https://drive.google.com/file/d/1_IM0WD6zowoyv9nopm2RbnwW2dUYwwBE/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="btn-hero outline">Brochure</a>
+        {/* Institution Logo */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          flexDirection:"column",
+          width: '100%',
+          marginBottom: '8px',
+        }}>
+          <div style={{
+           
+            borderRadius: '10px',
+            padding: '5px 14px 5px 10px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            
+          
+          }}>
+            <img
+              src="/yset.svg"
+              alt="Yenepoya School of Engineering & Technology"
+              style={{
+                height: 'clamp(40px, 12vw, 54px)',
+                width: '100%',
+                objectFit: 'contain',
+                display: 'block',
+              }}
+            />
+            
+            <p className="hero-subtitle" style={{ fontSize: 'clamp(9px, 2.5vw, 11px)', color: 'white', opacity: 0.7, marginTop: '4px' }}>Affiliated to Yenepoya Deemed to be University</p>  
+            
+          </div>
         </div>
-      </div>
 
-      <div className="hero-bottom">
-        <div className="title-line">
-          <span ref={titleRef} className="hero-title">
+        <div className="hero-badge" style={{ opacity: 1, transform: 'none', margin: '0 auto' }}>
+          // HACKATHON 2026
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span className="hero-title" style={{ opacity: 1, transform: 'none', display: 'block', fontSize: 'clamp(40px, 14vw, 84px)' }}>
             <span style={{ backgroundImage: "linear-gradient(to bottom, #d9ed91, #8cef56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>OPEN LOOP</span>
           </span>
+          <span className="hero-year" style={{ opacity: 1, transform: 'none', display: 'block', marginTop: '-4px', fontSize: 'clamp(24px, 8vw, 42px)' }}>
+            2026
+          </span>
         </div>
-        <div className="year-line"><span ref={yearRef} className="hero-year">2026</span></div>
-        <p ref={taglineRef} className="hero-tagline">// BUILD. BREAK. TRANSCEND.</p>
-      </div>
 
-      <div ref={scrollRef} className="scroll-cue">
-        <div className="scroll-line" />
-        <span>SCROLL</span>
+        <div style={{ 
+          background: 'rgba(198, 255, 0, 0.05)', 
+          border: '1px solid rgba(198, 255, 0, 0.3)', 
+          padding: '12px 24px', 
+          borderRadius: '4px',
+          boxShadow: '0 4px 20px rgba(198, 255, 0, 0.1)'
+        }}>
+          <p className="hero-tagline" style={{ opacity: 1, transform: 'none', margin: 0, color: '#C6FF00', fontSize: '12px', letterSpacing: '0.3em' }}>
+            // BUILD. BREAK. TRANSCEND.
+          </p>
+        </div>
+
+        <p className="hero-sub" style={{ opacity: 1, transform: 'none', maxWidth: '300px', margin: '0 auto', fontSize: '15px' }}>
+          24 hours. One chance.<br/>Redefine what's possible.
+        </p>
+
+        <div className="hero-stats" style={{ opacity: 1, transform: 'none', justifyContent: 'center', flexWrap: 'wrap', gap: '32px', margin: '8px 0' }}>
+          <div className="stat" style={{ alignItems: 'center' }}>
+            <span className="num">20+</span><span className="lbl">TEAMS</span>
+          </div>
+          <div className="stat" style={{ alignItems: 'center' }}>
+            <span className="num">24H</span><span className="lbl">DURATION</span>
+          </div>
+          <div className="stat" style={{ alignItems: 'center' }}>
+            <span className="num">₹1.5L</span><span className="lbl">PRIZES</span>
+          </div>
+        </div>
       </div>
-    </section >
+      <div style={{ 
+        position: 'absolute', 
+        bottom: '4vh', 
+        left: '0', 
+        right: '0', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        gap: '24px',
+        zIndex: 5
+      }}>
+        <div className="hero-buttons" style={{ 
+          width: '85%', 
+          maxWidth: '350px', 
+          opacity: 1, 
+          transform: 'none', 
+          display: 'flex', 
+          gap: '16px' 
+        }}>
+          <a href="https://unstop.com/college-fests/openloop-26-yenepoya-school-of-engineering-and-technology-458231" target="_blank" rel="noopener noreferrer" className="btn-hero primary" style={{ flex: 1, padding: '14px 0', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Register Now</a>
+          <a href="https://drive.google.com/file/d/1_IM0WD6zowoyv9nopm2RbnwW2dUYwwBE/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="btn-hero outline" style={{ flex: 1, padding: '14px 0', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Brochure</a>
+        </div>
+      </div>
+    </section>
   );
 };

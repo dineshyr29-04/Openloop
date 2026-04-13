@@ -21,8 +21,8 @@ export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollPr
   const p = scrollProgress;
   
   // Cinematic Entry Transform (Independent of opacity management)
-  // Maps 0.86 -> 0.88 for the slide-up effect
-  const entryP = clamp((p - 0.86) / 0.02, 0, 1);
+  // Maps 0.76 -> 0.78 for the slide-up effect
+  const entryP = clamp((p - 0.76) / 0.02, 0, 1);
   const translateY = lerp(40, 0, entryP);
 
   return (
@@ -32,7 +32,7 @@ export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollPr
       style={{
         opacity: 0, // Default hidden
         transform: `translateY(${translateY}px)`,
-        pointerEvents: p > 0.86 && p < 0.94 ? 'auto' : 'none',
+        pointerEvents: p > 0.76 && p < 0.88 ? 'auto' : 'none',
         transition: 'none'
       }}
     >
@@ -41,15 +41,29 @@ export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollPr
         <h2 className="section-heading">SPONSORS</h2>
         <p className="body-text-safe" style={{ marginBottom: '2rem' }}>
           <Typewriter 
-            active={p > 0.865} 
+            active={p > 0.77} 
             delay={10}
-            text="Our partners fueling the 2026 synergy loop. Grid layout optimized for high-fidelity logo rendering." 
+            text="Our partners fueling the 2026 Open Loop." 
           />
         </p>
 
         <div className="sponsors-grid-new">
           {SPONSORS.map((s, i) => (
-            <div key={i} className={`sponsor-box tier-${s.tier.toLowerCase()}`}>
+            <div 
+              key={i} 
+              className={`sponsor-box tier-${s.tier.toLowerCase()}`}
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                e.currentTarget.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px) scale(1.06)`;
+                e.currentTarget.style.zIndex = '5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = `translate(0px, 0px) scale(1)`;
+                e.currentTarget.style.zIndex = '1';
+              }}
+            >
               {s.logoImg ? (
                 <img src={s.logoImg} alt={s.name} className="sponsor-logo-img" />
               ) : (
@@ -62,10 +76,6 @@ export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollPr
               <div className="box-decoration" />
             </div>
           ))}
-        </div>
-
-        <div className="hud-label" style={{ marginTop: '2rem' }}>
-          Interested in partnering? CONTACT@OPENLOOP.IO
         </div>
       </div>
     </div>

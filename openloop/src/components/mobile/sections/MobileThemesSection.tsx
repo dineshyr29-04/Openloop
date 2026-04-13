@@ -16,7 +16,7 @@ const THEMES = [
   },
   {
     id: '03',
-    title: 'FineTech & Banking',
+    title: 'FinTech & Banking',
     desc: 'Reimagine how people interact with money through secure, seamless, and inclusive solutions. Explore payments, finance management, fraud detection, blockchain, and financial accessibility.'
   },
   {

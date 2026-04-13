@@ -105,17 +105,16 @@ export default function DesktopLayout() {
             const p = self.progress;
             robotProgressRef.current = p;
 
-            // ZERO-GAP range mapping: every section OVERLAPS the next so
-            // there is NEVER a point where all sections are at opacity 0.
-            // Ramp is calculated only within each section's own window.
+            // NON-MERGING GAPPED RANGES
+            // Sections now have clear 1-2% gaps between their ends and the next start.
             const ranges = [
-              { name: 'HERO',     start: 0.00, end: 0.15, id: '#s1-hero' },
-              { name: 'ABOUT',    start: 0.15, end: 0.33, id: '#s2-about' },
-              { name: 'THEMES',   start: 0.33, end: 0.55, id: '#theme-section' },
-              { name: 'TIMELINE', start: 0.55, end: 0.86, id: '#s4-timeline' },
-              { name: 'SPONSORS', start: 0.86, end: 0.94, id: '#sponsors-section' },
-              { name: 'CONTACT',  start: 0.94, end: 0.985, id: '#contact-section' },
-              { name: 'FOOTER',   start: 0.985, end: 1.00,  id: '#footer-section' },
+              { name: 'HERO',     start: 0.00, end: 0.12, id: '#s1-hero' },
+              { name: 'ABOUT',    start: 0.14, end: 0.28, id: '#s2-about' },
+              { name: 'THEMES',   start: 0.30, end: 0.50, id: '#theme-section' },
+              { name: 'TIMELINE', start: 0.52, end: 0.74, id: '#s4-timeline' },
+              { name: 'SPONSORS', start: 0.85, end: 0.92, id: '#sponsors-section' },
+              { name: 'CONTACT',  start: 0.94, end: 0.97, id: '#contact-section' },
+              { name: 'FOOTER',   start: 0.98, end: 1.00, id: '#footer-section' },
             ];
 
             // Debug HUD
@@ -137,14 +136,14 @@ export default function DesktopLayout() {
                 const ramp = 0.5;
                 op = lp < ramp ? lp / ramp : 1;
               } else {
-                // Standard 15/70/15 ramp — gentler than before
-                const ramp = 0.15;
+                // Faster fader ramp so it hits 0 opacity fully within its own boundaries
+                const ramp = 0.10;
                 if (lp < ramp)        op = lp / ramp;
                 else if (lp < 1 - ramp) op = 1;
                 else                  op = (1 - lp) / ramp;
               }
 
-              // Outside the window → fully hidden
+              // Outside the window → fully hidden unconditionally
               const isPastEnd = p > range.end && range.name !== 'FOOTER';
               if (p < range.start || isPastEnd) op = 0;
 
@@ -179,7 +178,7 @@ export default function DesktopLayout() {
       <div 
         className="canvas-container"
         style={{
-          opacity: rawScroll > 0.94 ? lerp(1, 0, (rawScroll - 0.94) / 0.04) : 1,
+          opacity: rawScroll > 0.96 ? lerp(1, 0, (rawScroll - 0.96) / 0.04) : 1,
           transition: 'opacity 0.3s ease-out'
         }}
       >

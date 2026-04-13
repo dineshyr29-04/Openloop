@@ -59,7 +59,7 @@ export const MobileSponsors: React.FC = () => {
   }, []);
 
   return (
-    <section id="sponsors" ref={sectionRef} className="mobile-section">
+    <section id="sponsors" ref={sectionRef} className="mobile-section" style={{ paddingTop: '120px' }}>
       <div className="section-divider" />
       <div className="section-label">// 003 — SPONSORS</div>
       <h2 className="section-heading">

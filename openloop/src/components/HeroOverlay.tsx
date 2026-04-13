@@ -9,12 +9,12 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
 
   const NAV_ITEMS = [
-    { label: 'Core', target: 0.05 },
-    { label: 'About', target: 0.24 },
-    { label: 'Themes', target: 0.44 },
-    { label: 'Timeline', target: 0.60 },
-    { label: 'Sponsors', target: 0.90 },
-    { label: 'Contact', target: 0.96 },
+    { label: 'Core', target: 0.06 },
+    { label: 'About', target: 0.21 },
+    { label: 'Themes', target: 0.40 },
+    { label: 'Timeline', target: 0.63 },
+    { label: 'Sponsors', target: 0.82 },
+    { label: 'Contact', target: 0.93 },
   ];
 
   const handleNavClick = (targetProgress: number) => {
@@ -25,10 +25,10 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
     });
   };
 
-  // Active state helpers
-  const isHeroActive = p >= 0.00 && p <= 0.15;
-  const isAboutActive = p >= 0.14 && p <= 0.34;
-  const isContactActive = p >= 0.93 && p <= 0.99;
+  // Active state helpers matching DesktopLayout ranges
+  const isHeroActive = p >= 0.00 && p <= 0.12;
+  const isAboutActive = p >= 0.14 && p <= 0.28;
+  const isContactActive = p >= 0.90 && p <= 0.96;
 
   // Fade the permanent hero title out once the user scrolls past the hero phase
   useEffect(() => {
@@ -43,10 +43,43 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
     <>
       {/* PERMANENT HERO TITLE — always visible, unaffected by scroll system */}
       <div id="hero-title-fixed">
+        {/* Institution Logo — top center */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: '12px',
+          marginTop: '0px',
+        }}>
+          <div style={{
+            background: 'transparent',
+            borderRadius: '12px',
+            padding: '8px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}>
+            <img
+              src="/yset.svg"
+              alt="Yenepoya School of Engineering & Technology"
+              style={{
+                height: 'auto',
+                width: 'min(100%, 20rem)',
+                maxWidth: 'min(80vw, 320px)',
+                objectFit: 'contain',
+                display: 'block',
+              }}
+            />
+            <p className="hero-subtitle" style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', color: 'white', opacity: 0.8, marginTop: '8px' }}>
+              Affiliated to Yenepoya Deemed to be University
+            </p>
+          </div>
+        </div>
+
         <h1 className="hero-main-title">
           <span className="title-word" style={{ color: '#ffffff' }}>OPEN</span>
           <span className="title-spacer" />
-          <span className="title-word" style={{ 
+          <span className="title-word" style={{
             color: '#C6FF00',
             textShadow: '0 0 20px rgba(198, 255, 0, 0.4)'
           }}>LOOP</span>
@@ -60,8 +93,8 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         </div>
         <div className="nav-links">
           {NAV_ITEMS.map((item) => (
-            <a 
-              key={item.label} 
+            <a
+              key={item.label}
               href={`#${item.label.toLowerCase()}`}
               onClick={(e) => {
                 e.preventDefault();
@@ -75,9 +108,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               {item.label}
             </a>
           ))}
-          <Link 
-            to="/crew" 
-            style={{ 
+          <Link
+            to="/crew"
+            style={{
               textDecoration: 'none',
               marginLeft: '20px',
               fontFamily: "'Share Tech Mono', monospace",
@@ -99,7 +132,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
             Crew
           </Link>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
           <a href="https://drive.google.com/file/d/1_IM0WD6zowoyv9nopm2RbnwW2dUYwwBE/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="cta-button" style={{ textDecoration: 'none', padding: '8px 20px', fontSize: '11px' }}>Brochure</a>
           <a href="https://unstop.com/college-fests/openloop-26-yenepoya-school-of-engineering-and-technology-458231" target="_blank" rel="noopener noreferrer" className="cta-outline" style={{ textDecoration: 'none' }}>Register Now</a>
         </div>
@@ -142,8 +175,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               <div className="body-text-safe" style={{ paddingLeft: '1.5rem' }}>
                 {isAboutActive && (
                   <div className="reveal-text-fast">
-                    OpenLoop is a National Level Hackathon organized by the Yenepoya Tech Club in Yenepoya School of Engineering and Technology. It is a 24-hour hackathon where teams of 2-4 can participate and showcase their technical skills.
-                  </div>
+                    OpenLoop is a 24-hour national-level hackathon organized by the YenTech at Yenepoya School of Engineering and Technology, where teams of 2–4 members collaborate to build innovative solutions.</div>
                 )}
               </div>
               <div className="hud-label" style={{ marginTop: '2rem', color: '#C6FF00' }}>STATUS: PROFILE_LOCK_ACTIVE</div>
@@ -152,8 +184,13 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         </div>
 
         {/* PHASE 4: TIMELINE (3D Immersive) */}
-        <section id="s4-timeline" className="section-overlay" style={{ opacity: 0 }}>
-          {/* 2D Content removed - 3D Timeline takes over the viewport */}
+        <section id="s4-timeline" className="section-overlay" style={{ opacity: 0, alignItems: 'flex-start', justifyContent: 'flex-start', paddingTop: '16vh' }}>
+          <div style={{ textAlign: 'left', pointerEvents: 'auto', maxWidth: '500px' }}>
+            <div className="timeline-label" style={{ marginBottom: '12px' }}>// 004 - SEQUENCE</div>
+            <h2 className="section-heading" style={{ color: '#ffffff', textShadow: '0 0 20px rgba(198, 255, 0, 0.4)' }}>
+              TIMELINE FOR <span style={{ color: '#C6FF00' }}>OPENLOOP</span>
+            </h2>
+          </div>
         </section>
 
         {/* PHASE 6: CONTACT */}
@@ -173,9 +210,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
 
             <div className="contact-cards-grid">
               {[
-                { name: 'Radhesh Pai',     role: 'Lead Organizer',       phone: '+91 89513 49166', initials: 'RP' },
-                { name: 'Mohammed Shameer',         role: 'Vice President`',             phone: '+91 6282 679 146', initials: 'MO' },
-                { name: 'Jagadish Naik',  role: 'Web Development Head',  phone: '+91 80732 36744', initials: 'JN' },
+                { name: 'Radhesh Pai', role: 'Lead Organizer', phone: '+91 89513 49166', initials: 'RP' },
+                { name: 'Mohammed Shameer', role: 'Vice President`', phone: '+91 6282 679 146', initials: 'MO' },
+                { name: 'Jagadish Naik', role: 'Web Development Head', phone: '+91 80732 36744', initials: 'JN' },
               ].map((person, i) => (
                 <div key={i} className="contact-card" style={{ animationDelay: `${i * 0.12}s` }}>
                   <div className="contact-card-glow" />
@@ -198,11 +235,11 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
             </div>
 
             <div className="contact-footer-row" style={{ flexDirection: 'column', gap: '2rem' }}>
-              <Link 
-                to="/crew" 
-                className="cta-button" 
-                style={{ 
-                  textDecoration: 'none', 
+              <Link
+                to="/crew"
+                className="cta-button"
+                style={{
+                  textDecoration: 'none',
                   pointerEvents: 'auto',
                   background: 'transparent',
                   border: '1px solid #C6FF00',

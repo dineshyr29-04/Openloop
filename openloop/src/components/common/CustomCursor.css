@@ -5,58 +5,34 @@
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  z-index: 99999;
+  z-index: 999999; /* Ensure it's definitely above everything */
 }
 
 .cursor-dot {
   position: absolute;
-  width: 4px;
-  height: 4px;
+  width: 12px;
+  height: 12px;
   background: #C6FF00;
+  border: 1.5px solid #ffffff; /* White border for contrast on light/dark */
   border-radius: 50%;
   transform: translate3d(-50%, -50%, 0);
-  box-shadow: 0 0 15px #C6FF00, 0 0 5px #fff;
-  z-index: 2;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5); /* Soft drop shadow for visibility */
+  transition: width 0.15s ease-out, height 0.15s ease-out;
+  pointer-events: none;
 }
 
-.cursor-ring {
-  position: absolute;
-  width: 32px;
-  height: 32px;
-  border: 1px dashed rgba(198, 255, 0, 0.6);
-  border-radius: 50%;
-  transform: translate3d(-50%, -50%, 0);
-  transition: width 0.3s cubic-bezier(0.23, 1, 0.32, 1), 
-              height 0.3s cubic-bezier(0.23, 1, 0.32, 1), 
-              border-color 0.3s ease;
-  animation: cursorRotate 8s linear infinite;
-}
-
-@keyframes cursorRotate {
-  from { transform: translate3d(-50%, -50%, 0) rotate(0deg); }
-  to { transform: translate3d(-50%, -50%, 0) rotate(360deg); }
-}
-
-/* Hover States */
-.is-hovering .cursor-ring {
-  width: 48px;
-  height: 48px;
-  border: 1.5px solid #C6FF00;
-  border-style: double;
-  background: rgba(198, 255, 0, 0.05);
-  box-shadow: 0 0 30px rgba(198, 255, 0, 0.2);
-}
-
+/* Hover States (slightly grow it so it feels interactive) */
 .is-hovering .cursor-dot {
-  width: 8px;
-  height: 8px;
-  box-shadow: 0 0 20px #C6FF00;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: 2px solid #C6FF00;
 }
 
 /* Click Pulse */
-.is-clicked .cursor-ring {
-  transform: translate3d(-50%, -50%, 0) scale(0.6) rotate(180deg);
-  background: rgba(198, 255, 0, 0.4);
+.is-clicked .cursor-dot {
+  transform: translate3d(-50%, -50%, 0) scale(0.8);
+  background: #ffffff;
 }
 
 /* Hide Default Cursor */

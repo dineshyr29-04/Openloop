@@ -6,10 +6,9 @@ interface MobileAboutProps {
   scrollTo: (id: string) => void;
 }
 
-export const MobileAbout: React.FC<MobileAboutProps> = ({ scrollTo }) => {
+export const MobileAbout: React.FC<MobileAboutProps> = () => {
   const aboutRef = useRef<HTMLElement>(null);
   const traverseRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -113,16 +112,7 @@ export const MobileAbout: React.FC<MobileAboutProps> = ({ scrollTo }) => {
 
       <div className="about-body section-body">
         <p>
-          OpenLoop is YenTech which is a part of Yenepoya School of 
-          Engineering's hackathon — 24 hours of 
-          raw innovation, sleepless engineering, and breakthrough ideas.
-          We bring together the brightest minds to build what doesn't
-          exist yet.
-        </p>
-        <p>
-          This isn't just a hackathon. It's a launchpad. Past editions
-          have produced startups, patents, and products used by millions.
-          Your turn.
+          OpenLoop is a 24-hour national-level hackathon organized by the YenTech at Yenepoya School of Engineering and Technology, where teams of 2–4 members collaborate to build innovative solutions.
         </p>
       </div>
 
@@ -144,15 +134,7 @@ export const MobileAbout: React.FC<MobileAboutProps> = ({ scrollTo }) => {
           </div>
         ))}
       </div>
-
-      <button ref={ctaRef} className="about-cta section-body"
-              onClick={() => scrollTo('#timeline')}>
-        <span>VIEW TIMELINE</span>
-        <div className="cta-arrow">
-          <div className="arrow-line" />
-          <div className="arrow-head" />
-        </div>
-      </button>
+      
     </section>
   );
 };

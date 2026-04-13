@@ -4,25 +4,26 @@
 
 .sponsors-wrapper-premium {
   width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: min(1100px, 94vw);
+  margin: 10vh auto 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 0 20px;
-  max-height: calc(100vh - 100px);
-  overflow: hidden;
+  padding: 0 min(20px, 4vw);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  scrollbar-width: none;
   pointer-events: auto; /* Allow hover events */
 }
 
-/* ── Single horizontal row — exactly 5 cards ── */
+/* ── Fluid Row — scales to column count ── */
 .sponsors-grid-new {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
   width: 100%;
-  max-width: 1060px;
+  padding-bottom: 2rem;
 }
 
 /* ── Base card ── */
@@ -39,9 +40,9 @@
   padding: 1rem;
   overflow: hidden;
   cursor: pointer;
-  /* Smooth all transitions */
+  /* Smooth transitions, fast follow for transform magnetic effect */
   transition:
-    transform 0.45s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 0.1s ease-out,
     border-color 0.35s ease,
     box-shadow 0.35s ease,
     background 0.35s ease;
@@ -76,7 +77,6 @@
 
 /* ── HOVER STATE ── */
 .sponsor-box:hover {
-  transform: translateY(-6px) scale(1.04);
   background: rgba(198, 255, 0, 0.03);
   border-color: rgba(198, 255, 0, 0.45);
   box-shadow:
@@ -99,20 +99,17 @@
   width: 70%;
   height: 55%;
   object-fit: contain;
-  /* Cyber default: desaturated */
-  filter: grayscale(1) brightness(1.6);
-  opacity: 0.65;
+  /* Keep images as they are without grayscale */
+  opacity: 0.9;
   transition:
-    filter 0.45s ease,
     opacity 0.45s ease,
     transform 0.45s ease;
   display: block;
 }
 
 .sponsor-box:hover .sponsor-logo-img {
-  filter: grayscale(0) brightness(1);
   opacity: 1;
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 /* ── Sponsor name label (revealed on hover) ── */

@@ -47,14 +47,15 @@
 
 .themes-content-wrapper {
   width: 100%;
-  max-width: 1100px;
-  padding: 0 32px;
+  max-width: min(1100px, 94vw);
+  padding: 0 min(32px, 4vw);
   display: flex;
   flex-direction: column;
   align-items: center;
   /* Constrain inner content within viewport */
-  max-height: calc(100vh - 100px);
-  overflow: hidden;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .themes-header {
@@ -202,13 +203,25 @@
   opacity: 1;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
+  .themes-grid {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 900px) {
   .themes-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
+    max-height: none;
   }
   
+  .themes-content-wrapper {
+    justify-content: flex-start;
+    padding-top: 20px;
+  }
+
   .themes-main-title {
-    font-size: 40px;
+    font-size: 42px;
   }
 }
