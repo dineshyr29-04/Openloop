@@ -77,8 +77,6 @@ export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollPr
             </div>
           ))}
         </div>
-
-        
       </div>
     </div>
   );
