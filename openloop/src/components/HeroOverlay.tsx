@@ -9,12 +9,12 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
 
   const NAV_ITEMS = [
-    { label: 'Core', target: 0.05 },
-    { label: 'About', target: 0.24 },
-    { label: 'Themes', target: 0.50 },
-    { label: 'Timeline', target: 0.60 },
-    { label: 'Sponsors', target: 0.88 },
-    { label: 'Contact', target: 0.96 },
+    { label: 'Core', target: 0.06 },
+    { label: 'About', target: 0.21 },
+    { label: 'Themes', target: 0.40 },
+    { label: 'Timeline', target: 0.63 },
+    { label: 'Sponsors', target: 0.82 },
+    { label: 'Contact', target: 0.93 },
   ];
 
   const handleNavClick = (targetProgress: number) => {
@@ -25,10 +25,10 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
     });
   };
 
-  // Active state helpers
-  const isHeroActive = p >= 0.00 && p <= 0.15;
-  const isAboutActive = p >= 0.14 && p <= 0.34;
-  const isContactActive = p >= 0.93 && p <= 0.99;
+  // Active state helpers matching DesktopLayout ranges
+  const isHeroActive = p >= 0.00 && p <= 0.12;
+  const isAboutActive = p >= 0.14 && p <= 0.28;
+  const isContactActive = p >= 0.90 && p <= 0.96;
 
   // Fade the permanent hero title out once the user scrolls past the hero phase
   useEffect(() => {

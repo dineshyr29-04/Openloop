@@ -89,8 +89,8 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
           <ul style={listStyle}>
             <li><a href="#" style={linkStyle}>GitHub</a></li>
             <li><a href="mailto:hello@openloop.dev" style={linkStyle}>Email</a></li>
-            <li><a href="https://www.instagram.com/openloop.yentech/" style={linkStyle}>Instagram</a></li>
-            <li><a href="" style={linkStyle}>LinkedIn</a></li>
+            <li><a href="https://www.instagram.com/yentech.community/" style={linkStyle}>Instagram</a></li>
+            <li><a href="https://www.linkedin.com/in/yentech-community-964369402/" style={linkStyle}>LinkedIn</a></li>
           </ul>
         </div>
 
