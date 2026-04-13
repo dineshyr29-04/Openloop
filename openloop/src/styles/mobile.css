@@ -92,11 +92,11 @@
 #mobile-nav {
   position: fixed;
   top: 0; left: 0; right: 0;
-  height: 56px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 min(24px, 5vw);
   background: linear-gradient(180deg, rgba(5,5,16,0.95) 0%, transparent 100%);
   backdrop-filter: blur(8px);
   z-index: 200;
@@ -173,7 +173,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 72px 20px 40px;
+  padding: 80px min(24px, 6vw) 40px;
   position: relative;
   overflow: hidden;
   background: var(--bg-void);
@@ -294,22 +294,28 @@
 
 .hero-stats {
   display: flex;
-  gap: 28px;
+  flex-wrap: wrap;
+  gap: clamp(16px, 5vw, 28px);
   opacity: 0;
   transform: translateY(20px);
 }
 
-.stat { display: flex; flex-direction: column; gap: 2px; }
+.stat { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 2px;
+  min-width: fit-content;
+}
 .stat .num {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
-  font-size: 28px;
+  font-size: clamp(24px, 6vw, 28px);
   color: var(--white);
   line-height: 1;
 }
 .stat .lbl {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
+  font-size: 8px;
   color: rgba(198, 255, 0, 0.5);
   letter-spacing: 0.2em;
 }
@@ -480,7 +486,7 @@
 
 /* Section Transitions */
 .mobile-section {
-  padding: 80px 20px 60px;
+  padding: 80px min(24px, 6vw) 60px;
   position: relative;
   overflow: hidden;
   background: var(--bg-void);
@@ -538,7 +544,7 @@
 .traverse-block {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: clamp(8px, 4vw, 16px);
   margin: 32px 0;
   padding: 24px 0;
 }

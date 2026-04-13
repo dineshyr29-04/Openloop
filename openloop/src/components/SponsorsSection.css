@@ -4,25 +4,26 @@
 
 .sponsors-wrapper-premium {
   width: 100%;
-  max-width: 1100px;
+  max-width: min(1100px, 94vw);
   margin: 10vh auto 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 0 20px;
-  max-height: calc(100vh - 100px);
-  overflow: hidden;
+  padding: 0 min(20px, 4vw);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  scrollbar-width: none;
   pointer-events: auto; /* Allow hover events */
 }
 
-/* ── Single horizontal row — exactly 5 cards ── */
+/* ── Fluid Row — scales to column count ── */
 .sponsors-grid-new {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
   width: 100%;
-  max-width: 1060px;
+  padding-bottom: 2rem;
 }
 
 /* ── Base card ── */

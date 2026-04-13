@@ -49,14 +49,14 @@ export const MobileHero: React.FC = () => {
               src="/yset.svg"
               alt="Yenepoya School of Engineering & Technology"
               style={{
-                height: '50px',
+                height: 'clamp(40px, 12vw, 54px)',
                 width: '100%',
                 objectFit: 'contain',
                 display: 'block',
               }}
             />
             
-            <p className="hero-subtitle" style={{ fontSize: '12px', color: 'white' }}>Affiliated to Yenepoya Deemed to be University</p>  
+            <p className="hero-subtitle" style={{ fontSize: 'clamp(9px, 2.5vw, 11px)', color: 'white', opacity: 0.7, marginTop: '4px' }}>Affiliated to Yenepoya Deemed to be University</p>  
             
           </div>
         </div>
@@ -66,10 +66,10 @@ export const MobileHero: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span className="hero-title" style={{ opacity: 1, transform: 'none', display: 'block' }}>
+          <span className="hero-title" style={{ opacity: 1, transform: 'none', display: 'block', fontSize: 'clamp(40px, 14vw, 84px)' }}>
             <span style={{ backgroundImage: "linear-gradient(to bottom, #d9ed91, #8cef56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>OPEN LOOP</span>
           </span>
-          <span className="hero-year" style={{ opacity: 1, transform: 'none', display: 'block', marginTop: '-8px' }}>
+          <span className="hero-year" style={{ opacity: 1, transform: 'none', display: 'block', marginTop: '-4px', fontSize: 'clamp(24px, 8vw, 42px)' }}>
             2026
           </span>
         </div>
