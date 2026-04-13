@@ -48,23 +48,23 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          marginBottom: '16px',
+          marginBottom: '12px',
+          marginTop: '0px',
         }}>
           <div style={{
-            background: 'rgba(255,255,255,0.95)',
-            borderRadius: '10px',
-            padding: '6px 18px 6px 12px',
+            background: 'transparent',
+            backdropFilter: 'blur(8px)',
+            borderRadius: '12px',
+            padding: '8px 20px',
             display: 'inline-flex',
             alignItems: 'center',
-            boxShadow: '0 0 20px rgba(198,255,0,0.25), 0 2px 12px rgba(0,0,0,0.4)',
-            borderLeft: '3px solid #C6FF00',
           }}>
             <img
-              src="/yset-logo.jpeg"
+              src="/yset.svg"
               alt="Yenepoya School of Engineering & Technology"
               style={{
-                height: '46px',
-                width: 'auto',
+                height: 'auto',
+                width: '20rem',
                 objectFit: 'contain',
                 display: 'block',
               }}
@@ -75,7 +75,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         <h1 className="hero-main-title">
           <span className="title-word" style={{ color: '#ffffff' }}>OPEN</span>
           <span className="title-spacer" />
-          <span className="title-word" style={{ 
+          <span className="title-word" style={{
             color: '#C6FF00',
             textShadow: '0 0 20px rgba(198, 255, 0, 0.4)'
           }}>LOOP</span>
@@ -89,8 +89,8 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         </div>
         <div className="nav-links">
           {NAV_ITEMS.map((item) => (
-            <a 
-              key={item.label} 
+            <a
+              key={item.label}
               href={`#${item.label.toLowerCase()}`}
               onClick={(e) => {
                 e.preventDefault();
@@ -104,9 +104,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               {item.label}
             </a>
           ))}
-          <Link 
-            to="/crew" 
-            style={{ 
+          <Link
+            to="/crew"
+            style={{
               textDecoration: 'none',
               marginLeft: '20px',
               fontFamily: "'Share Tech Mono', monospace",
@@ -206,9 +206,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
 
             <div className="contact-cards-grid">
               {[
-                { name: 'Radhesh Pai',     role: 'Lead Organizer',       phone: '+91 89513 49166', initials: 'RP' },
-                { name: 'Mohammed Shameer',         role: 'Vice President`',             phone: '+91 6282 679 146', initials: 'MO' },
-                { name: 'Jagadish Naik',  role: 'Web Development Head',  phone: '+91 80732 36744', initials: 'JN' },
+                { name: 'Radhesh Pai', role: 'Lead Organizer', phone: '+91 89513 49166', initials: 'RP' },
+                { name: 'Mohammed Shameer', role: 'Vice President`', phone: '+91 6282 679 146', initials: 'MO' },
+                { name: 'Jagadish Naik', role: 'Web Development Head', phone: '+91 80732 36744', initials: 'JN' },
               ].map((person, i) => (
                 <div key={i} className="contact-card" style={{ animationDelay: `${i * 0.12}s` }}>
                   <div className="contact-card-glow" />
@@ -231,11 +231,11 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
             </div>
 
             <div className="contact-footer-row" style={{ flexDirection: 'column', gap: '2rem' }}>
-              <Link 
-                to="/crew" 
-                className="cta-button" 
-                style={{ 
-                  textDecoration: 'none', 
+              <Link
+                to="/crew"
+                className="cta-button"
+                style={{
+                  textDecoration: 'none',
                   pointerEvents: 'auto',
                   background: 'transparent',
                   border: '1px solid #C6FF00',

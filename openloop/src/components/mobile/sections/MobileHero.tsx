@@ -35,20 +35,20 @@ export const MobileHero: React.FC = () => {
           marginBottom: '8px',
         }}>
           <div style={{
-            background: 'rgba(255,255,255,0.95)',
+           
             borderRadius: '10px',
             padding: '5px 14px 5px 10px',
             display: 'inline-flex',
             alignItems: 'center',
-            boxShadow: '0 0 16px rgba(198,255,0,0.2), 0 2px 10px rgba(0,0,0,0.4)',
-            borderLeft: '3px solid #C6FF00',
+            
+          
           }}>
             <img
-              src="/yset-logo.jpeg"
+              src="/yset.svg"
               alt="Yenepoya School of Engineering & Technology"
               style={{
-                height: '32px',
-                width: 'auto',
+                height: '50px',
+                width: '100%',
                 objectFit: 'contain',
                 display: 'block',
               }}
