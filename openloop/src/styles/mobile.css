@@ -654,37 +654,40 @@
   filter: drop-shadow(0 0 4px var(--neon));
 }
 
-/* Timeline Section */
-.day-tabs {
-  display: flex;
-  gap: 0;
-  margin-bottom: 32px;
-  border-bottom: 1px solid var(--card-border);
+/* Unified Timeline Day Marker (Replaces Tabs) */
+.tl-day-marker-box {
+  margin: 16px 0 32px -12px;
+  opacity: 0;
+  transform: scale(0.9);
 }
 
-.day-tab {
-  flex: 1;
-  background: none;
-  border: none;
-  padding: 12px 0;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  color: var(--dim);
-  letter-spacing: 0.25em;
-  cursor: pointer;
+.marker-hud-glitch {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(198, 255, 0, 0.08);
+  border: 1px solid rgba(198, 255, 0, 0.3);
+  padding: 6px 12px;
   position: relative;
-  transition: color 0.3s;
+  box-shadow: 0 0 10px rgba(198, 255, 0, 0.15);
 }
 
-.day-tab.active { color: var(--neon); }
+.marker-hud-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--neon);
+  letter-spacing: 0.3em;
+  text-shadow: 0 0 8px var(--neon);
+}
 
-.day-tab.active::after {
-  content: '';
+.marker-hud-line {
   position: absolute;
-  bottom: -1px; left:0; right:0;
+  left: 100%;
+  top: 50%;
+  width: 40vw;
   height: 1px;
-  background: var(--neon);
-  box-shadow: 0 0 8px var(--neon);
+  background: linear-gradient(90deg, var(--neon), transparent);
+  margin-left: 12px;
+  opacity: 0.5;
 }
 
 .timeline-track {
