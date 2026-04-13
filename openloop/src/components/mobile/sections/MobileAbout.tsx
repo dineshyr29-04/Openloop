@@ -113,11 +113,7 @@ export const MobileAbout: React.FC<MobileAboutProps> = ({ scrollTo }) => {
 
       <div className="about-body section-body">
         <p>
-          OpenLoop is a 24-hour national-level hackathon organized by the Yenepoya Tech Club at Yenepoya School of Engineering and Technology, where teams of 2–4 members collaborate to build innovative solutions. </p>
-        <p>
-          This isn't just a hackathon. It's a launchpad. Past editions
-          have produced startups, patents, and products used by millions.
-          Your turn.
+          OpenLoop is a 24-hour national-level hackathon organized by the YenTech at Yenepoya School of Engineering and Technology, where teams of 2–4 members collaborate to build innovative solutions.
         </p>
       </div>
 

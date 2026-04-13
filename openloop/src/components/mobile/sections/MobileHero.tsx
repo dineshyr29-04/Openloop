@@ -79,9 +79,16 @@ export const MobileHero: React.FC = () => {
         gap: '24px',
         zIndex: 5
       }}>
-        <div className="hero-buttons" style={{ justifyContent: 'center', opacity: 1, transform: 'none', display: 'flex', gap: '16px' }}>
-          <a href="https://unstop.com/college-fests/openloop-26-yenepoya-school-of-engineering-and-technology-458231" target="_blank" rel="noopener noreferrer" className="btn-hero primary">Registration</a>
-          <a href="https://drive.google.com/file/d/1_IM0WD6zowoyv9nopm2RbnwW2dUYwwBE/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="btn-hero outline">Brochure</a>
+        <div className="hero-buttons" style={{ 
+          width: '85%', 
+          maxWidth: '350px', 
+          opacity: 1, 
+          transform: 'none', 
+          display: 'flex', 
+          gap: '16px' 
+        }}>
+          <a href="https://unstop.com/college-fests/openloop-26-yenepoya-school-of-engineering-and-technology-458231" target="_blank" rel="noopener noreferrer" className="btn-hero primary" style={{ flex: 1, padding: '14px 0', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Register Now</a>
+          <a href="https://drive.google.com/file/d/1_IM0WD6zowoyv9nopm2RbnwW2dUYwwBE/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="btn-hero outline" style={{ flex: 1, padding: '14px 0', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Brochure</a>
         </div>
       </div>
     </section>
