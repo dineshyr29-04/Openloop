@@ -112,10 +112,10 @@ export default function DesktopLayout() {
               { name: 'HERO',     start: 0.00, end: 0.15, id: '#s1-hero' },
               { name: 'ABOUT',    start: 0.15, end: 0.33, id: '#s2-about' },
               { name: 'THEMES',   start: 0.33, end: 0.55, id: '#theme-section' },
-              { name: 'TIMELINE', start: 0.55, end: 0.86, id: '#s4-timeline' },
-              { name: 'SPONSORS', start: 0.86, end: 0.94, id: '#sponsors-section' },
-              { name: 'CONTACT',  start: 0.94, end: 0.985, id: '#contact-section' },
-              { name: 'FOOTER',   start: 0.985, end: 1.00,  id: '#footer-section' },
+              { name: 'TIMELINE', start: 0.55, end: 0.78, id: '#s4-timeline' },
+              { name: 'SPONSORS', start: 0.78, end: 0.90, id: '#sponsors-section' },
+              { name: 'CONTACT',  start: 0.90, end: 0.98, id: '#contact-section' },
+              { name: 'FOOTER',   start: 0.98, end: 1.00, id: '#footer-section' },
             ];
 
             // Debug HUD
@@ -179,7 +179,7 @@ export default function DesktopLayout() {
       <div 
         className="canvas-container"
         style={{
-          opacity: rawScroll > 0.94 ? lerp(1, 0, (rawScroll - 0.94) / 0.04) : 1,
+          opacity: rawScroll > 0.96 ? lerp(1, 0, (rawScroll - 0.96) / 0.04) : 1,
           transition: 'opacity 0.3s ease-out'
         }}
       >
