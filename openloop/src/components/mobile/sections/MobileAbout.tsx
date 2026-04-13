@@ -113,7 +113,7 @@ export const MobileAbout: React.FC<MobileAboutProps> = ({ scrollTo }) => {
 
       <div className="about-body section-body">
         <p>
-          OpenLoop is YenTech which is a part of Yenepoya School of 
+          OpenLoop is  YenTech which is a part of Yenepoya School of 
           Engineering's hackathon — 24 hours of 
           raw innovation, sleepless engineering, and breakthrough ideas.
           We bring together the brightest minds to build what doesn't

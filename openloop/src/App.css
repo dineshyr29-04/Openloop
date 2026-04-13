@@ -155,7 +155,7 @@ nav a:hover {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 0 10px rgba(198, 255, 0, 0.1);
-  
+  margin-left:-10px;
 }
 
 .cta-outline:hover {
@@ -361,7 +361,7 @@ nav a:hover {
 }
 
 .title-spacer {
-  width: 8vw; /* Adjustable spacing for robot face framing */
+  width: 5vw; /* Adjustable spacing for robot face framing */
 }
 
 .title-word {
