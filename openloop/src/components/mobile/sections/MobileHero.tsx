@@ -67,7 +67,7 @@ export const MobileHero: React.FC = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span className="hero-title" style={{ opacity: 1, transform: 'none', display: 'block', fontSize: 'clamp(40px, 14vw, 84px)' }}>
-            <span style={{ backgroundImage: "linear-gradient(to bottom, #d9ed91, #8cef56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>OPEN LOOP</span>
+            <span style={{ backgroundImage: "linear-gradient(to bottom, #d9ed91, #8cef56)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", whiteSpace: 'nowrap' }}>OPEN LOOP</span>
           </span>
           <span className="hero-year" style={{ opacity: 1, transform: 'none', display: 'block', marginTop: '-4px', fontSize: 'clamp(24px, 8vw, 42px)' }}>
             2026
