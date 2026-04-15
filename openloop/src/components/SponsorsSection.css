@@ -18,44 +18,64 @@
   pointer-events: auto; /* Allow hover events */
 }
 
-/* ── Fluid Row — scales to column count ── */
+/* ── Fluid Row — single line and responsive ── */
 .sponsors-grid-new {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: min(30px, 3vw);
   width: 100%;
   padding-bottom: 2rem;
+  max-width: 1300px;
+  margin: 0 auto;
+  overflow-x: visible; /* We want them to scale rather than hide/scroll if possible */
 }
 
-/* ── Base card ── */
+/* ── Base card: Glassmorphism Artifact ── */
 .sponsor-box {
   position: relative;
-  aspect-ratio: 1.15 / 1;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(198, 255, 0, 0.1);
-  border-radius: 6px;
+  width: min(200px, 18vw);
+  height: min(180px, 16vw);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(198, 255, 0, 0.15);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem; 
+  padding: clamp(0.5rem, 1vw, 1.5rem); 
+  flex-shrink: 1; /* Allow shrinking to stay in one line */
   overflow: hidden;
   cursor: pointer;
-  /* Smooth transitions, fast follow for transform magnetic effect */
+  /* Premium Transition */
   transition:
-    transform 0.1s ease-out,
-    border-color 0.35s ease,
-    box-shadow 0.35s ease,
-    background 0.35s ease;
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.4s ease,
+    box-shadow 0.4s ease,
+    background 0.4s ease;
 }
 
-/* ── Ambient glow pseudo-element (always present, activated on hover) ── */
+/* ── Cyber Grid Background for Cards ── */
 .sponsor-box::before {
   content: '';
   position: absolute;
   inset: 0;
+  background-image: linear-gradient(rgba(198, 255, 0, 0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(198, 255, 0, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.3;
+  transition: opacity 0.4s ease;
+}
+
+/* ── Ambient glow pseudo-element (activated on hover) ── */
+.sponsor-box-glow {
+  position: absolute;
+  inset: 0;
   border-radius: inherit;
-  background: radial-gradient(ellipse at center, rgba(198, 255, 0, 0.12), transparent 70%);
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(198, 255, 0, 0.15), transparent 70%);
   opacity: 0;
   transition: opacity 0.45s ease;
   pointer-events: none;
@@ -86,14 +106,28 @@
     inset 0 0 12px rgba(198, 255, 0, 0.04);
 }
 
-.sponsor-box:hover::before {
+.sponsor-box:hover .sponsor-box-glow {
   opacity: 1;
 }
 
-.sponsor-box:hover::after {
-  border-top-color: rgba(198, 255, 0, 0.6);
-  border-left-color: rgba(198, 255, 0, 0.6);
+/* ── HUD Labels ── */
+.card-hud-label {
+  position: absolute;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: rgba(198, 255, 0, 0.4);
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  transition: color 0.3s ease;
 }
+
+.sponsor-box:hover .card-hud-label {
+  color: rgba(198, 255, 0, 0.8);
+}
+
+.card-hud-label.top-left { top: 12px; left: 12px; }
+.card-hud-label.top-right { top: 12px; right: 12px; }
+.card-hud-label.bottom-left { bottom: 12px; left: 12px; }
 
 /* ── Logo image ── */
 .sponsor-logo-img {
@@ -110,7 +144,8 @@
 
 .sponsor-box:hover .sponsor-logo-img {
   opacity: 1;
-  transform: scale(1.1);
+  transform: scale(1.1) translateY(-5px);
+  filter: drop-shadow(0 0 15px rgba(198, 255, 0, 0.3));
 }
 
 /* ── Sponsor name label (revealed on hover) ── */
@@ -159,30 +194,26 @@
   opacity: 0.5;
 }
 
-/* ── Responsive: 5 → 3 → 2 ── */
-@media (max-width: 1100px) {
+/* ── Responsive: Handle single-line overflow if very narrow ── */
+@media (max-width: 900px) {
   .sponsors-grid-new {
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 700px;
+    gap: 12px;
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 600px) {
   .sponsors-grid-new {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 440px;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 1rem;
+    scrollbar-width: none;
   }
-  .sponsors-wrapper-premium {
-    padding-top: 16px;
-  }
-}
-
-/* ── Short viewport fix ── */
-@media (max-height: 760px) {
-  .sponsors-wrapper-premium {
-    padding-top: 12px;
+  .sponsors-grid-new::-webkit-scrollbar {
+    display: none;
   }
   .sponsor-box {
-    aspect-ratio: 1.4 / 1;
+    width: 140px;
+    height: 120px;
+    flex-shrink: 0;
   }
 }

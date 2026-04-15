@@ -133,24 +133,20 @@ export const Robot: React.FC<RobotProps> = ({
       targetScale = 1.7;
       targetGreen = 2;
     }
-    // FOOTER (0.97 -> 1.00): Rise up and face center
+    // FOOTER (0.97 -> 1.00): Just fade out from its current position
     else {
       const fp = clamp((p - 0.97) / 0.03, 0, 1);
-      targetOpacity = 1;
-      // Fly in from far left and center
-      targetX = lerp(-10, 0, easeOut(fp));
-      targetY = lerp(3, 0.0, easeOut(fp)); // Position lower in footer (changed from 1)
+      
+      // Stay at Contact position (-3.5, 0, 0)
+      targetX = -3.5 + mouseX * 0.45;
+      targetY = 0; 
       targetZ = 0;
-      targetRotY = lerp(Math.PI / 2, 0, easeOut(fp)); // Turn to face user
-      targetScale = 1.4; // Even smaller face
-      targetGreen = 2.5; 
+      targetRotY = Math.PI / 2 + mouseX * 0.15;
+      targetScale = 1.7; 
       
-      // Interactive moves: Idle breathing/looking around
-      targetRotX = Math.sin(state.clock.elapsedTime * 0.8) * 0.12; 
-      targetRotY += Math.cos(state.clock.elapsedTime * 0.4) * 0.12;
-      
-      // Pulse emission slightly for "interactive" feel
-      targetGreen += Math.sin(state.clock.elapsedTime * 3) * 0.5;
+      // Fade out robot
+      targetOpacity = 1 - fp; 
+      targetGreen = 2 * (1 - fp);
     }
 
     // Add mouse parallax

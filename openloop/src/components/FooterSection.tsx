@@ -1,4 +1,5 @@
 import React from 'react';
+import { lerp } from '../utils/math';
 
 interface FooterSectionProps {
   scrollVal: number;
@@ -27,9 +28,9 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         borderTop: '1px solid rgba(198, 255, 0, 0.1)',
       }}
     >
-      {/* Placeholder for Robot Face in the free space above grid */}
+      {/* Empty space at the top as requested (making it larger to push content down) */}
       <div style={{
-          height: '40vh',
+          height: '50vh',
           width: '100%',
           pointerEvents: 'none'
       }} />
@@ -41,14 +42,17 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
           padding: '40px',
           paddingBottom: '40px',
           display: 'grid',
-          gridTemplateColumns: '1.5fr 1fr 1fr 1fr',
+          gridTemplateColumns: isVisible ? '1.5fr 1fr 1fr 1fr' : '1fr', // Simplify for animation
           gap: '40px',
           position: 'relative',
           background: 'rgba(7, 2, 2, 0.71)',
           borderRadius: '8px',
+          transform: `translateY(${lerp(100, 0, (scrollVal - 0.98) / 0.02)}px)`,
+          opacity: (scrollVal - 0.98) / 0.02,
+          transition: 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease'
       }}>
         {/* Brand Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="footer-col" style={{ animationDelay: '0.1s' }}>
           <h3 style={{ 
               fontFamily: 'Audiowide, sans-serif', 
               fontSize: '30px', 
@@ -71,7 +75,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         </div>
 
         {/* Navigation */}
-        <div>
+        <div className="footer-col" style={{ animationDelay: '0.2s' }}>
           <h4 style={headerStyle}>Navigation</h4>
           <ul style={listStyle}>
             <li><a href="#about" style={linkStyle}>About</a></li>
@@ -82,7 +86,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         </div>
 
         {/* Support */}
-        <div>
+        <div className="footer-col" style={{ animationDelay: '0.3s' }}>
           <h4 style={headerStyle}>Connect</h4>
           <ul style={listStyle}>
             <li><a href="mailto:hello@openloop.dev" style={linkStyle}>Email</a></li>
@@ -92,12 +96,11 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         </div>
 
         {/* Legal */}
-        <div>
+        <div className="footer-col" style={{ animationDelay: '0.4s' }}>
           <h4 style={headerStyle}>Legal</h4>
           <ul style={listStyle}>
             <li><a href="#" style={linkStyle}>Privacy Policy</a></li>
             <li><a href="#" style={linkStyle}>Terms of Service</a></li>
-            
           </ul>
         </div>
       </div>
@@ -117,7 +120,9 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
           fontFamily: 'Share Tech Mono, monospace',
           fontSize: '11px',
           color: 'rgba(255, 255, 255, 0.3)',
-          letterSpacing: '1px'
+          letterSpacing: '1px',
+          transform: `translateY(${lerp(40, 0, (scrollVal - 0.99) / 0.01)}px)`,
+          opacity: (scrollVal - 0.99) / 0.01
       }}>
         <span>© 2026 OPENLOOP HACKATHON. ALL RIGHTS RESERVED.</span>
         <div style={{ display: 'flex', gap: '20px' }}>

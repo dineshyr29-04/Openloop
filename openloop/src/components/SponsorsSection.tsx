@@ -56,16 +56,27 @@ export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollPr
               className={`sponsor-box tier-${s.tier.toLowerCase()}`}
               onMouseMove={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                e.currentTarget.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px) scale(1.06)`;
-                e.currentTarget.style.zIndex = '5';
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Track mouse for glow effect
+                e.currentTarget.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+                e.currentTarget.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+                
+                // Magnetic tilt
+                const tiltX = (y - rect.height / 2) / 10;
+                const tiltY = (x - rect.width / 2) / 10;
+                e.currentTarget.style.transform = `perspective(1000px) rotateX(${-tiltX}deg) rotateY(${tiltY}deg) scale3d(1.05, 1.05, 1.05)`;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = `translate(0px, 0px) scale(1)`;
-                e.currentTarget.style.zIndex = '1';
+                e.currentTarget.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
               }}
             >
+              <div className="sponsor-box-glow" />
+              
+              <div className="card-hud-label top-left">TIER: {s.tier.toUpperCase()}</div>
+              <div className="card-hud-label top-right">ID: 0x{i}F4</div>
+              
               {s.logoImg ? (
                 <img src={s.logoImg} alt={s.name} className="sponsor-logo-img" />
               ) : (
@@ -73,9 +84,10 @@ export const SponsorsSection: React.FC<{ scrollProgress: number }> = ({ scrollPr
                   <span className="hud-label">{s.name}</span>
                 </div>
               )}
-              {/* Name tag revealed on hover */}
+              
               <span className="sponsor-name-tag">{s.name}</span>
               <div className="box-decoration" />
+              <div className="card-hud-label bottom-left">AUTH_GEN</div>
             </div>
           ))}
         </div>
