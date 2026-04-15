@@ -142,12 +142,15 @@ export const Robot: React.FC<RobotProps> = ({
       targetY = lerp(3, 1, easeOut(fp)); // Position in the "free space" above footer text
       targetZ = 0;
       targetRotY = lerp(Math.PI / 2, 0, easeOut(fp)); // Turn to face user
-      targetScale = 3.5; // Large face
-      targetGreen = 1.5;
+      targetScale = 1.0; // Even smaller face
+      targetGreen = 2.5; 
       
-      // Add subtle "interactive" looking moves for the footer
-      targetRotX = Math.sin(state.clock.elapsedTime * 2) * 0.1;
-      targetRotY += Math.cos(state.clock.elapsedTime * 1.5) * 0.15;
+      // Interactive moves: Idle breathing/looking around
+      targetRotX = Math.sin(state.clock.elapsedTime * 0.8) * 0.12; 
+      targetRotY += Math.cos(state.clock.elapsedTime * 0.4) * 0.12;
+      
+      // Pulse emission slightly for "interactive" feel
+      targetGreen += Math.sin(state.clock.elapsedTime * 3) * 0.5;
     }
 
     // Add mouse parallax

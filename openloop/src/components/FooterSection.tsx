@@ -17,7 +17,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         inset: 0,
         width: '100%',
         height: '100vh',
-        background: '#050505',
+        background: 'transparent',
         color: '#fff',
         pointerEvents: 'auto',
         zIndex: 100,
@@ -27,15 +27,10 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         borderTop: '1px solid rgba(198, 255, 0, 0.1)',
       }}
     >
-      {/* Background Glow */}
+      {/* Placeholder for Robot Face in the free space above grid */}
       <div style={{
-          position: 'absolute',
-          top: '-150px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '80%',
-          height: '300px',
-          background: 'radial-gradient(ellipse at center, rgba(198, 255, 0, 0.05) 0%, transparent 70%)',
+          height: '40vh',
+          width: '100%',
           pointerEvents: 'none'
       }} />
 
@@ -43,11 +38,14 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
           maxWidth: '1200px', 
           margin: '0 auto', 
           width: '100%',
-          padding: '0 40px',
+          padding: '40px',
+          paddingBottom: '40px',
           display: 'grid',
           gridTemplateColumns: '1.5fr 1fr 1fr 1fr',
           gap: '40px',
-          position: 'relative'
+          position: 'relative',
+          background: 'rgba(7, 2, 2, 0.71)',
+          borderRadius: '8px',
       }}>
         {/* Brand Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
