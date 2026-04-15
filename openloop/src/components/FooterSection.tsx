@@ -6,7 +6,16 @@ interface FooterSectionProps {
 }
 
 export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
+  const [gravityActive, setGravityActive] = React.useState(false);
   const isVisible = scrollVal >= 0.96;
+
+  React.useEffect(() => {
+    const handleGravity = (e: any) => {
+      setGravityActive(e.detail.active);
+    };
+    window.addEventListener('blackhole_expand', handleGravity);
+    return () => window.removeEventListener('blackhole_expand', handleGravity);
+  }, []);
 
   if (!isVisible) return null;
 
@@ -20,7 +29,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         height: '100vh',
         background: 'transparent',
         color: '#fff',
-        pointerEvents: 'auto',
+        pointerEvents: 'none', // Allow clicks to pass to the canvas (sphere)
         zIndex: 100,
         display: 'flex',
         flexDirection: 'column',
@@ -35,7 +44,9 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
           pointerEvents: 'none'
       }} />
 
-      <div style={{ 
+      <div 
+        className={gravityActive ? 'gravity-pull' : ''}
+        style={{ 
           maxWidth: '1200px', 
           margin: '0 auto', 
           width: '100%',
@@ -45,8 +56,9 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
           gridTemplateColumns: isVisible ? '1.5fr 1fr 1fr 1fr' : '1fr', // Simplify for animation
           gap: '40px',
           position: 'relative',
-          background: 'rgba(7, 2, 2, 0.71)',
+          background: 'rgba(7, 2, 2, 0.85)', // Darker for better contrast during black hole
           borderRadius: '8px',
+          pointerEvents: 'auto', // Re-enable interaction for links
           transform: `translateY(${lerp(100, 0, (scrollVal - 0.98) / 0.02)}px)`,
           opacity: (scrollVal - 0.98) / 0.02,
           transition: 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease'
