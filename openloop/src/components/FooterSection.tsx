@@ -53,15 +53,15 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
           padding: '40px',
           paddingBottom: '40px',
           display: 'grid',
-          gridTemplateColumns: isVisible ? '1.5fr 1fr 1fr 1fr' : '1fr', // Simplify for animation
+          gridTemplateColumns: isVisible ? '1.5fr 1fr 1fr 1fr' : '1fr',
           gap: '40px',
           position: 'relative',
-          background: 'rgba(7, 2, 2, 0.85)', // Darker for better contrast during black hole
+          background: 'rgba(5, 5, 5, 0.4)', 
           borderRadius: '8px',
-          pointerEvents: 'auto', // Re-enable interaction for links
-          transform: `translateY(${lerp(100, 0, (scrollVal - 0.98) / 0.02)}px)`,
-          opacity: (scrollVal - 0.98) / 0.02,
-          transition: 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease'
+          backdropFilter: 'none',
+          pointerEvents: 'auto',
+          opacity: (scrollVal - 0.96) / 0.04,
+          transition: 'opacity 0.5s ease'
       }}>
         {/* Brand Column */}
         <div className="footer-col" style={{ animationDelay: '0.1s' }}>

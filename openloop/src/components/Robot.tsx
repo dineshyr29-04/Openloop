@@ -1,6 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { lerp, clamp } from '../utils/math';
 
@@ -133,20 +133,23 @@ export const Robot: React.FC<RobotProps> = ({
       targetScale = 1.7;
       targetGreen = 2;
     }
-    // FOOTER (0.97 -> 1.00): Just fade out from its current position
+    // FOOTER (0.97 -> 1.00): Immersive Center Scene
     else {
       const fp = clamp((p - 0.97) / 0.03, 0, 1);
       
-      // Stay at Contact position (-3.5, 0, 0)
-      targetX = -3.5 + mouseX * 0.45;
-      targetY = 0; 
-      targetZ = 0;
-      targetRotY = Math.PI / 2 + mouseX * 0.15;
-      targetScale = 1.7; 
+      // Move to absolute Center (0, 0, 0.5) for the immersive loop
+      targetX = 0;
+      targetY =0.15; 
+      targetZ = lerp(0, 0.5, fp); 
+      targetRotY = mouseX * 0.45; 
+      targetRotX = 0;
       
-      // Fade out robot
-      targetOpacity = 1 - fp; 
-      targetGreen = 2 * (1 - fp);
+      // Organic 'breathing' scale pulse for 'Perfect' feel
+      const breathe = Math.sin(state.clock.elapsedTime * 0.8) * 0.05;
+      targetScale = 1.3 + breathe; 
+      
+      targetOpacity = 1; 
+      targetGreen = 3 + Math.sin(state.clock.elapsedTime * 4) * 1.5; 
     }
 
     // Add mouse parallax
@@ -187,8 +190,19 @@ export const Robot: React.FC<RobotProps> = ({
     }
   });
 
+  const isFooter = phase === 'main' && robotProgressRef.current > 0.97;
+
   return (
-    <group ref={groupRef}>
+    <group 
+      ref={groupRef}
+      onPointerOver={() => isFooter && (document.body.style.cursor = 'pointer')}
+      onPointerOut={() => isFooter && (document.body.style.cursor = 'auto')}
+      onClick={() => {
+        if (isFooter) {
+          window.open('https://unstop.com/college-fests/openloop-26-yenepoya-school-of-engineering-and-technology-458231', '_blank');
+        }
+      }}
+    >
       <primitive object={scene} />
       {/* Volumetric Beam - Soft Cylinder */}
       <mesh ref={beamRef} rotation={[0, 0, Math.PI / 2]} position={[2.5, 0, 0.4]}>
@@ -196,6 +210,24 @@ export const Robot: React.FC<RobotProps> = ({
         <meshBasicMaterial color="#C6FF00" transparent opacity={0} side={THREE.DoubleSide} />
       </mesh>
       <pointLight ref={headLightRef} color="#C6FF00" intensity={0} distance={5} position={[0, 0, 1]} />
+      
+      {/* Footer Interface HUD */}
+      {isFooter && (
+        <Html center position={[0, -1.2, 0]}>
+          <div className="cyber-hud-container" style={{ 
+            opacity: stateRef.current.opacity,
+            transform: `scale(${stateRef.current.scale * 0.4})`,
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap'
+          }}>
+            <div className="hud-corner top-left" />
+            <div className="hud-corner top-right" />
+            <h2 className="hud-title" style={{ fontSize: '18px', letterSpacing: '2px' }}>ROBOT_CORE_V1</h2>
+            <div className="hud-divider" />
+            <p className="hud-hint" style={{ fontSize: '10px' }}>TAP ROBOT TO INITIALIZE UPLINK</p>
+          </div>
+        </Html>
+      )}
     </group>
   );
 };
