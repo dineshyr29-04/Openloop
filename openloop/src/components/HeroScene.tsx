@@ -3,6 +3,7 @@ import { Environment } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Robot } from './Robot';
 import { Background } from './Background';
+import { CyberStage } from './CyberStage';
 
 import { Timeline3D } from './Timeline3D';
 import { useMousePosition } from '../hooks/useMousePosition';
@@ -78,6 +79,7 @@ export const SceneContainer: React.FC<SceneContainerProps> = ({
       <CameraRig robotProgressRef={robotProgressRef} />
       <SceneLights />
       <Background scrollVal={scrollVal} />
+      <CyberStage scrollVal={scrollVal} />
       
       <Suspense fallback={null}>
         <Environment preset="city" />

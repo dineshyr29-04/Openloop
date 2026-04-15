@@ -84,7 +84,7 @@ export const CyberStage: React.FC<CyberStageProps> = ({ scrollVal }) => {
     }
 
     if (gridRef.current) {
-      gridRef.current.material.opacity = opacity * 0.5;
+      (gridRef.current.material as THREE.MeshStandardMaterial).opacity = opacity * 0.5;
       // Perspective movement
       const mat = gridRef.current.material as THREE.MeshStandardMaterial;
       if (mat.map) mat.map.offset.y = -t * 0.05;

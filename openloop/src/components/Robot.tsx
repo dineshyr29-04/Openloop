@@ -25,6 +25,8 @@ export const Robot: React.FC<RobotProps> = ({
   const groupRef = useRef<THREE.Group>(null);
   const headLightRef = useRef<THREE.PointLight>(null);
   const beamRef = useRef<THREE.Mesh>(null);
+  const ring1Ref = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
   
   const { scene, materials } = useGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb') as any;
 
@@ -133,23 +135,25 @@ export const Robot: React.FC<RobotProps> = ({
       targetScale = 1.7;
       targetGreen = 2;
     }
-    // FOOTER (0.97 -> 1.00): Immersive Center Scene
+    // FOOTER (0.97 -> 1.00): Immersive Center Scene (Silver/White Edition)
     else {
       const fp = clamp((p - 0.97) / 0.03, 0, 1);
       
-      // Move to absolute Center (0, 0, 0.5) for the immersive loop
-      targetX = 0;
-      targetY =0.15; 
-      targetZ = lerp(0, 0.5, fp); 
-      targetRotY = mouseX * 0.45; 
+      // PERFECT SMOOTH TRANSITION FROM CONTACT (-3.5, 0, 0) TO CENTER (0, 0.15, 0.5)
+      targetX = lerp(-3.5, 0, easeInOut(fp));
+      targetY = lerp(0, 0.15, easeInOut(fp)); 
+      targetZ = lerp(0, 0.5, easeInOut(fp)); 
+      targetRotY = lerp(Math.PI / 2, mouseX * 0.45, easeInOut(fp)); 
       targetRotX = 0;
       
       // Organic 'breathing' scale pulse for 'Perfect' feel
       const breathe = Math.sin(state.clock.elapsedTime * 0.8) * 0.05;
-      targetScale = 1.2 + breathe; 
+      targetScale = lerp(1.7, 1.2, easeInOut(fp)) + breathe; 
       
       targetOpacity = 1; 
-      targetGreen = 3 + Math.sin(state.clock.elapsedTime * 4) * 1.5; 
+      
+      // Pure White/Silver Glow in footer
+      targetGreen = 2.0 + Math.sin(state.clock.elapsedTime * 2) * 1.5; 
     }
 
     // Add mouse parallax
@@ -183,10 +187,26 @@ export const Robot: React.FC<RobotProps> = ({
     if (material) {
       material.emissiveIntensity = stateRef.current.greenIntensity;
       material.opacity = stateRef.current.opacity;
+      
+      // COLOR SHIFT: Neon Green -> Silver/White in Footer
+      const colorProgress = clamp((pRaw - 0.94) / 0.06, 0, 1);
+      material.emissive.lerpColors(new THREE.Color('#C6FF00'), new THREE.Color('#ffffff'), colorProgress);
     }
 
     if (beamRef.current) {
       (beamRef.current.material as THREE.MeshBasicMaterial).opacity = stateRef.current.beamOpacity * 0.15;
+    }
+    
+    // Animate Holographic Rings
+    if (ring1Ref.current) {
+        ring1Ref.current.rotation.z += 0.01;
+        ring1Ref.current.rotation.x += 0.005;
+        (ring1Ref.current.material as THREE.MeshBasicMaterial).opacity = stateRef.current.opacity * 0.3;
+    }
+    if (ring2Ref.current) {
+        ring2Ref.current.rotation.z -= 0.015;
+        ring2Ref.current.rotation.y += 0.008;
+        (ring2Ref.current.material as THREE.MeshBasicMaterial).opacity = stateRef.current.opacity * 0.2;
     }
   });
 
@@ -204,12 +224,25 @@ export const Robot: React.FC<RobotProps> = ({
       }}
     >
       <primitive object={scene} />
+      
+      {/* Holographic Core Rings (Footer Phase) */}
+      <group visible={isFooter} scale={0.8}>
+        <mesh ref={ring1Ref}>
+          <torusGeometry args={[1.2, 0.01, 16, 100]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0} blending={THREE.AdditiveBlending} />
+        </mesh>
+        <mesh ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.4, 0.008, 16, 100]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0} blending={THREE.AdditiveBlending} />
+        </mesh>
+      </group>
+
       {/* Volumetric Beam - Soft Cylinder */}
       <mesh ref={beamRef} rotation={[0, 0, Math.PI / 2]} position={[2.5, 0, 0.4]}>
         <cylinderGeometry args={[0.05, 0.8, 5, 32, 1, true]} />
         <meshBasicMaterial color="#C6FF00" transparent opacity={0} side={THREE.DoubleSide} />
       </mesh>
-      <pointLight ref={headLightRef} color="#C6FF00" intensity={0} distance={5} position={[0, 0, 1]} />
+      <pointLight ref={headLightRef} color="#ffffff" intensity={0} distance={5} position={[0, 0, 1]} />
       
       {/* Footer Interface HUD */}
       {isFooter && (
