@@ -146,7 +146,7 @@ export const Robot: React.FC<RobotProps> = ({
       
       // Organic 'breathing' scale pulse for 'Perfect' feel
       const breathe = Math.sin(state.clock.elapsedTime * 0.8) * 0.05;
-      targetScale = 1.3 + breathe; 
+      targetScale = 1.2 + breathe; 
       
       targetOpacity = 1; 
       targetGreen = 3 + Math.sin(state.clock.elapsedTime * 4) * 1.5; 
