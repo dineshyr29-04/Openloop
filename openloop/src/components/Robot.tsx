@@ -25,8 +25,6 @@ export const Robot: React.FC<RobotProps> = ({
   const groupRef = useRef<THREE.Group>(null);
   const headLightRef = useRef<THREE.PointLight>(null);
   const beamRef = useRef<THREE.Mesh>(null);
-  const ring1Ref = useRef<THREE.Mesh>(null);
-  const ring2Ref = useRef<THREE.Mesh>(null);
   
   const { scene, materials } = useGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb') as any;
 
@@ -148,12 +146,12 @@ export const Robot: React.FC<RobotProps> = ({
       
       // Organic 'breathing' scale pulse for 'Perfect' feel
       const breathe = Math.sin(state.clock.elapsedTime * 0.8) * 0.05;
-      targetScale = lerp(1.7, 1.2, easeInOut(fp)) + breathe; 
+      targetScale = lerp(1.7, 1.4, easeInOut(fp)) + breathe; 
       
       targetOpacity = 1; 
       
-      // Pure White/Silver Glow in footer
-      targetGreen = 2.0 + Math.sin(state.clock.elapsedTime * 2) * 1.5; 
+      // Pure White/Silver Glow in footer - Enhanced base intensity for 'Perfection'
+      targetGreen = 3.0 + Math.sin(state.clock.elapsedTime * 2) * 2.0; 
     }
 
     // Add mouse parallax
@@ -196,18 +194,6 @@ export const Robot: React.FC<RobotProps> = ({
     if (beamRef.current) {
       (beamRef.current.material as THREE.MeshBasicMaterial).opacity = stateRef.current.beamOpacity * 0.15;
     }
-    
-    // Animate Holographic Rings
-    if (ring1Ref.current) {
-        ring1Ref.current.rotation.z += 0.01;
-        ring1Ref.current.rotation.x += 0.005;
-        (ring1Ref.current.material as THREE.MeshBasicMaterial).opacity = stateRef.current.opacity * 0.3;
-    }
-    if (ring2Ref.current) {
-        ring2Ref.current.rotation.z -= 0.015;
-        ring2Ref.current.rotation.y += 0.008;
-        (ring2Ref.current.material as THREE.MeshBasicMaterial).opacity = stateRef.current.opacity * 0.2;
-    }
   });
 
   const isFooter = phase === 'main' && robotProgressRef.current > 0.97;
@@ -225,18 +211,6 @@ export const Robot: React.FC<RobotProps> = ({
     >
       <primitive object={scene} />
       
-      {/* Holographic Core Rings (Footer Phase) */}
-      <group visible={isFooter} scale={0.8}>
-        <mesh ref={ring1Ref}>
-          <torusGeometry args={[1.2, 0.01, 16, 100]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0} blending={THREE.AdditiveBlending} />
-        </mesh>
-        <mesh ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1.4, 0.008, 16, 100]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0} blending={THREE.AdditiveBlending} />
-        </mesh>
-      </group>
-
       {/* Volumetric Beam - Soft Cylinder */}
       <mesh ref={beamRef} rotation={[0, 0, Math.PI / 2]} position={[2.5, 0, 0.4]}>
         <cylinderGeometry args={[0.05, 0.8, 5, 32, 1, true]} />
