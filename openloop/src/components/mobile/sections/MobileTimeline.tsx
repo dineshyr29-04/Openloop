@@ -36,11 +36,12 @@ export const MobileTimeline: React.FC = () => {
   const eventsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const allEvents: TimelineItem[] = [
-    { isMarker: true, label: 'DAY 01 INIT' },
+    { isMarker: true, label: 'DAY 01' },
     ...day1Events.map(e => ({ ...e, isMarker: false } as const)),
-    { isMarker: true, label: 'NIGHT_PHASE_OVERRIDE_DAY_02' },
+    { isMarker: true, label: 'DAY 02' },
     ...day2Events.map(e => ({ ...e, isMarker: false } as const))
   ];
+
 
   const animateEvents = () => {
     gsap.to('.tl-spine', {
@@ -100,12 +101,13 @@ export const MobileTimeline: React.FC = () => {
     <section id="timeline" ref={sectionRef} className="mobile-section">
       <div className="section-divider" />
       <div className="section-label">// 002 — TIMELINE</div>
-      <h2 className="section-heading" style={{ marginBottom: '32px' }}>
+      <h2 className="section-heading" style={{ marginBottom: '40px' }}>
         <span className="word">24H</span>{' '}
         <span className="word">SCHEDULE</span>
       </h2>
 
-      <div ref={trackRef} className="timeline-track section-body" style={{ marginTop: '32px' }}>
+      <div ref={trackRef} className="timeline-track section-body" style={{ marginTop: '48px' }}>
+
         <div className="tl-spine" />
         {allEvents.map((item, i) => {
           if (item.isMarker) {
@@ -119,13 +121,15 @@ export const MobileTimeline: React.FC = () => {
             );
           }
 
-          const event = item;
+          // Type assertion ensures TypeScript understands this must be a TimelineEvent
+          const event = item as TimelineEvent & { isMarker: false };
           return (
             <div key={`event-${i}`} ref={el => { eventsRef.current[i] = el; }}
                  className={`tl-event tl-${event.type}`}>
-              <div className="tl-dot-wrap">
+              <div className="tl-dot-wrap" style={{ marginTop: '6px' }}>
                 <div className="tl-dot" />
               </div>
+
               <div className="tl-content">
                 <div className="tl-time">{event.time}</div>
                 <div className="tl-title">{event.title}</div>

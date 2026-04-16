@@ -135,6 +135,8 @@ export const MobileAbout: React.FC<MobileAboutProps> = () => {
         ))}
       </div>
       
+      
     </section>
+
   );
 };

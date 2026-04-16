@@ -94,7 +94,6 @@ export const MobileTeam: React.FC = () => {
       <div className="team-grid section-body" style={{ marginBottom: '32px' }}>
         {members.map((m, i) => (
           <div key={i} ref={el => { cardsRef.current[i] = el; }} className="team-card">
-            
             <div className="team-info">
               <div className="team-name">{m.name}</div>
               <div className="team-role">{m.role}</div>
