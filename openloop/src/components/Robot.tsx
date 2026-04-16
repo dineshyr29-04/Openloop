@@ -1,6 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF, Html } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { lerp, clamp } from '../utils/math';
 
@@ -26,7 +26,7 @@ export const Robot: React.FC<RobotProps> = ({
   const headLightRef = useRef<THREE.PointLight>(null);
   const beamRef = useRef<THREE.Mesh>(null);
   
-  const { scene, materials } = useGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb') as any;
+  const { scene } = useGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb') as any;
 
   const stateRef = useRef({
     posX: 0,
