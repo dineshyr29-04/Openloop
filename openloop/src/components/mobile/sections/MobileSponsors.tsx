@@ -2,25 +2,22 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import 'gsap/ScrollTrigger';
 
-const titleSponsors = [
-  { name: 'UNSTOP', logo: '/sponsors/unstop logo without background.png', url: 'https://unstop.com' },
-];
+interface Sponsor {
+  name: string;
+  tier: 'Title' | 'Gold' | 'Silver' | 'Community';
+  logoImg: string;
+}
 
-const goldSponsors = [
-  { name: 'DK24', logo: '/sponsors/dk24.enc.jpeg', url: '#' },
-  { name: 'NXT WAVE', logo: '/sponsors/NxtWave-Logo.webp', url: '#' },
-];
-
-const silverSponsors = [
-  { name: 'Kalvium', logo: '/sponsors/kalvium.webp', url: '#' },
-  { name: 'XYZ', logo: '/sponsors/xyz.webp', url: '#' },
+const SPONSORS: Sponsor[] = [
+  { name: "UnStop", tier: "Gold", logoImg: "/sponsors/image.png" },
+  { name: "DK24", tier: "Gold", logoImg: "/sponsors/dk_24.png" },
+  { name: "NXT WAVE", tier: "Gold", logoImg: "/sponsors/nxt_wave.png" },
+  { name: "Kalvium", tier: "Gold", logoImg: "/sponsors/kalvium.webp" },
+  { name: "XYZ", tier: "Gold", logoImg: "/sponsors/xyz.webp" }, 
 ];
 
 export const MobileSponsors: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const goldRef = useRef<HTMLDivElement>(null);
-  const silverRef = useRef<HTMLDivElement>(null);
-  const bronzeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -61,63 +58,30 @@ export const MobileSponsors: React.FC = () => {
   return (
     <section id="sponsors" ref={sectionRef} className="mobile-section" style={{ paddingTop: '120px' }}>
       <div className="section-divider" />
-      <div className="section-label">// 003 — SPONSORS</div>
+      <div className="section-label">// 005 — PARTNERS</div>
       <h2 className="section-heading">
-        <span className="word">BACKED</span>{' '}
-        <span className="word">BY</span>{' '}
-        <span className="word">THE</span>{' '}
-        <span className="word">BEST</span>
+        <span className="word">SPONSORS</span>
       </h2>
 
-      <div ref={goldRef} className="sponsor-tier section-body">
-        <span className="tier-label">TITLE SPONSORS</span>
-        <div className="tier-line" />
-      </div>
-
-      <div className="sponsor-grid sponsor-tier-title section-body">
-        {titleSponsors.map((s, i) => (
-          <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
-             className="sponsor-card sponsor-card--large">
+      <div className="sponsor-grid section-body">
+        {SPONSORS.map((s, i) => (
+          <div 
+            key={i} 
+            className={`sponsor-card tier-${s.tier.toLowerCase()}`}
+            style={{ 
+              animationDelay: `${i * 0.1}s`,
+              gridColumn: SPONSORS.length % 2 !== 0 && i === SPONSORS.length - 1 ? 'span 2' : 'auto'
+            }}
+          >
             <div className="sponsor-logo-wrap">
-              <img src={s.logo} alt={s.name} className="sponsor-img" />
+              <img src={s.logoImg} alt={s.name} className="sponsor-img" />
             </div>
             <span className="sponsor-name">{s.name}</span>
-            <span className="sponsor-link">↗ Visit Website</span>
-          </a>
-        ))}
-      </div>
-
-      <div ref={silverRef} className="sponsor-tier section-body">
-        <span className="tier-label">GOLD SPONSORS</span>
-        <div className="tier-line" />
-      </div>
-
-      <div className="sponsor-grid sponsor-tier-gold section-body">
-        {goldSponsors.map((s, i) => (
-          <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
-             className="sponsor-card">
-            <div className="sponsor-logo-wrap">
-              <img src={s.logo} alt={s.name} className="sponsor-img" />
-            </div>
-            <span className="sponsor-name">{s.name}</span>
-          </a>
-        ))}
-      </div>
-
-      <div ref={bronzeRef} className="sponsor-tier section-body">
-        <span className="tier-label">SILVER SPONSORS</span>
-        <div className="tier-line" />
-      </div>
-
-      <div className="sponsor-grid sponsor-tier-silver section-body">
-        {silverSponsors.map((s, i) => (
-          <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
-             className="sponsor-card sponsor-card--small">
-            <div className="sponsor-logo-wrap">
-              <img src={s.logo} alt={s.name} className="sponsor-img" />
-            </div>
-            <span className="sponsor-name">{s.name}</span>
-          </a>
+            <div className="card-hud-label top-left">TIER: {s.tier.toUpperCase()}</div>
+            <div className="card-hud-label top-right">0x{i}F4</div>
+            <div className="card-corner-top" />
+            <div className="card-corner-bottom" />
+          </div>
         ))}
       </div>
     </section>

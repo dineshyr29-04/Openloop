@@ -14,7 +14,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
     { label: 'Themes', target: 0.46 },
     { label: 'Timeline', target: 0.59 },
     { label: 'Sponsors', target: 0.90 },
-    { label: 'Contact', target: 0.95 },
+    { label: 'Get in Touch', target: 0.95 },
   ];
 
   const handleNavClick = (targetProgress: number) => {

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+
 import { Canvas } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -28,20 +29,22 @@ export default function DesktopLayout() {
   const { phase, loaderProgress } = usePhase();
   const robotProgressRef = useRef(0);
   const themeProgressRef = useRef(0);
-  const [scrollEnabled, setScrollEnabled] = useState(false);
+  
+  // Derived state to avoid cascading renders in useEffect
+  const scrollEnabled = phase !== 'loader' && phase !== 'intro';
+
 
   useEffect(() => {
-    if (phase === 'loader' || phase === 'intro') {
+    if (!scrollEnabled) {
       window.scrollTo(0, 0);
       document.body.style.overflow = 'hidden';
       document.body.style.height = '100vh';
-      setScrollEnabled(false);
     } else {
       document.body.style.overflow = 'auto';
       document.body.style.height = 'auto';
-      setScrollEnabled(true);
     }
-  }, [phase]);
+  }, [scrollEnabled]);
+
 
   useEffect(() => {
     if (phase !== 'main') return;
@@ -112,7 +115,7 @@ export default function DesktopLayout() {
               { name: 'ABOUT',    start: 0.14, end: 0.28, id: '#s2-about' },
               { name: 'THEMES',   start: 0.30, end: 0.50, id: '#theme-section' },
               { name: 'TIMELINE', start: 0.52, end: 0.74, id: '#s4-timeline' },
-              { name: 'SPONSORS', start: 0.85, end: 0.92, id: '#sponsors-section' },
+              { name: 'SPONSORS', start: 0.88, end: 0.92, id: '#sponsors-section' },
               { name: 'CONTACT',  start: 0.94, end: 0.97, id: '#contact-section' },
               { name: 'FOOTER',   start: 0.98, end: 1.00, id: '#footer-section' },
             ];
@@ -178,7 +181,8 @@ export default function DesktopLayout() {
       <div 
         className="canvas-container"
         style={{
-          opacity: rawScroll > 0.96 ? lerp(1, 0, (rawScroll - 0.96) / 0.04) : 1,
+          // Removed fade out at very end so robot stays visible in footer
+          opacity: 1,
           transition: 'opacity 0.3s ease-out'
         }}
       >

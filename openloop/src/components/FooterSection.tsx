@@ -1,11 +1,22 @@
 import React from 'react';
+import { lerp } from '../utils/math';
 
 interface FooterSectionProps {
   scrollVal: number;
 }
 
 export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
+  const [gravityActive, setGravityActive] = React.useState(false);
   const isVisible = scrollVal >= 0.96;
+
+  React.useEffect(() => {
+    const handleGravity = (e: Event) => {
+      setGravityActive((e as CustomEvent).detail.active);
+    };
+    window.addEventListener('blackhole_expand', handleGravity);
+    return () => window.removeEventListener('blackhole_expand', handleGravity);
+  }, []);
+
 
   if (!isVisible) return null;
 
@@ -17,40 +28,44 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         inset: 0,
         width: '100%',
         height: '100vh',
-        background: '#050505',
+        background: 'transparent',
         color: '#fff',
-        pointerEvents: 'auto',
+        pointerEvents: 'none', // Allow clicks to pass to the canvas (sphere)
         zIndex: 100,
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'flex-end',
         borderTop: '1px solid rgba(198, 255, 0, 0.1)',
       }}
     >
-      {/* Background Glow */}
+      {/* Empty space at the top as requested (making it larger to push content down) */}
       <div style={{
-          position: 'absolute',
-          top: '-150px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '80%',
-          height: '300px',
-          background: 'radial-gradient(ellipse at center, rgba(198, 255, 0, 0.05) 0%, transparent 70%)',
+          height: '50vh',
+          width: '100%',
           pointerEvents: 'none'
       }} />
 
-      <div style={{ 
+      <div 
+        className={gravityActive ? 'gravity-pull' : ''}
+        style={{ 
           maxWidth: '1200px', 
           margin: '0 auto', 
           width: '100%',
-          padding: '0 40px',
+          padding: '40px',
+          paddingBottom: '40px',
           display: 'grid',
-          gridTemplateColumns: '1.5fr 1fr 1fr 1fr',
+          gridTemplateColumns: isVisible ? '1.5fr 1fr 1fr 1fr' : '1fr',
           gap: '40px',
-          position: 'relative'
+          position: 'relative',
+          background: 'rgba(5, 5, 5, 0.4)', 
+          borderRadius: '8px',
+          backdropFilter: 'none',
+          pointerEvents: 'auto',
+          opacity: (scrollVal - 0.96) / 0.04,
+          transition: 'opacity 0.5s ease'
       }}>
         {/* Brand Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="footer-col" style={{ animationDelay: '0.1s' }}>
           <h3 style={{ 
               fontFamily: 'Audiowide, sans-serif', 
               fontSize: '30px', 
@@ -73,7 +88,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         </div>
 
         {/* Navigation */}
-        <div>
+        <div className="footer-col" style={{ animationDelay: '0.2s' }}>
           <h4 style={headerStyle}>Navigation</h4>
           <ul style={listStyle}>
             <li><a href="#about" style={linkStyle}>About</a></li>
@@ -84,7 +99,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         </div>
 
         {/* Support */}
-        <div>
+        <div className="footer-col" style={{ animationDelay: '0.3s' }}>
           <h4 style={headerStyle}>Connect</h4>
           <ul style={listStyle}>
             <li><a href="mailto:hello@openloop.dev" style={linkStyle}>Email</a></li>
@@ -94,12 +109,11 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
         </div>
 
         {/* Legal */}
-        <div>
+        <div className="footer-col" style={{ animationDelay: '0.4s' }}>
           <h4 style={headerStyle}>Legal</h4>
           <ul style={listStyle}>
             <li><a href="#" style={linkStyle}>Privacy Policy</a></li>
             <li><a href="#" style={linkStyle}>Terms of Service</a></li>
-            <li><a href="#" style={linkStyle}>Code of Conduct</a></li>
           </ul>
         </div>
       </div>
@@ -118,8 +132,13 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ scrollVal }) => {
           alignItems: 'center',
           fontFamily: 'Share Tech Mono, monospace',
           fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.3)',
-          letterSpacing: '1px'
+          background: 'linear-gradient(to bottom, #C6FF00, #9c5c5c)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          letterSpacing: '1px',
+          transform: `translateY(${lerp(40, 0, (scrollVal - 0.99) / 0.01)}px)`,
+          opacity: (scrollVal - 0.99) / 0.01
       }}>
         <span>© 2026 OPENLOOP HACKATHON. ALL RIGHTS RESERVED.</span>
         <div style={{ display: 'flex', gap: '20px' }}>

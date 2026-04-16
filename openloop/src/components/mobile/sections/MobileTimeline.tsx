@@ -9,6 +9,10 @@ interface TimelineEvent {
   type: 'opening' | 'hackbegins' | 'workshop' | 'meal' | 'checkpoint' | 'closing';
 }
 
+type TimelineItem = 
+  | (TimelineEvent & { isMarker: false })
+  | { isMarker: true; label: string };
+
 const day1Events: TimelineEvent[] = [
   { time: '08:00 AM', title: 'Registration Opens', description: 'Check-in and kit collection', type: 'opening' },
   { time: '09:00 AM', title: 'Inauguration Ceremony', description: 'Opening keynote + rules brief', type: 'opening' },
@@ -31,13 +35,13 @@ export const MobileTimeline: React.FC = () => {
   const trackRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Construct unified timeline with a unique marker interjected instead of just joining
-  const allEvents = [
-    { isMarker: true, label: 'DAY 01 INIT' },
-    ...day1Events.map(e => ({ ...e, isMarker: false })),
-    { isMarker: true, label: 'NIGHT_PHASE_OVERRIDE_DAY_02' },
-    ...day2Events.map(e => ({ ...e, isMarker: false }))
+  const allEvents: TimelineItem[] = [
+    { isMarker: true, label: 'DAY 01' },
+    ...day1Events.map(e => ({ ...e, isMarker: false } as const)),
+    { isMarker: true, label: 'DAY 02' },
+    ...day2Events.map(e => ({ ...e, isMarker: false } as const))
   ];
+
 
   const animateEvents = () => {
     gsap.to('.tl-spine', {
@@ -67,7 +71,6 @@ export const MobileTimeline: React.FC = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Main section transitions
       gsap.fromTo('.section-label',
         { opacity: 0, x: -30 },
         {
@@ -98,32 +101,35 @@ export const MobileTimeline: React.FC = () => {
     <section id="timeline" ref={sectionRef} className="mobile-section">
       <div className="section-divider" />
       <div className="section-label">// 002 — TIMELINE</div>
-      <h2 className="section-heading">
+      <h2 className="section-heading" style={{ marginBottom: '40px' }}>
         <span className="word">24H</span>{' '}
         <span className="word">SCHEDULE</span>
       </h2>
 
-      <div ref={trackRef} className="timeline-track section-body" style={{ marginTop: '24px' }}>
+      <div ref={trackRef} className="timeline-track section-body" style={{ marginTop: '48px' }}>
+
         <div className="tl-spine" />
         {allEvents.map((item, i) => {
           if (item.isMarker) {
             return (
               <div key={`marker-${i}`} className="tl-day-marker-box tl-event">
                 <div className="marker-hud-glitch">
-                  <span className="marker-hud-text">{(item as any).label}</span>
+                  <span className="marker-hud-text">{item.label}</span>
                   <div className="marker-hud-line"/>
                 </div>
               </div>
             );
           }
 
-          const event = item as TimelineEvent;
+          // Type assertion ensures TypeScript understands this must be a TimelineEvent
+          const event = item as TimelineEvent & { isMarker: false };
           return (
             <div key={`event-${i}`} ref={el => { eventsRef.current[i] = el; }}
                  className={`tl-event tl-${event.type}`}>
-              <div className="tl-dot-wrap">
+              <div className="tl-dot-wrap" style={{ marginTop: '6px' }}>
                 <div className="tl-dot" />
               </div>
+
               <div className="tl-content">
                 <div className="tl-time">{event.time}</div>
                 <div className="tl-title">{event.title}</div>
