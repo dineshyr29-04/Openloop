@@ -13,6 +13,46 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
 
   // Timer state for hero overlay
   const [timeLeft, setTimeLeft] = useState(24 * 60 * 60);
+  const [hoveredTimerCard, setHoveredTimerCard] = useState<number | null>(null);
+
+  const glassCardBase: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '90px',
+    minHeight: '90px',
+    padding: '30px 100px',
+    background: 'rgba(20, 25, 15, 0.45)',
+    backdropFilter: 'blur(14px)',
+    WebkitBackdropFilter: 'blur(14px)',
+    border: '1.5px solid rgba(198, 255, 0, 0.25)',
+    borderRadius: '14px',
+    boxShadow: `
+      0 8px 30px rgba(0, 0, 0, 0.6),
+      0 0 20px rgba(198, 255, 0, 0.12),
+      inset 0 0 12px rgba(198, 255, 0, 0.05)
+    `,
+    fontFamily: 'Share Tech Mono, monospace',
+    fontWeight: 700,
+    fontSize: 'clamp(32px, 3.5vw, 50px)',
+    color: '#C6FF00',
+    letterSpacing: '0.1em',
+    margin: '0 6px',
+    position: 'relative',
+    zIndex: 2,
+    transition: 'all 0.3s ease',
+  };
+
+  const glassCardHover: React.CSSProperties = {
+    transform: 'translateY(-6px) scale(1.05)',
+    border: '1.5px solid rgba(198, 255, 0, 0.6)',
+    boxShadow: `
+      0 12px 40px rgba(0, 0, 0, 0.8),
+      0 0 30px rgba(198, 255, 0, 0.3),
+      inset 0 0 16px rgba(198, 255, 0, 0.1)
+    `,
+  };
 
   // Sync timer from localStorage (ChallengePage writes to this key)
   useEffect(() => {
@@ -107,15 +147,16 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           </div>
         </div>
 
-        <h1 className="hero-main-title" style={{ position: 'relative', zIndex: 2 }}>
+        <h1 className="hero-main-title" style={{ position: 'relative', zIndex: 2,marginBottom: '30px',}}>
           <span className="title-word" style={{ color: '#ffffff' }}>OPEN</span>
           <span className="title-spacer" />
           <span className="title-word" style={{
             color: '#C6FF00',
             textShadow: '0 0 20px rgba(198, 255, 0, 0.4)'
+            
           }}>LOOP</span>
         </h1>
-        <div className="hero-sub-title" style={{ fontSize: 'clamp(32px, 5vw, 60px)', fontWeight: 700, letterSpacing: '0.1em', color: '#fff', marginBottom: 0 }}>2026</div>
+        
         {/* TIMER BOXES */}
         <div style={{
           display: 'flex',
@@ -127,31 +168,19 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           position: 'relative',
           zIndex: 2,
         }}>
-          {['HOUR', 'MIN', 'SEC'].map((label, i) => {
-            const [h, m, s] = getTimeParts(timeLeft);
-            const val = [h, m, s][i];
+          {['DAY' ,'HOUR', 'MIN', 'SEC'].map((label, i) => {
+            const [d,h, m, s] = getTimeParts(timeLeft);
+            const val = [d,h, m, s][i];
             return (
-              <div key={label} style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'rgba(10,10,10,0.85)',
-                border: '2.5px solid #292b21',
-                borderRadius: '5px',
-                minWidth: '62px',
-                minHeight: '62px',
-                boxShadow: '0 0 18px 2px rgba(198,255,0,0.10)',
-                margin: '0 2px',
-                fontFamily: 'Share Tech Mono, monospace',
-                fontWeight: 700,
-                fontSize: 'clamp(28px, 3vw, 38px)',
-                color: '#C6FF00',
-                letterSpacing: '0.08em',
-                position: 'relative',
-                zIndex: 2,
-                padding: '12px 0',
-              }}>
+              <div
+                key={label}
+                style={{
+                  ...glassCardBase,
+                  ...(hoveredTimerCard === i ? glassCardHover : {}),
+                }}
+                onMouseEnter={() => setHoveredTimerCard(i)}
+                onMouseLeave={() => setHoveredTimerCard(null)}
+              >
                 <span>{val}</span>
                 <span style={{
                   fontSize: 'clamp(10px, 1vw, 14px)',
