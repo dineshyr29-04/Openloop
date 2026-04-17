@@ -2,22 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { Square, RotateCcw, FastForward } from 'lucide-react';
 import {
-  TIMER_SYNC_EVENT,
   TOTAL_SECONDS,
-  fastForwardOneHour,
-  readTimerSnapshot,
-  resetTimer,
-  startTimer,
-  stopTimer,
-  syncTimerStateIfExpired,
-} from '../utils/challengeTimer';
+  fastForwardChallengeTimer,
+  resetChallengeTimer,
+  safeGetTimerSnapshot,
+  startChallengeTimer,
+  stopChallengeTimer,
+} from '../utils/timerClient';
 
 type TimerState = 'IDLE' | 'COUNTDOWN_321' | 'RUNNING' | 'STOPPED';
 
 export const ChallengePage: React.FC = () => {
-  const [state, setState] = useState<TimerState>(readTimerSnapshot().state);
+  const [state, setState] = useState<TimerState>('IDLE');
   const [countdown321, setCountdown321] = useState<number | null>(null);
-  const [timeLeft, setTimeLeft] = useState(readTimerSnapshot().remainingSeconds);
+  const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS);
   const [isDimmed, setIsDimmed] = useState(false);
   // For fast-forward animation feedback
   const [fastForwarded, setFastForwarded] = useState(false);
@@ -61,10 +59,11 @@ export const ChallengePage: React.FC = () => {
         } else {
           clearInterval(interval);
           setCountdown321(null);
-          const snapshot = startTimer(TOTAL_SECONDS);
-          setState(snapshot.state);
-          setTimeLeft(snapshot.remainingSeconds);
-          setIsDimmed(true);
+          void startChallengeTimer().then((snapshot) => {
+            setState(snapshot.state as TimerState);
+            setTimeLeft(snapshot.remainingSeconds);
+            setIsDimmed(true);
+          });
         }
       }, 1000);
 
@@ -72,24 +71,31 @@ export const ChallengePage: React.FC = () => {
     }
   }, [state]);
 
-  // Keep challenge page synced with shared timer (including across tab close/reopen).
+  // Keep challenge page synced with shared backend timer state.
   useEffect(() => {
-    const sync = () => {
+    let active = true;
+
+    const sync = async () => {
       if (state === 'COUNTDOWN_321') return;
-      const snapshot = syncTimerStateIfExpired();
-      setTimeLeft(snapshot.remainingSeconds);
-      setState(snapshot.state);
+
+      const snapshot = await safeGetTimerSnapshot();
+      if (!active) return;
+
+      if (snapshot.mode === 'CHALLENGE') {
+        setTimeLeft(snapshot.remainingSeconds);
+        setState(snapshot.state as TimerState);
+      } else {
+        setTimeLeft(TOTAL_SECONDS);
+        setState('IDLE');
+      }
     };
 
-    sync();
+    void sync();
     const interval = window.setInterval(sync, 1000);
-    window.addEventListener(TIMER_SYNC_EVENT, sync);
-    window.addEventListener('storage', sync);
 
     return () => {
+      active = false;
       clearInterval(interval);
-      window.removeEventListener(TIMER_SYNC_EVENT, sync);
-      window.removeEventListener('storage', sync);
     };
   }, [state]);
 
@@ -102,15 +108,15 @@ export const ChallengePage: React.FC = () => {
     setState('COUNTDOWN_321');
   };
 
-  const handleStop = () => {
-    const snapshot = stopTimer();
-    setState(snapshot.state);
+  const handleStop = async () => {
+    const snapshot = await stopChallengeTimer();
+    setState(snapshot.state as TimerState);
     setTimeLeft(snapshot.remainingSeconds);
   };
 
-  const handleReset = () => {
-    const snapshot = resetTimer();
-    setState(snapshot.state);
+  const handleReset = async () => {
+    const snapshot = await resetChallengeTimer();
+    setState(snapshot.state as TimerState);
     setTimeLeft(snapshot.remainingSeconds);
   };
 
@@ -132,11 +138,12 @@ export const ChallengePage: React.FC = () => {
   // Fast forward 1 hour
   const handleFastForward = () => {
     if (state === 'RUNNING' && timeLeft > 3600) {
-      const snapshot = fastForwardOneHour();
-      setTimeLeft(snapshot.remainingSeconds);
-      setState(snapshot.state);
-      setFastForwarded(true);
-      setTimeout(() => setFastForwarded(false), 600);
+      void fastForwardChallengeTimer().then((snapshot) => {
+        setTimeLeft(snapshot.remainingSeconds);
+        setState(snapshot.state as TimerState);
+        setFastForwarded(true);
+        setTimeout(() => setFastForwarded(false), 600);
+      });
     }
   };
 

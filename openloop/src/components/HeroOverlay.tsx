@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  TIMER_SYNC_EVENT,
-  readTimerSnapshot,
-  syncTimerStateIfExpired,
-} from '../utils/challengeTimer';
+  safeGetTimerSnapshot,
+  type TimerMode,
+} from '../utils/timerClient';
 
 interface HeroOverlayProps {
   scrollProgress: number;
@@ -14,7 +13,8 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
 
   // Timer state for hero overlay
-  const [timeLeft, setTimeLeft] = useState(readTimerSnapshot().remainingSeconds);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [timerMode, setTimerMode] = useState<TimerMode>('EVENT');
   const [hoveredTimerCard, setHoveredTimerCard] = useState<number | null>(null);
 
   const glassCardBase: React.CSSProperties = {
@@ -56,22 +56,28 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
     `,
   };
 
-  // Keep hero timer synced live with shared timer state.
+  // Keep hero timer synced live with shared backend timer state.
   useEffect(() => {
-    const sync = () => {
-      const snapshot = syncTimerStateIfExpired();
-      setTimeLeft(snapshot.remainingSeconds);
+    let active = true;
+
+    const sync = async () => {
+      const snapshot = await safeGetTimerSnapshot();
+      if (!active) return;
+
+      setTimerMode(snapshot.mode);
+      setTimeLeft(
+        snapshot.mode === 'CHALLENGE'
+          ? snapshot.remainingSeconds
+          : snapshot.eventRemainingSeconds
+      );
     };
 
-    sync();
+    void sync();
     const interval = window.setInterval(sync, 1000);
-    window.addEventListener(TIMER_SYNC_EVENT, sync);
-    window.addEventListener('storage', sync);
 
     return () => {
+      active = false;
       clearInterval(interval);
-      window.removeEventListener(TIMER_SYNC_EVENT, sync);
-      window.removeEventListener('storage', sync);
     };
   }, []);
 
@@ -163,6 +169,16 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         </h1>
         
         {/* TIMER BOXES */}
+        <div style={{
+          fontFamily: 'Share Tech Mono, monospace',
+          fontSize: '12px',
+          letterSpacing: '0.18em',
+          color: 'rgba(255,255,255,0.7)',
+          marginBottom: '12px',
+          textAlign: 'center',
+        }}>
+          {timerMode === 'CHALLENGE' ? 'CHALLENGE TIMER LIVE' : 'EVENT COUNTDOWN TO APR 25 - 11:00 AM'}
+        </div>
         <div style={{
           display: 'flex',
           justifyContent: 'center',
