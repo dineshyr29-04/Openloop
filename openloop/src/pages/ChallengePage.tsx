@@ -3,16 +3,25 @@ import gsap from 'gsap';
 import { Square, RotateCcw, FastForward } from 'lucide-react';
 
 type TimerState = 'IDLE' | 'COUNTDOWN_321' | 'RUNNING' | 'STOPPED';
+const TOTAL_SECONDS = 24 * 60 * 60;
+const TIMER_KEY = 'openloop_challenge_timer';
+const TIMER_STATE_KEY = 'openloop_challenge_timer_state';
 
 export const ChallengePage: React.FC = () => {
-  const [state, setState] = useState<TimerState>('IDLE');
+  const [state, setState] = useState<TimerState>(() => {
+    const storedState = localStorage.getItem(TIMER_STATE_KEY);
+    return storedState === 'RUNNING' || storedState === 'STOPPED' ? storedState : 'IDLE';
+  });
   const [countdown321, setCountdown321] = useState<number | null>(null);
-  const [timeLeft, setTimeLeft] = useState(24 * 60 * 60); // 24 hours in seconds
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const stored = localStorage.getItem(TIMER_KEY);
+    const parsed = stored ? Number(stored) : NaN;
+    return Number.isFinite(parsed) ? parsed : TOTAL_SECONDS;
+  });
   const [isDimmed, setIsDimmed] = useState(false);
   // For fast-forward animation feedback
   const [fastForwarded, setFastForwarded] = useState(false);
   
-  const timerRef = useRef<HTMLDivElement>(null);
   const countdownRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
 
@@ -61,23 +70,46 @@ export const ChallengePage: React.FC = () => {
     }
   }, [state]);
 
-  // 24h Timer Logic + sync to localStorage for HeroOverlay
+  // Sync latest values from storage on first mount.
+  useEffect(() => {
+    const stored = localStorage.getItem(TIMER_KEY);
+    const parsed = stored ? Number(stored) : NaN;
+    if (Number.isFinite(parsed)) {
+      setTimeLeft(parsed);
+    }
+
+    const storedState = localStorage.getItem(TIMER_STATE_KEY);
+    if (storedState === 'RUNNING' || storedState === 'STOPPED') {
+      setState(storedState);
+    }
+  }, []);
+
+  // 24h Timer Logic
   useEffect(() => {
     let interval: number;
     if (state === 'RUNNING') {
       interval = window.setInterval(() => {
-        setTimeLeft((prev) => {
-          const next = prev > 0 ? prev - 1 : 0;
-          // Sync to localStorage for HeroOverlay
-          localStorage.setItem('openloop_challenge_timer', String(next));
-          return next;
-        });
+        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
     }
-    // On mount, always sync current value
-    localStorage.setItem('openloop_challenge_timer', String(timeLeft));
     return () => clearInterval(interval);
   }, [state]);
+
+  // Keep shared storage updated for both Hero and Challenge.
+  useEffect(() => {
+    localStorage.setItem(TIMER_KEY, String(timeLeft));
+    localStorage.setItem(TIMER_STATE_KEY, state === 'COUNTDOWN_321' ? 'IDLE' : state);
+  }, [timeLeft, state]);
+
+  useEffect(() => {
+    setIsDimmed(state === 'RUNNING');
+  }, [state]);
+
+  useEffect(() => {
+    if (timeLeft === 0 && state === 'RUNNING') {
+      setState('STOPPED');
+    }
+  }, [timeLeft, state]);
 
   const handleStart = () => {
     setState('COUNTDOWN_321');
@@ -85,21 +117,19 @@ export const ChallengePage: React.FC = () => {
 
   const handleStop = () => {
     setState('STOPPED');
-    setIsDimmed(false);
   };
 
   const handleReset = () => {
     setState('IDLE');
-    setTimeLeft(24 * 60 * 60);
-    setIsDimmed(false);
+    setTimeLeft(TOTAL_SECONDS);
   };
 
-
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
+  const getTimeParts = (seconds: number) => {
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')} : ${m.toString().padStart(2, '0')} : ${s.toString().padStart(2, '0')}`;
+    return [d, h, m, s].map((v) => v.toString().padStart(2, '0'));
   };
 
   // Timer color logic
@@ -165,17 +195,22 @@ export const ChallengePage: React.FC = () => {
 
         {(state === 'RUNNING' || state === 'STOPPED') && (
           <div style={centerBlockStyle}>
-            <div 
-                ref={timerRef} 
-                style={{
-                  ...timerTextStyle,
-                  textShadow: state === 'RUNNING' ? `0 0 30px ${getTimerColor()}` : 'none',
-                  color: getTimerColor(),
-                  transition: 'color 0.5s, text-shadow 0.5s',
-                  animation: fastForwarded ? 'fastForwardFlash 0.6s' : undefined
-                }}
+            <div
+              style={{
+                ...timerCardGridStyle,
+                animation: fastForwarded ? 'fastForwardFlash 0.6s' : undefined,
+              }}
             >
-              {formatTime(timeLeft)}
+              {['DAY', 'HOUR', 'MIN', 'SEC'].map((label, i) => {
+                const [d, h, m, s] = getTimeParts(timeLeft);
+                const val = [d, h, m, s][i];
+                return (
+                  <div key={label} style={{ ...timerCardStyle, borderColor: getTimerColor() }}>
+                    <span style={{ ...timerValueStyle, color: getTimerColor() }}>{val}</span>
+                    <span style={timerLabelStyle}>{label}</span>
+                  </div>
+                );
+              })}
             </div>
             {/* Fast Forward Button (only show if more than 1hr left and running) */}
             {state === 'RUNNING' && timeLeft > 3600 && (
@@ -327,12 +362,40 @@ const countdownNumberStyle: React.CSSProperties = {
   textShadow: '0 0 40px rgba(198, 255, 0, 0.6)',
 };
 
-const timerTextStyle: React.CSSProperties = {
-  fontSize: 'clamp(60px, 15vw, 180px)',
+const timerCardGridStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '16px',
+  justifyContent: 'center',
+  flexWrap: 'wrap',
+};
+
+const timerCardStyle: React.CSSProperties = {
+  minWidth: '120px',
+  minHeight: '120px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  border: '2px solid #C6FF00',
+  borderRadius: '12px',
+  background: 'rgba(7, 12, 0, 0.7)',
+  boxShadow: '0 0 22px rgba(198, 255, 0, 0.22)',
+  padding: '14px',
+};
+
+const timerValueStyle: React.CSSProperties = {
+  fontSize: 'clamp(38px, 7vw, 74px)',
   fontFamily: 'Share Tech Mono, monospace',
   fontWeight: 'bold',
-  transition: 'all 0.3s ease',
-  letterSpacing: '0.05em',
+  lineHeight: 1,
+};
+
+const timerLabelStyle: React.CSSProperties = {
+  marginTop: '8px',
+  fontSize: '12px',
+  letterSpacing: '0.2em',
+  fontFamily: 'Share Tech Mono, monospace',
+  color: 'rgba(255, 255, 255, 0.75)',
 };
 
 const secondaryButtonStyle: React.CSSProperties = {

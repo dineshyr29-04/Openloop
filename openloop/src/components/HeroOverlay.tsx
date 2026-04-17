@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 // Timer sync key
+const TOTAL_SECONDS = 24 * 60 * 60;
 const TIMER_KEY = 'openloop_challenge_timer';
+const TIMER_STATE_KEY = 'openloop_challenge_timer_state';
+type SharedTimerState = 'IDLE' | 'RUNNING' | 'STOPPED';
 
 interface HeroOverlayProps {
   scrollProgress: number;
@@ -12,7 +15,15 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
 
   // Timer state for hero overlay
-  const [timeLeft, setTimeLeft] = useState(24 * 60 * 60);
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const stored = localStorage.getItem(TIMER_KEY);
+    const parsed = stored ? Number(stored) : NaN;
+    return Number.isFinite(parsed) ? parsed : TOTAL_SECONDS;
+  });
+  const [timerState, setTimerState] = useState<SharedTimerState>(() => {
+    const stored = localStorage.getItem(TIMER_STATE_KEY);
+    return stored === 'RUNNING' || stored === 'STOPPED' ? stored : 'IDLE';
+  });
   const [hoveredTimerCard, setHoveredTimerCard] = useState<number | null>(null);
 
   const glassCardBase: React.CSSProperties = {
@@ -24,7 +35,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
     minHeight: '90px',
     padding: '30px 100px',
     background: 'rgba(20, 25, 15, 0.45)',
-    backdropFilter: 'blur(14px)',
+    backdropFilter: 'blur(6px)',
     WebkitBackdropFilter: 'blur(14px)',
     border: '1.5px solid rgba(198, 255, 0, 0.25)',
     borderRadius: '14px',
@@ -54,29 +65,67 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
     `,
   };
 
-  // Sync timer from localStorage (ChallengePage writes to this key)
+  // Sync timer values from storage when route changes back to hero
   useEffect(() => {
-    // Read initial value
-    const stored = localStorage.getItem(TIMER_KEY);
-    if (stored && !isNaN(Number(stored))) {
-      setTimeLeft(Number(stored));
+    const storedTime = localStorage.getItem(TIMER_KEY);
+    const parsedTime = storedTime ? Number(storedTime) : NaN;
+    if (Number.isFinite(parsedTime)) {
+      setTimeLeft(parsedTime);
     }
-    // Listen for timer updates
-    const interval = setInterval(() => {
-      const val = localStorage.getItem(TIMER_KEY);
-      if (val && !isNaN(Number(val))) {
-        setTimeLeft(Number(val));
-      }
-    }, 1000);
-    return () => clearInterval(interval);
+
+    const storedState = localStorage.getItem(TIMER_STATE_KEY);
+    if (storedState === 'RUNNING' || storedState === 'STOPPED') {
+      setTimerState(storedState);
+    }
   }, []);
+
+  // Tick only while running. Otherwise timer stays stable.
+  useEffect(() => {
+    if (timerState !== 'RUNNING') return;
+
+    const interval = window.setInterval(() => {
+      setTimeLeft((prev) => {
+        const next = prev > 0 ? prev - 1 : 0;
+        if (next === 0) {
+          setTimerState('STOPPED');
+        }
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timerState]);
+
+  // Persist to shared storage so Challenge page stays synced.
+  useEffect(() => {
+    localStorage.setItem(TIMER_KEY, String(timeLeft));
+    localStorage.setItem(TIMER_STATE_KEY, timerState);
+  }, [timeLeft, timerState]);
 
   // Format time for boxes
   const getTimeParts = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
-    return [h, m, s].map((v) => v.toString().padStart(2, '0'));
+    return [d, h, m, s].map((v) => v.toString().padStart(2, '0'));
+  };
+
+  const handleHeroStartPause = () => {
+    if (timerState === 'RUNNING') {
+      setTimerState('STOPPED');
+      return;
+    }
+
+    if (timeLeft === 0) {
+      setTimeLeft(TOTAL_SECONDS);
+    }
+    setTimerState('RUNNING');
+  };
+
+  const handleHeroReset = () => {
+    setTimerState('IDLE');
+    setTimeLeft(TOTAL_SECONDS);
   };
 
   const NAV_ITEMS = [
@@ -168,9 +217,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           position: 'relative',
           zIndex: 2,
         }}>
-          {['DAY' ,'HOUR', 'MIN', 'SEC'].map((label, i) => {
-            const [d,h, m, s] = getTimeParts(timeLeft);
-            const val = [d,h, m, s][i];
+          {['DAY', 'HOUR', 'MIN', 'SEC'].map((label, i) => {
+            const [d, h, m, s] = getTimeParts(timeLeft);
+            const val = [d, h, m, s][i];
             return (
               <div
                 key={label}
@@ -193,6 +242,40 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               </div>
             );
           })}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '14px' }}>
+          <button
+            onClick={handleHeroStartPause}
+            style={{
+              padding: '10px 20px',
+              fontFamily: 'Share Tech Mono, monospace',
+              fontSize: '12px',
+              letterSpacing: '0.16em',
+              borderRadius: '10px',
+              border: '1px solid rgba(198, 255, 0, 0.45)',
+              background: 'rgba(8, 12, 6, 0.6)',
+              color: '#C6FF00',
+              cursor: 'pointer',
+            }}
+          >
+            {timerState === 'RUNNING' ? 'PAUSE' : 'START'}
+          </button>
+          <button
+            onClick={handleHeroReset}
+            style={{
+              padding: '10px 20px',
+              fontFamily: 'Share Tech Mono, monospace',
+              fontSize: '12px',
+              letterSpacing: '0.16em',
+              borderRadius: '10px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'rgba(8, 12, 6, 0.4)',
+              color: 'rgba(255, 255, 255, 0.85)',
+              cursor: 'pointer',
+            }}
+          >
+            RESET
+          </button>
         </div>
       </div>
 
