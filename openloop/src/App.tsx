@@ -8,6 +8,7 @@ import { CustomCursor } from './components/common/CustomCursor';
 const DesktopLayout = lazy(() => import('./components/desktop/DesktopLayout'));
 const MobileLayout = lazy(() => import('./components/mobile/MobileLayout'));
 const CrewMembers = lazy(() => import('./pages/CrewMembers').then(m => ({ default: m.CrewMembers })));
+const ChallengePage = lazy(() => import('./pages/ChallengePage').then(m => ({ default: m.ChallengePage })));
 
 function App() {
   const isMobile = useIsMobile();
@@ -29,6 +30,7 @@ function App() {
           <Routes>
             <Route path="/" element={isMobile ? <MobileLayout /> : <DesktopLayout />} />
             <Route path="/crew" element={<CrewMembers />} />
+            <Route path="/open-the-loop-24h" element={<ChallengePage />} />
           </Routes>
         </Suspense>
       </div>
