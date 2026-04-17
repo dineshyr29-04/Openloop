@@ -1,23 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { Square, RotateCcw, FastForward } from 'lucide-react';
+import {
+  TIMER_SYNC_EVENT,
+  fastForwardOneHour,
+  readTimerSnapshot,
+  resetTimer,
+  startTimer,
+  stopTimer,
+  syncTimerStateIfExpired,
+} from '../utils/challengeTimer';
 
 type TimerState = 'IDLE' | 'COUNTDOWN_321' | 'RUNNING' | 'STOPPED';
-const TOTAL_SECONDS = 24 * 60 * 60;
-const TIMER_KEY = 'openloop_challenge_timer';
-const TIMER_STATE_KEY = 'openloop_challenge_timer_state';
 
 export const ChallengePage: React.FC = () => {
-  const [state, setState] = useState<TimerState>(() => {
-    const storedState = localStorage.getItem(TIMER_STATE_KEY);
-    return storedState === 'RUNNING' || storedState === 'STOPPED' ? storedState : 'IDLE';
-  });
+  const [state, setState] = useState<TimerState>(readTimerSnapshot().state);
   const [countdown321, setCountdown321] = useState<number | null>(null);
-  const [timeLeft, setTimeLeft] = useState(() => {
-    const stored = localStorage.getItem(TIMER_KEY);
-    const parsed = stored ? Number(stored) : NaN;
-    return Number.isFinite(parsed) ? parsed : TOTAL_SECONDS;
-  });
+  const [timeLeft, setTimeLeft] = useState(readTimerSnapshot().remainingSeconds);
   const [isDimmed, setIsDimmed] = useState(false);
   // For fast-forward animation feedback
   const [fastForwarded, setFastForwarded] = useState(false);
@@ -61,67 +60,56 @@ export const ChallengePage: React.FC = () => {
         } else {
           clearInterval(interval);
           setCountdown321(null);
-          setState('RUNNING');
+          const snapshot = startTimer(timeLeft);
+          setState(snapshot.state);
+          setTimeLeft(snapshot.remainingSeconds);
           setIsDimmed(true);
         }
       }, 1000);
 
       return () => clearInterval(interval);
     }
+  }, [state, timeLeft]);
+
+  // Keep challenge page synced with shared timer (including across tab close/reopen).
+  useEffect(() => {
+    const sync = () => {
+      if (state === 'COUNTDOWN_321') return;
+      const snapshot = syncTimerStateIfExpired();
+      setTimeLeft(snapshot.remainingSeconds);
+      setState(snapshot.state);
+    };
+
+    sync();
+    const interval = window.setInterval(sync, 1000);
+    window.addEventListener(TIMER_SYNC_EVENT, sync);
+    window.addEventListener('storage', sync);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener(TIMER_SYNC_EVENT, sync);
+      window.removeEventListener('storage', sync);
+    };
   }, [state]);
-
-  // Sync latest values from storage on first mount.
-  useEffect(() => {
-    const stored = localStorage.getItem(TIMER_KEY);
-    const parsed = stored ? Number(stored) : NaN;
-    if (Number.isFinite(parsed)) {
-      setTimeLeft(parsed);
-    }
-
-    const storedState = localStorage.getItem(TIMER_STATE_KEY);
-    if (storedState === 'RUNNING' || storedState === 'STOPPED') {
-      setState(storedState);
-    }
-  }, []);
-
-  // 24h Timer Logic
-  useEffect(() => {
-    let interval: number;
-    if (state === 'RUNNING') {
-      interval = window.setInterval(() => {
-        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [state]);
-
-  // Keep shared storage updated for both Hero and Challenge.
-  useEffect(() => {
-    localStorage.setItem(TIMER_KEY, String(timeLeft));
-    localStorage.setItem(TIMER_STATE_KEY, state === 'COUNTDOWN_321' ? 'IDLE' : state);
-  }, [timeLeft, state]);
 
   useEffect(() => {
     setIsDimmed(state === 'RUNNING');
   }, [state]);
-
-  useEffect(() => {
-    if (timeLeft === 0 && state === 'RUNNING') {
-      setState('STOPPED');
-    }
-  }, [timeLeft, state]);
 
   const handleStart = () => {
     setState('COUNTDOWN_321');
   };
 
   const handleStop = () => {
-    setState('STOPPED');
+    const snapshot = stopTimer();
+    setState(snapshot.state);
+    setTimeLeft(snapshot.remainingSeconds);
   };
 
   const handleReset = () => {
-    setState('IDLE');
-    setTimeLeft(TOTAL_SECONDS);
+    const snapshot = resetTimer();
+    setState(snapshot.state);
+    setTimeLeft(snapshot.remainingSeconds);
   };
 
   const getTimeParts = (seconds: number) => {
@@ -142,7 +130,9 @@ export const ChallengePage: React.FC = () => {
   // Fast forward 1 hour
   const handleFastForward = () => {
     if (state === 'RUNNING' && timeLeft > 3600) {
-      setTimeLeft((prev) => Math.max(prev - 3600, 0));
+      const snapshot = fastForwardOneHour();
+      setTimeLeft(snapshot.remainingSeconds);
+      setState(snapshot.state);
       setFastForwarded(true);
       setTimeout(() => setFastForwarded(false), 600);
     }

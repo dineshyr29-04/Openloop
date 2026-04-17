@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-
-// Timer sync key
-const TOTAL_SECONDS = 24 * 60 * 60;
-const TIMER_KEY = 'openloop_challenge_timer';
-const TIMER_STATE_KEY = 'openloop_challenge_timer_state';
-type SharedTimerState = 'IDLE' | 'RUNNING' | 'STOPPED';
+import {
+  TIMER_SYNC_EVENT,
+  readTimerSnapshot,
+  syncTimerStateIfExpired,
+} from '../utils/challengeTimer';
 
 interface HeroOverlayProps {
   scrollProgress: number;
@@ -15,15 +14,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
 
   // Timer state for hero overlay
-  const [timeLeft, setTimeLeft] = useState(() => {
-    const stored = localStorage.getItem(TIMER_KEY);
-    const parsed = stored ? Number(stored) : NaN;
-    return Number.isFinite(parsed) ? parsed : TOTAL_SECONDS;
-  });
-  const [timerState, setTimerState] = useState<SharedTimerState>(() => {
-    const stored = localStorage.getItem(TIMER_STATE_KEY);
-    return stored === 'RUNNING' || stored === 'STOPPED' ? stored : 'IDLE';
-  });
+  const [timeLeft, setTimeLeft] = useState(readTimerSnapshot().remainingSeconds);
   const [hoveredTimerCard, setHoveredTimerCard] = useState<number | null>(null);
 
   const glassCardBase: React.CSSProperties = {
@@ -65,42 +56,24 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
     `,
   };
 
-  // Sync timer values from storage when route changes back to hero
+  // Keep hero timer synced live with shared timer state.
   useEffect(() => {
-    const storedTime = localStorage.getItem(TIMER_KEY);
-    const parsedTime = storedTime ? Number(storedTime) : NaN;
-    if (Number.isFinite(parsedTime)) {
-      setTimeLeft(parsedTime);
-    }
+    const sync = () => {
+      const snapshot = syncTimerStateIfExpired();
+      setTimeLeft(snapshot.remainingSeconds);
+    };
 
-    const storedState = localStorage.getItem(TIMER_STATE_KEY);
-    if (storedState === 'RUNNING' || storedState === 'STOPPED') {
-      setTimerState(storedState);
-    }
+    sync();
+    const interval = window.setInterval(sync, 1000);
+    window.addEventListener(TIMER_SYNC_EVENT, sync);
+    window.addEventListener('storage', sync);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener(TIMER_SYNC_EVENT, sync);
+      window.removeEventListener('storage', sync);
+    };
   }, []);
-
-  // Tick only while running. Otherwise timer stays stable.
-  useEffect(() => {
-    if (timerState !== 'RUNNING') return;
-
-    const interval = window.setInterval(() => {
-      setTimeLeft((prev) => {
-        const next = prev > 0 ? prev - 1 : 0;
-        if (next === 0) {
-          setTimerState('STOPPED');
-        }
-        return next;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timerState]);
-
-  // Persist to shared storage so Challenge page stays synced.
-  useEffect(() => {
-    localStorage.setItem(TIMER_KEY, String(timeLeft));
-    localStorage.setItem(TIMER_STATE_KEY, timerState);
-  }, [timeLeft, timerState]);
 
   // Format time for boxes
   const getTimeParts = (seconds: number) => {
