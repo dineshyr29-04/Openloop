@@ -1,5 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+// Timer sync key
+const TIMER_KEY = 'openloop_challenge_timer';
 
 interface HeroOverlayProps {
   scrollProgress: number;
@@ -7,6 +10,34 @@ interface HeroOverlayProps {
 
 export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
+
+  // Timer state for hero overlay
+  const [timeLeft, setTimeLeft] = useState(24 * 60 * 60);
+
+  // Sync timer from localStorage (ChallengePage writes to this key)
+  useEffect(() => {
+    // Read initial value
+    const stored = localStorage.getItem(TIMER_KEY);
+    if (stored && !isNaN(Number(stored))) {
+      setTimeLeft(Number(stored));
+    }
+    // Listen for timer updates
+    const interval = setInterval(() => {
+      const val = localStorage.getItem(TIMER_KEY);
+      if (val && !isNaN(Number(val))) {
+        setTimeLeft(Number(val));
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Format time for boxes
+  const getTimeParts = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return [h, m, s].map((v) => v.toString().padStart(2, '0'));
+  };
 
   const NAV_ITEMS = [
     { label: 'Core', target: 0.08 },
@@ -77,7 +108,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           </div>
         </div>
 
-        <h1 className="hero-main-title">
+        <h1 className="hero-main-title" style={{ position: 'relative', zIndex: 2 }}>
           <span className="title-word" style={{ color: '#ffffff' }}>OPEN</span>
           <span className="title-spacer" />
           <span className="title-word" style={{
@@ -85,7 +116,55 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
             textShadow: '0 0 20px rgba(198, 255, 0, 0.4)'
           }}>LOOP</span>
         </h1>
-        <div className="hero-sub-title">2026</div>
+        <div className="hero-sub-title" style={{ fontSize: 'clamp(32px, 5vw, 60px)', fontWeight: 700, letterSpacing: '0.1em', color: '#fff', marginBottom: 0 }}>2026</div>
+        {/* TIMER BOXES */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '18px',
+          marginTop: '18px',
+          marginBottom: '0',
+          position: 'relative',
+          zIndex: 2,
+        }}>
+          {['HOUR', 'MIN', 'SEC'].map((label, i) => {
+            const [h, m, s] = getTimeParts(timeLeft);
+            const val = [h, m, s][i];
+            return (
+              <div key={label} style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(10,10,10,0.85)',
+                border: '2.5px solid #C6FF00',
+                borderRadius: '14px',
+                minWidth: '62px',
+                minHeight: '62px',
+                boxShadow: '0 0 18px 2px rgba(198,255,0,0.10)',
+                margin: '0 2px',
+                fontFamily: 'Share Tech Mono, monospace',
+                fontWeight: 700,
+                fontSize: 'clamp(28px, 3vw, 38px)',
+                color: '#C6FF00',
+                letterSpacing: '0.08em',
+                position: 'relative',
+                zIndex: 2,
+              }}>
+                <span>{val}</span>
+                <span style={{
+                  fontSize: 'clamp(10px, 1vw, 14px)',
+                  color: '#fff',
+                  opacity: 0.7,
+                  marginTop: 2,
+                  fontWeight: 400,
+                  letterSpacing: '0.08em',
+                }}>{label}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <nav>
@@ -144,29 +223,9 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         <div id="s1-hero" className="section-overlay">
           <section id="hero">
             {/* No title here — it lives in the permanent layer */}
-            <div className="hero-bottom-left">
-              <div className="body-text-safe" style={{ paddingLeft: '1.5rem' }}>
-                {isHeroActive && (
-                  <div className="reveal-text-fast">
-                    Enter. Build. Evolve.
-                    <br></br>
-                    And win a Prize Pool upto Rs 1,00,000
-                  </div>
-                )}
-              </div>
-              <a
-                href="https://unstop.com/college-fests/openloop-26-yenepoya-school-of-engineering-and-technology-458231"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cta-button"
-                style={{ textDecoration: 'none', pointerEvents: 'auto' }}
-              >
-                Enter Loop
-              </a>
-            </div>
           </section>
         </div>
-
+            
         {/* PHASE 2: ABOUT (ROBOT LEFT / TEXT RIGHT) */}
         <div id="s2-about" className="section-overlay" style={{ opacity: 0 }}>
           <div className="composition-grid">

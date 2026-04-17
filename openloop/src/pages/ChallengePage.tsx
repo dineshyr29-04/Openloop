@@ -63,14 +63,21 @@ export const ChallengePage: React.FC = () => {
     }
   }, [state]);
 
-  // 24h Timer Logic
+  // 24h Timer Logic + sync to localStorage for HeroOverlay
   useEffect(() => {
     let interval: number;
     if (state === 'RUNNING') {
       interval = window.setInterval(() => {
-        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+        setTimeLeft((prev) => {
+          const next = prev > 0 ? prev - 1 : 0;
+          // Sync to localStorage for HeroOverlay
+          localStorage.setItem('openloop_challenge_timer', String(next));
+          return next;
+        });
       }, 1000);
     }
+    // On mount, always sync current value
+    localStorage.setItem('openloop_challenge_timer', String(timeLeft));
     return () => clearInterval(interval);
   }, [state]);
 
