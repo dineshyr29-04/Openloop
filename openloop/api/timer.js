@@ -147,18 +147,29 @@ export default async function handler(req, res) {
     let next = current;
 
     if (action === 'start') {
+      const startFrom =
+        current.mode === 'CHALLENGE' && current.state === 'STOPPED' && current.remainingSeconds > 0
+          ? current.remainingSeconds
+          : TOTAL_SECONDS;
+
       next = {
         mode: 'CHALLENGE',
         state: 'RUNNING',
-        remainingSeconds: TOTAL_SECONDS,
-        endAtMs: Date.now() + TOTAL_SECONDS * 1000,
+        remainingSeconds: startFrom,
+        endAtMs: Date.now() + startFrom * 1000,
         updatedAt: Date.now(),
       };
     } else if (action === 'stop') {
+      const pausedRemaining =
+        current.mode === 'CHALLENGE' && current.state === 'RUNNING' && isFiniteNumber(current.endAtMs)
+          ? clamp(Math.ceil((current.endAtMs - Date.now()) / 1000), 0, TOTAL_SECONDS)
+          : clamp(current.remainingSeconds, 0, TOTAL_SECONDS);
+
       next = {
-        ...defaultState(),
-        mode: 'EVENT',
-        state: 'IDLE',
+        mode: 'CHALLENGE',
+        state: 'STOPPED',
+        remainingSeconds: pausedRemaining,
+        endAtMs: null,
         updatedAt: Date.now(),
       };
     } else if (action === 'reset') {

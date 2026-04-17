@@ -146,17 +146,42 @@ const postAction = async (action: 'start' | 'stop' | 'reset' | 'fast-forward'): 
     return (await res.json()) as TimerSnapshot;
   } catch {
     if (action === 'start') {
+      const startFrom =
+        fallbackState.mode === 'CHALLENGE' &&
+        fallbackState.state === 'STOPPED' &&
+        fallbackState.remainingSeconds > 0
+          ? fallbackState.remainingSeconds
+          : TOTAL_SECONDS;
+
       fallbackState = {
         mode: 'CHALLENGE',
         state: 'RUNNING',
-        remainingSeconds: TOTAL_SECONDS,
-        endAtMs: Date.now() + TOTAL_SECONDS * 1000,
+        remainingSeconds: startFrom,
+        endAtMs: Date.now() + startFrom * 1000,
       };
       publishFallback();
       return getFallbackSnapshot();
     }
 
-    if (action === 'stop' || action === 'reset') {
+    if (action === 'stop') {
+      const pausedRemaining =
+        fallbackState.mode === 'CHALLENGE' &&
+        fallbackState.state === 'RUNNING' &&
+        fallbackState.endAtMs !== null
+          ? clampSeconds(Math.ceil((fallbackState.endAtMs - Date.now()) / 1000))
+          : clampSeconds(fallbackState.remainingSeconds);
+
+      fallbackState = {
+        mode: 'CHALLENGE',
+        state: 'STOPPED',
+        remainingSeconds: pausedRemaining,
+        endAtMs: null,
+      };
+      publishFallback();
+      return getFallbackSnapshot();
+    }
+
+    if (action === 'reset') {
       fallbackState = {
         mode: 'EVENT',
         state: 'IDLE',

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  TOTAL_SECONDS,
   safeGetTimerSnapshot,
   type TimerMode,
 } from '../utils/timerClient';
@@ -19,9 +18,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   );
 
   // Timer state for hero overlay
-  const [timeLeft, setTimeLeft] = useState(
-    initialEventSeconds > 0 ? initialEventSeconds : TOTAL_SECONDS
-  );
+  const [timeLeft, setTimeLeft] = useState(initialEventSeconds);
   const [timerMode, setTimerMode] = useState<TimerMode>('EVENT');
   const [hoveredTimerCard, setHoveredTimerCard] = useState<number | null>(null);
 
@@ -72,9 +69,10 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
       const snapshot = await safeGetTimerSnapshot();
       if (!active) return;
 
-      setTimerMode(snapshot.mode);
+      const showChallenge = snapshot.mode === 'CHALLENGE' && snapshot.state === 'RUNNING';
+      setTimerMode(showChallenge ? 'CHALLENGE' : 'EVENT');
       setTimeLeft(
-        snapshot.mode === 'CHALLENGE'
+        showChallenge
           ? snapshot.remainingSeconds
           : snapshot.eventRemainingSeconds
       );
