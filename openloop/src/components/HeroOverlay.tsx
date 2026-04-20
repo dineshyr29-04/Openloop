@@ -270,10 +270,33 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         </div>
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
           <a href="https://drive.google.com/file/d/1gjljz8WOTlMNwnejjiFDjYIKInKaKb1i/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="cta-button" style={{ textDecoration: 'none', padding: '8px 20px', fontSize: '11px' }}>Brochure</a>
-          <Link to="/top-25" className="cta-button" style={{ textDecoration: 'none', padding: '8px 20px', fontSize: '11px', background: 'rgba(198, 255, 0, 1)', color: '#000' }}>To 25</Link>
           <a href="https://unstop.com/college-fests/openloop-26-yenepoya-school-of-engineering-and-technology-458231" target="_blank" rel="noopener noreferrer" className="cta-outline" style={{ textDecoration: 'none' }}>Register Now</a>
         </div>
       </nav>
+
+      {/* Top Right Desktop Button */}
+      <Link 
+        to="/TopSelected25" 
+        className="cta-button" 
+        style={{ 
+          position: 'fixed', 
+          right: '30px', 
+          top: '100px', 
+          fontSize: '14px', 
+          padding: '10px 24px',
+          textDecoration: 'none',
+          background: '#C6FF00',
+          color: '#000',
+          fontWeight: 'bold',
+          borderRadius: '4px',
+          zIndex: 1000,
+          fontFamily: "'Share Tech Mono', monospace",
+          boxShadow: '0 0 20px rgba(198, 255, 0, 0.4)',
+          letterSpacing: '0.1em'
+        }}
+      >
+        TOP SELECTED 25
+      </Link>
 
       <section id="robot-sections">
         {/* PHASE 1: HERO — bottom content only, title is in #hero-title-fixed above */}

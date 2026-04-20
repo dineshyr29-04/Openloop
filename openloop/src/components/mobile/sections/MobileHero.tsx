@@ -16,6 +16,28 @@ export const MobileHero: React.FC = () => {
         </div>
       </div>
 
+      {/* Top Right Button */}
+      <Link 
+        to="/top-25 " 
+        className="cta-button" 
+        style={{ 
+          position: 'absolute', 
+          right: '20px', 
+          top: '20px', 
+          fontSize: '11px', 
+          padding: '8px 16px',
+          textDecoration: 'none',
+          background: '#C6FF00',
+          color: '#000',
+          fontWeight: 'bold',
+          borderRadius: '4px',
+          zIndex: 100,
+          boxShadow: '0 0 15px rgba(198, 255, 0, 0.3)'
+        }}
+      >
+        TOP 25
+      </Link>
+
       <div style={{ 
         zIndex: 2, 
         display: 'flex', 
@@ -46,25 +68,6 @@ export const MobileHero: React.FC = () => {
             alignItems: 'center',
             position: 'relative',
           }}>
-            <Link 
-              to="/top-25" 
-              className="cta-button" 
-              style={{ 
-                position: 'absolute', 
-                right: '10px', 
-                top: '0', 
-                fontSize: '10px', 
-                padding: '6px 12px',
-                textDecoration: 'none',
-                background: '#C6FF00',
-                color: '#000',
-                fontWeight: 'bold',
-                borderRadius: '4px',
-                zIndex: 10
-              }}
-            >
-              TOP 25
-            </Link>
             <img
               src="/yset.svg"
               alt="Yenepoya School of Engineering & Technology"
