@@ -19,6 +19,7 @@ export const ChallengePage: React.FC = () => {
   const [isDimmed, setIsDimmed] = useState(false);
   // For fast-forward animation feedback
   const [fastForwarded, setFastForwarded] = useState(false);
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
   
   const countdownRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
@@ -37,6 +38,17 @@ export const ChallengePage: React.FC = () => {
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Compact mode for narrow/short screens to avoid overlap and clipping.
+  useEffect(() => {
+    const updateViewportMode = () => {
+      setIsCompactViewport(window.innerWidth <= 560 || window.innerHeight <= 740);
+    };
+
+    updateViewportMode();
+    window.addEventListener('resize', updateViewportMode);
+    return () => window.removeEventListener('resize', updateViewportMode);
   }, []);
 
   // 3-2-1 Countdown Logic
@@ -148,7 +160,7 @@ export const ChallengePage: React.FC = () => {
   };
 
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle(isCompactViewport)}>
       {/* Background Layer */}
       <div style={{
         ...backgroundStyle,
@@ -161,14 +173,24 @@ export const ChallengePage: React.FC = () => {
         ref={spotlightRef}
         style={{
           ...spotlightStyle,
+          display: isCompactViewport ? 'none' : 'block',
           opacity: isDimmed ? 0.4 : 0.1,
         }} 
       />
 
-      <div style={contentStyle}>
+      <div style={contentStyle(isCompactViewport)}>
         {state === 'IDLE' && (
           <div style={centerBlockStyle}>
-             <h1 style={titleStyle}>24 HOUR CHALLENGE</h1>
+             <h1
+               style={{
+                 ...titleStyle,
+                 fontSize: isCompactViewport ? 'clamp(24px, 7vw, 34px)' : titleStyle.fontSize,
+                 letterSpacing: isCompactViewport ? '0.05em' : titleStyle.letterSpacing,
+                 marginBottom: isCompactViewport ? 'clamp(16px, 5vw, 24px)' : titleStyle.marginBottom,
+               }}
+             >
+               24 HOUR CHALLENGE
+             </h1>
              <button 
                 onClick={handleStart}
                 style={primaryButtonStyle}
@@ -200,10 +222,13 @@ export const ChallengePage: React.FC = () => {
                 textShadow: state === 'RUNNING' ? `0 0 30px ${getTimerColor()}` : 'none',
                 color: getTimerColor(),
                 transition: 'color 0.5s, text-shadow 0.5s',
-                animation: fastForwarded ? 'fastForwardFlash 0.6s' : undefined
+                animation: fastForwarded ? 'fastForwardFlash 0.6s' : undefined,
+                fontSize: isCompactViewport ? 'clamp(26px, 8vw, 48px)' : timerTextStyle.fontSize,
+                letterSpacing: isCompactViewport ? '0.01em' : timerTextStyle.letterSpacing,
+                maxWidth: '95vw',
               }}
             >
-              {getTimeParts(timeLeft).join(' : ')}
+              {getTimeParts(timeLeft).join(isCompactViewport ? ':' : ' : ')}
             </div>
             {/* Fast Forward Button (only show if more than 1hr left and running) */}
             {state === 'RUNNING' && timeLeft > 3600 && (
@@ -260,31 +285,37 @@ export const ChallengePage: React.FC = () => {
 
 
       {/* Decorative HUD elements */}
-      <div style={cornerHUDStyle('top', 'left')} />
-      <div style={cornerHUDStyle('top', 'right')} />
-      <div style={cornerHUDStyle('bottom', 'left')} />
-      <div style={cornerHUDStyle('bottom', 'right')} />
-      
-      <div style={systemLabelStyle}>
-        SYSTEM STATUS: {state} // LINK_SECURE
-      </div>
+      {!isCompactViewport && (
+        <>
+          <div style={cornerHUDStyle('top', 'left')} />
+          <div style={cornerHUDStyle('top', 'right')} />
+          <div style={cornerHUDStyle('bottom', 'left')} />
+          <div style={cornerHUDStyle('bottom', 'right')} />
+          <div style={systemLabelStyle}>
+            SYSTEM STATUS: {state} // LINK_SECURE
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
 // Styles
-const containerStyle: React.CSSProperties = {
+const containerStyle = (isCompactViewport: boolean): React.CSSProperties => ({
   width: '100%',
   minHeight: '100svh',
   backgroundColor: '#020600',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  overflow: 'hidden',
+  overflowX: 'hidden',
+  overflowY: isCompactViewport ? 'auto' : 'hidden',
   position: 'relative',
   color: '#fff',
   fontFamily: 'Inter, sans-serif',
-};
+  paddingTop: 'max(0px, env(safe-area-inset-top))',
+  paddingBottom: 'max(0px, env(safe-area-inset-bottom))',
+});
 
 const backgroundStyle: React.CSSProperties = {
   position: 'absolute',
@@ -306,7 +337,7 @@ const spotlightStyle: React.CSSProperties = {
   top: 0,
 };
 
-const contentStyle: React.CSSProperties = {
+const contentStyle = (isCompactViewport: boolean): React.CSSProperties => ({
   position: 'relative',
   zIndex: 10,
   display: 'flex',
@@ -314,8 +345,11 @@ const contentStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   width: 'min(96vw, 1200px)',
-  padding: 'clamp(16px, 4vw, 40px)',
-};
+  minHeight: isCompactViewport ? '100svh' : undefined,
+  padding: isCompactViewport
+    ? 'clamp(18px, 5vw, 28px) clamp(12px, 4vw, 18px) clamp(16px, 5vw, 26px)'
+    : 'clamp(16px, 4vw, 40px)',
+});
 
 const centerBlockStyle: React.CSSProperties = {
   display: 'flex',
