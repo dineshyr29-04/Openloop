@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export const MobileHero: React.FC = () => {
   return (
@@ -43,7 +44,27 @@ export const MobileHero: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            position: 'relative',
           }}>
+            <Link 
+              to="/top-25" 
+              className="cta-button" 
+              style={{ 
+                position: 'absolute', 
+                right: '10px', 
+                top: '0', 
+                fontSize: '10px', 
+                padding: '6px 12px',
+                textDecoration: 'none',
+                background: '#C6FF00',
+                color: '#000',
+                fontWeight: 'bold',
+                borderRadius: '4px',
+                zIndex: 10
+              }}
+            >
+              TOP 25
+            </Link>
             <img
               src="/yset.svg"
               alt="Yenepoya School of Engineering & Technology"
