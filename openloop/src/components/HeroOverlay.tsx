@@ -311,7 +311,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
           textShadow: '0 0 10px rgba(198, 255, 0, 0.5)',
           marginRight: '4px'
         }}>
-          // SELECTION_STATUS: ACTIVE
+          // SEE THE SELECTED TEAMS
         </span>
         <Link 
           to="/top-25" 
@@ -324,40 +324,59 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
             pointerEvents: 'auto'
           }}
         >
-          <span className="button-glitch-layer">SELECTED 25</span>
-          <span className="button-main-layer">TOP SELECTED 25</span>
+          <span className="button-glitch-layer">SELECTED TEAMS</span>
+          <span className="button-main-layer">TOP SELECTED TEAMS</span>
           <style>{`
             .top-25-glow-button {
-              background: #ffffff;
+              background: linear-gradient(135deg, #f8ffe0 0%, #d9ff6e 45%, #c6ff00 100%);
               color: #000;
               font-family: 'Share Tech Mono', monospace;
               font-weight: 900;
-              font-size: 16px;
-              padding: 14px 34px;
-              border-radius: 4px;
-              letter-spacing: 0.15em;
+              font-size: 15px;
+              padding: 14px 30px;
+              border-radius: 999px;
+              letter-spacing: 0.12em;
               text-transform: uppercase;
-              box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
-              transition: all 0.1s ease-out;
+              box-shadow: 0 0 22px rgba(198, 255, 0, 0.45), inset 0 -2px 8px rgba(0, 0, 0, 0.18);
+              transition: transform 0.12s ease-out, box-shadow 0.2s ease, filter 0.2s ease;
               position: relative;
               overflow: hidden;
-              display: inline-block;
-              border: 1px solid rgba(255, 255, 255, 0.3);
-              animation: static-pulsate 3s infinite ease-in-out;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              border: 1px solid rgba(233, 255, 160, 0.95);
+              filter: saturate(1.05);
+              animation: static-pulsate 2.6s infinite ease-in-out;
+            }
+
+            .top-25-glow-button::after {
+              content: '';
+              position: absolute;
+              inset: -2px;
+              border-radius: 999px;
+              border: 1px solid rgba(198, 255, 0, 0.45);
+              pointer-events: none;
+              animation: ring-breathe 2.6s infinite ease-in-out;
             }
 
             @keyframes static-pulsate {
-              0% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); transform: scale(1); }
-              50% { box-shadow: 0 0 35px rgba(255, 255, 255, 0.6); transform: scale(1.02); }
-              100% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); transform: scale(1); }
+              0% { box-shadow: 0 0 16px rgba(198, 255, 0, 0.38), inset 0 -2px 8px rgba(0, 0, 0, 0.16); transform: scale(1); }
+              50% { box-shadow: 0 0 34px rgba(198, 255, 0, 0.72), inset 0 -2px 10px rgba(0, 0, 0, 0.22); transform: scale(1.02); }
+              100% { box-shadow: 0 0 16px rgba(198, 255, 0, 0.38), inset 0 -2px 8px rgba(0, 0, 0, 0.16); transform: scale(1); }
+            }
+
+            @keyframes ring-breathe {
+              0% { opacity: 0.5; }
+              50% { opacity: 0.9; }
+              100% { opacity: 0.5; }
             }
 
             .top-25-glow-button:hover {
-              box-shadow: 0 0 50px rgba(198, 255, 0, 0.9) !important;
+              box-shadow: 0 0 56px rgba(198, 255, 0, 0.95) !important;
               background: #C6FF00 !important;
               color: #000 !important;
-              transform: scale(1.15) rotate(-1deg) !important;
-              border-color: #C6FF00;
+              transform: scale(1.12) rotate(-0.7deg) !important;
+              border-color: #f3ffd0;
             }
 
             .top-25-glow-button::before {
@@ -370,11 +389,11 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               background: linear-gradient(
                 90deg,
                 transparent,
-                rgba(198, 255, 0, 0.6),
+                rgba(255, 255, 255, 0.72),
                 transparent
               );
               transition: 0.5s;
-              animation: light-sweep 3s infinite linear;
+              animation: light-sweep 2.8s infinite linear;
             }
 
             @keyframes light-sweep {
