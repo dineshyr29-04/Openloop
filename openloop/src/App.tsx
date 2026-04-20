@@ -3,13 +3,13 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { useIsMobile } from './hooks/useIsMobile';
 import { Preloader } from './components/common/Preloader';
 import { CustomCursor } from './components/common/CustomCursor';
+import { TopSelected25 } from './pages/TopSelected25';
 
 // Lazy load layout components to optimize initial bundle size
 const DesktopLayout = lazy(() => import('./components/desktop/DesktopLayout'));
 const MobileLayout = lazy(() => import('./components/mobile/MobileLayout'));
 const CrewMembers = lazy(() => import('./pages/CrewMembers').then(m => ({ default: m.CrewMembers })));
 const ChallengePage = lazy(() => import('./pages/ChallengePage').then(m => ({ default: m.ChallengePage })));
-const TopSelected25 = lazy(() => import('./pages/TopSelected25').then(m => ({ default: m.TopSelected25 })));
 
 function App() {
   const isMobile = useIsMobile();

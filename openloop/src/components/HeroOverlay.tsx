@@ -303,7 +303,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
       >
         <span style={{ 
           fontFamily: "'Share Tech Mono', monospace",
-          fontSize: '11px',
+          fontSize: '16px',
           color: '#C6FF00',
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
@@ -333,7 +333,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               font-family: 'Share Tech Mono', monospace;
               font-weight: 900;
               font-size: 15px;
-              padding: 14px 30px;
+              padding: 20px 35px;
               border-radius: 999px;
               letter-spacing: 0.12em;
               text-transform: uppercase;
