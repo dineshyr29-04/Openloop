@@ -100,16 +100,17 @@ const normalizeState = (state) => {
     };
   }
 
-  const remaining = clamp(Math.ceil((state.endAtMs - Date.now()) / 1000), 0, TOTAL_SECONDS);
+  const now = Date.now();
+  const remaining = clamp(Math.ceil((state.endAtMs - now) / 1000), 0, TOTAL_SECONDS);
 
-  if (remaining === 0) {
+  if (remaining <= 0) {
     return {
       ...state,
       mode: 'CHALLENGE',
       state: 'STOPPED',
       remainingSeconds: 0,
       endAtMs: null,
-      updatedAt: Date.now(),
+      updatedAt: now,
     };
   }
 
@@ -118,7 +119,7 @@ const normalizeState = (state) => {
     mode: 'CHALLENGE',
     state: 'RUNNING',
     remainingSeconds: remaining,
-    updatedAt: Date.now(),
+    updatedAt: now,
   };
 };
 

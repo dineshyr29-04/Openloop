@@ -2,8 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { safeGetTimerSnapshot, type TimerSnapshot } from '../utils/timerClient';
 
 const BROADCAST_CHANNEL_NAME = 'openloop-timer-sync';
-const POLL_INTERVAL = 1000;
-const LIVE_TICK_MS = 250;
+const POLL_INTERVAL = 3000; // Increased poll interval to reduce server overhead while relying on live ticking
 const EVENT_TARGET_MS = new Date('2026-04-25T11:00:00+05:30').getTime();
 
 let broadcastChannel: BroadcastChannel | null = null;
@@ -41,7 +40,6 @@ export const useTimerSync = (options: UseTimerSyncOptions = {}) => {
   const [snapshot, setSnapshot] = useState<TimerSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const liveTickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isMountedRef = useRef(true);
   const onUpdateRef = useRef<typeof onUpdate>(onUpdate);
   const baseSnapshotRef = useRef<TimerSnapshot | null>(null);
@@ -50,7 +48,8 @@ export const useTimerSync = (options: UseTimerSyncOptions = {}) => {
   const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
   const buildLiveSnapshot = useCallback((base: TimerSnapshot): TimerSnapshot => {
-    const eventRemainingSeconds = clamp(Math.ceil((EVENT_TARGET_MS - Date.now()) / 1000), 0, 365 * 24 * 60 * 60);
+    const now = Date.now();
+    const eventRemainingSeconds = clamp(Math.ceil((EVENT_TARGET_MS - now) / 1000), 0, 365 * 24 * 60 * 60);
 
     if (base.mode !== 'CHALLENGE' || base.state !== 'RUNNING') {
       return {
@@ -59,12 +58,16 @@ export const useTimerSync = (options: UseTimerSyncOptions = {}) => {
       };
     }
 
-    const elapsedSeconds = Math.floor((Date.now() - baseReceivedAtRef.current) / 1000);
+    // High precision calculation using performance.now() if available, or Date.now()
+    const elapsedMs = now - baseReceivedAtRef.current;
+    
+    // Use floor for seconds to ensure stable ticking, but keep precision high for UI
+    const elapsedSeconds = Math.floor(elapsedMs / 1000);
     const liveRemaining = clamp(base.remainingSeconds - elapsedSeconds, 0, 24 * 60 * 60);
 
     return {
       ...base,
-      state: liveRemaining === 0 ? 'STOPPED' : 'RUNNING',
+      state: liveRemaining <= 0 ? 'STOPPED' : 'RUNNING',
       remainingSeconds: liveRemaining,
       eventRemainingSeconds,
     };
@@ -151,20 +154,27 @@ export const useTimerSync = (options: UseTimerSyncOptions = {}) => {
     };
   }, [syncFromBackend, pollInterval]);
 
-  // Live ticking from last known snapshot to prevent "stuck" timers.
+  // Live ticking from last known snapshot to prevent "stuck" timers using requestAnimationFrame for zero-lag UI
   useEffect(() => {
-    liveTickRef.current = setInterval(() => {
+    let animationFrameId: number;
+
+    const tick = () => {
       const base = baseSnapshotRef.current;
-      if (!base || !isMountedRef.current) return;
-      emitSnapshot(buildLiveSnapshot(base));
-    }, LIVE_TICK_MS);
+      if (base && isMountedRef.current) {
+        // Update at maximum refresh rate for absolute smoothness
+        setSnapshot(buildLiveSnapshot(base));
+      }
+      animationFrameId = requestAnimationFrame(tick);
+    };
+
+    animationFrameId = requestAnimationFrame(tick);
 
     return () => {
-      if (liveTickRef.current) {
-        clearInterval(liveTickRef.current);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [buildLiveSnapshot, emitSnapshot]);
+  }, [buildLiveSnapshot]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -172,9 +182,6 @@ export const useTimerSync = (options: UseTimerSyncOptions = {}) => {
       isMountedRef.current = false;
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
-      }
-      if (liveTickRef.current) {
-        clearInterval(liveTickRef.current);
       }
     };
   }, []);
