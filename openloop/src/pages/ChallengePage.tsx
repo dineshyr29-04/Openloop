@@ -216,20 +216,69 @@ export const ChallengePage: React.FC = () => {
 
         {(state === 'RUNNING' || state === 'STOPPED') && (
           <div style={centerBlockStyle}>
-            <div
-              style={{
-                ...timerTextStyle,
-                textShadow: state === 'RUNNING' ? `0 0 30px ${getTimerColor()}` : 'none',
-                color: getTimerColor(),
-                transition: 'color 0.5s, text-shadow 0.5s',
-                animation: fastForwarded ? 'fastForwardFlash 0.6s' : undefined,
-                fontSize: isCompactViewport ? 'clamp(26px, 8vw, 48px)' : timerTextStyle.fontSize,
-                letterSpacing: isCompactViewport ? '0.01em' : timerTextStyle.letterSpacing,
-                maxWidth: '95vw',
-              }}
-            >
-              {getTimeParts(timeLeft).join(isCompactViewport ? ':' : ' : ')}
-            </div>
+            {isCompactViewport ? (
+              // Mobile: 2x2 Grid Layout
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 'clamp(12px, 3vw, 20px)',
+                  textAlign: 'center',
+                  animation: fastForwarded ? 'fastForwardFlash 0.6s' : undefined,
+                }}
+              >
+                {getTimeParts(timeLeft).map((part, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 'clamp(4px, 1.5vw, 8px)',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 'clamp(10px, 2.5vw, 14px)',
+                        color: getTimerColor(),
+                        opacity: 0.7,
+                        letterSpacing: '0.05em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {['Days', 'Hours', 'Minutes', 'Seconds'][idx]}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 'clamp(32px, 10vw, 56px)',
+                        fontFamily: 'Share Tech Mono, monospace',
+                        fontWeight: 'bold',
+                        textShadow: state === 'RUNNING' ? `0 0 30px ${getTimerColor()}` : 'none',
+                        color: getTimerColor(),
+                        transition: 'color 0.5s, text-shadow 0.5s',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {part}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Desktop: Single Line
+              <div
+                style={{
+                  ...timerTextStyle,
+                  textShadow: state === 'RUNNING' ? `0 0 30px ${getTimerColor()}` : 'none',
+                  color: getTimerColor(),
+                  transition: 'color 0.5s, text-shadow 0.5s',
+                  animation: fastForwarded ? 'fastForwardFlash 0.6s' : undefined,
+                  maxWidth: '95vw',
+                }}
+              >
+                {getTimeParts(timeLeft).join(' : ')}
+              </div>
+            )}
             {/* Fast Forward Button (only show if more than 1hr left and running) */}
             {state === 'RUNNING' && timeLeft > 3600 && (
               <button
