@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Building2, Gauge, Map, MapPin, Users, UsersRound } from 'lucide-react';
 import './TopSelected25.css';
 
 export const TopSelected25: React.FC = () => {
@@ -32,6 +32,15 @@ export const TopSelected25: React.FC = () => {
     { id: 'OL23', name: 'QuantumCoders' },
     { id: 'OL24', name: 'Trio squad' },
     { id: 'OL25', name: 'Kindle' },
+  ];
+
+  const achievements = [
+    { value: '309', label: 'Total participants', tone: 'blue', icon: Users },
+    { value: '120', label: 'Total teams', tone: 'cyan', icon: UsersRound },
+    { value: '100', label: 'Total colleges', tone: 'pink', icon: Building2 },
+    { value: '14', label: 'Total states', tone: 'gold', icon: Map },
+    { value: '58', label: 'Total cities', tone: 'lilac', icon: MapPin },
+    { value: '70%', label: 'Completion rate', tone: 'silver', icon: Gauge },
   ];
 
   return (
@@ -70,6 +79,29 @@ export const TopSelected25: React.FC = () => {
             </article>
           ))}
         </div>
+
+        <section className="achievements-section" aria-labelledby="registration-stats-title">
+          <div className="achievements-head">
+            <p className="achievements-kicker">HACKATHON ACHIEVEMENTS</p>
+            <h2 id="registration-stats-title" className="achievements-title">Registration Stats</h2>
+            <p className="achievements-subtitle">These numbers highlight the reach and impact of OpenLoop.</p>
+          </div>
+
+          <div className="achievements-grid">
+            {achievements.map((item) => {
+              const Icon = item.icon;
+              return (
+                <article key={item.label} className={`achievement-card tone-${item.tone}`}>
+                  <div className="achievement-icon-chip">
+                    <Icon size={16} />
+                  </div>
+                  <div className="achievement-value">{item.value}</div>
+                  <div className="achievement-label">{item.label}</div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </div>
   );
