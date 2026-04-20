@@ -31,7 +31,7 @@ export const TopSelected25: React.FC = () => {
     { id: 'OL22', name: 'Next-gen' },
     { id: 'OL23', name: 'QuantumCoders' },
     { id: 'OL24', name: 'Trio squad' },
-    { id: 'OL25', name: 'kindle' },
+    { id: 'OL25', name: 'Kindle' },
   ];
 
   return (
@@ -48,7 +48,7 @@ export const TopSelected25: React.FC = () => {
         </button>
 
         <h1 className="selected-title">
-          TOP SELECTED 25
+          SHORT LISTED SELECTED 25
         </h1>
 
         <p className="selected-subtitle">Official shortlisted teams with Team ID and Team Name</p>
