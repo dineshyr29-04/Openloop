@@ -1,5 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  safeGetTimerSnapshot,
+  type TimerMode,
+} from '../utils/timerClient';
 
 interface HeroOverlayProps {
   scrollProgress: number;
@@ -7,6 +11,103 @@ interface HeroOverlayProps {
 
 export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
+  const [magneticPos, setMagneticPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
+    const strength = 15;
+    const x = (e.clientX - centerX) / strength;
+    const y = (e.clientY - centerY) / strength;
+    setMagneticPos({ x, y });
+  };
+
+  const handleMouseLeave = () => setMagneticPos({ x: 0, y: 0 });
+
+  const initialEventSeconds = Math.max(
+    0,
+    Math.ceil((new Date('2026-04-25T11:00:00+05:30').getTime() - Date.now()) / 1000)
+  );
+
+  // Timer state for hero overlay
+  const [timeLeft, setTimeLeft] = useState(initialEventSeconds);
+  const [timerMode, setTimerMode] = useState<TimerMode>('EVENT');
+  const [hoveredTimerCard, setHoveredTimerCard] = useState<number | null>(null);
+
+  const glassCardBase: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '90px',
+    minHeight: '90px',
+    padding: '30px 100px',
+    background: 'rgba(20, 25, 15, 0.45)',
+    backdropFilter: 'blur(6px)',
+    WebkitBackdropFilter: 'blur(14px)',
+    border: '1.5px solid rgba(198, 255, 0, 0.25)',
+    borderRadius: '14px',
+    boxShadow: `
+      0 8px 30px rgba(0, 0, 0, 0.6),
+      0 0 20px rgba(198, 255, 0, 0.12),
+      inset 0 0 12px rgba(198, 255, 0, 0.05)
+    `,
+    fontFamily: 'Share Tech Mono, monospace',
+    fontWeight: 700,
+    fontSize: 'clamp(32px, 3.5vw, 50px)',
+    color: '#C6FF00',
+    letterSpacing: '0.1em',
+    margin: '0 6px',
+    position: 'relative',
+    zIndex: 2,
+    transition: 'all 0.3s ease',
+  };
+
+  const glassCardHover: React.CSSProperties = {
+    transform: 'translateY(-6px) scale(1.05)',
+    border: '1.5px solid rgba(198, 255, 0, 0.6)',
+    boxShadow: `
+      0 12px 40px rgba(0, 0, 0, 0.8),
+      0 0 30px rgba(198, 255, 0, 0.3),
+      inset 0 0 16px rgba(198, 255, 0, 0.1)
+    `,
+  };
+
+  // Keep hero timer synced live with shared backend timer state.
+  useEffect(() => {
+    let active = true;
+
+    const sync = async () => {
+      const snapshot = await safeGetTimerSnapshot();
+      if (!active) return;
+
+      const showChallenge = snapshot.mode === 'CHALLENGE' && snapshot.state === 'RUNNING';
+      setTimerMode(showChallenge ? 'CHALLENGE' : 'EVENT');
+      setTimeLeft(
+        showChallenge
+          ? snapshot.remainingSeconds
+          : snapshot.eventRemainingSeconds
+      );
+    };
+
+    void sync();
+    const interval = window.setInterval(sync, 1000);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Format time for boxes
+  const getTimeParts = (seconds: number) => {
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return [d, h, m, s].map((v) => v.toString().padStart(2, '0'));
+  };
 
   const NAV_ITEMS = [
     { label: 'Core', target: 0.08 },
@@ -26,7 +127,6 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   };
 
   // Active state helpers matching DesktopLayout ranges
-  const isHeroActive = p >= 0.00 && p <= 0.12;
   const isAboutActive = p >= 0.14 && p <= 0.28;
   const isContactActive = p >= 0.90 && p <= 0.96;
 
@@ -72,20 +172,68 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               }}
             />
             <p className="hero-subtitle" style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', color: 'white', opacity: 0.8, marginTop: '8px',marginBottom:'30px'}}>
-              Affiliated to Yenepoya Deemed to be University
+              Constituent unit of Yenepoya Deemed to be University
             </p>
           </div>
         </div>
 
-        <h1 className="hero-main-title">
+        <h1 className="hero-main-title" style={{ position: 'relative', zIndex: 2,marginBottom: '30px',}}>
           <span className="title-word" style={{ color: '#ffffff' }}>OPEN</span>
           <span className="title-spacer" />
           <span className="title-word" style={{
             color: '#C6FF00',
             textShadow: '0 0 20px rgba(198, 255, 0, 0.4)'
+            
           }}>LOOP</span>
         </h1>
-        <div className="hero-sub-title">2026</div>
+        
+        {/* TIMER BOXES */}
+        <div style={{
+          fontFamily: 'Share Tech Mono, monospace',
+          fontSize: '12px',
+          letterSpacing: '0.18em',
+          color: 'rgba(255,255,255,0.7)',
+          marginBottom: '12px',
+          textAlign: 'center',
+        }}>
+          {timerMode === 'CHALLENGE' ? 'CHALLENGE TIMER LIVE' : 'EVENT COUNTDOWN TO APR 25 - 11:00 AM'}
+        </div>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '18px',
+          marginTop: '18px',
+          marginBottom: '0',
+          position: 'relative',
+          zIndex: 2,
+        }}>
+          {['DAY', 'HOUR', 'MIN', 'SEC'].map((label, i) => {
+            const [d, h, m, s] = getTimeParts(timeLeft);
+            const val = [d, h, m, s][i];
+            return (
+              <div
+                key={label}
+                style={{
+                  ...glassCardBase,
+                  ...(hoveredTimerCard === i ? glassCardHover : {}),
+                }}
+                onMouseEnter={() => setHoveredTimerCard(i)}
+                onMouseLeave={() => setHoveredTimerCard(null)}
+              >
+                <span>{val}</span>
+                <span style={{
+                  fontSize: 'clamp(10px, 1vw, 14px)',
+                  color: '#fff',
+                  opacity: 0.7,
+                  marginTop: 2,
+                  fontWeight: 400,
+                  letterSpacing: '0.08em',
+                }}>{label}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <nav>
@@ -139,34 +287,177 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
         </div>
       </nav>
 
+      {/* Top Right Desktop Button Container */}
+      <div 
+        style={{ 
+          position: 'fixed', 
+          right: '30px', 
+          top: '120px', 
+          zIndex: 1000,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          gap: '8px',
+          pointerEvents: 'none'
+        }}
+      >
+        <span style={{ 
+          fontFamily: "'Share Tech Mono', monospace",
+          fontSize: '11px',
+          color: '#C6FF00',
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+          opacity: 0.8,
+          textShadow: '0 0 10px rgba(198, 255, 0, 0.5)',
+          marginRight: '4px'
+        }}>
+          // SEE THE SELECTED TEAMS
+        </span>
+        <Link 
+          to="/top-25" 
+          className="top-25-glow-button"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{ 
+            textDecoration: 'none',
+            transform: `translate3d(${magneticPos.x}px, ${magneticPos.y}px, 0)`,
+            pointerEvents: 'auto'
+          }}
+        >
+          <span className="button-glitch-layer">SELECTED TEAMS</span>
+          <span className="button-main-layer">TOP SELECTED TEAMS</span>
+          <style>{`
+            .top-25-glow-button {
+              background: linear-gradient(135deg, #f5f4f4 0%, #d9ff6e 45%, #c6ff00 100%);
+              color: #000;
+              font-family: 'Share Tech Mono', monospace;
+              font-weight: 900;
+              font-size: 15px;
+              padding: 14px 30px;
+              border-radius: 999px;
+              letter-spacing: 0.12em;
+              text-transform: uppercase;
+              box-shadow: 0 0 22px rgba(198, 255, 0, 0.45), inset 0 -2px 8px rgba(0, 0, 0, 0.18);
+              transition: transform 0.12s ease-out, box-shadow 0.2s ease, filter 0.2s ease;
+              position: relative;
+              overflow: hidden;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              border: 1px solid rgba(233, 255, 160, 0.95);
+              filter: saturate(1.05);
+              animation: static-pulsate 2.6s infinite ease-in-out;
+            }
+
+            .button-main-layer {
+              position: relative;
+              z-index: 2;
+              transition: letter-spacing 0.2s ease, transform 0.2s ease;
+            }
+
+            .top-25-glow-button::after {
+              content: '';
+              position: absolute;
+              inset: -2px;
+              border-radius: 999px;
+              border: 1px solid rgba(198, 255, 0, 0.45);
+              pointer-events: none;
+              animation: ring-breathe 2.6s infinite ease-in-out;
+            }
+
+            @keyframes static-pulsate {
+              0% { box-shadow: 0 0 16px rgba(198, 255, 0, 0.38), inset 0 -2px 8px rgba(0, 0, 0, 0.16); transform: scale(1); }
+              50% { box-shadow: 0 0 34px rgba(198, 255, 0, 0.72), inset 0 -2px 10px rgba(0, 0, 0, 0.22); transform: scale(1.02); }
+              100% { box-shadow: 0 0 16px rgba(198, 255, 0, 0.38), inset 0 -2px 8px rgba(0, 0, 0, 0.16); transform: scale(1); }
+            }
+
+            @keyframes ring-breathe {
+              0% { opacity: 0.5; }
+              50% { opacity: 0.9; }
+              100% { opacity: 0.5; }
+            }
+
+            .top-25-glow-button:hover {
+              box-shadow: 0 0 18px rgba(255, 255, 255, 0.45), 0 0 60px rgba(198, 255, 0, 0.92) !important;
+              background: linear-gradient(135deg, #ffffff 0%, #e7ff9f 48%, #c6ff00 100%) !important;
+              color: #000 !important;
+              transform: scale(1.08) translateY(-2px) !important;
+              border-color: #f3ffd0;
+            }
+
+            .top-25-glow-button:hover .button-main-layer {
+              letter-spacing: 0.16em;
+              transform: translateY(-1px);
+            }
+
+            .top-25-glow-button::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: -100%;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.72),
+                transparent
+              );
+              transition: 0.5s;
+              animation: light-sweep 2.8s infinite linear;
+            }
+
+            .top-25-glow-button:hover::before {
+              animation-duration: 1.4s;
+            }
+
+            @keyframes light-sweep {
+              0% { left: -100%; }
+              20% { left: 100%; }
+              100% { left: 100%; }
+            }
+
+            .button-glitch-layer {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              opacity: 0;
+              transition: 0.2s;
+            }
+
+            .top-25-glow-button:hover .button-glitch-layer {
+              opacity: 0.22;
+              background: radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.9), rgba(198, 255, 0, 0.15) 60%, transparent 90%);
+              animation: glow-drift 1.2s ease-in-out infinite alternate;
+            }
+
+            @keyframes glow-drift {
+              0% { transform: translateX(-6%) scale(1); opacity: 0.16; }
+              100% { transform: translateX(8%) scale(1.05); opacity: 0.28; }
+            }
+          `}</style>
+        </Link>
+      </div>
+            
+           
+
+          
+      
+
       <section id="robot-sections">
         {/* PHASE 1: HERO — bottom content only, title is in #hero-title-fixed above */}
         <div id="s1-hero" className="section-overlay">
           <section id="hero">
             {/* No title here — it lives in the permanent layer */}
-            <div className="hero-bottom-left">
-              <div className="body-text-safe" style={{ paddingLeft: '1.5rem' }}>
-                {isHeroActive && (
-                  <div className="reveal-text-fast">
-                    Enter. Build. Evolve.
-                    <br></br>
-                    And win a Prize Pool upto Rs 1,00,000
-                  </div>
-                )}
-              </div>
-              <a
-                href="https://unstop.com/college-fests/openloop-26-yenepoya-school-of-engineering-and-technology-458231"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cta-button"
-                style={{ textDecoration: 'none', pointerEvents: 'auto' }}
-              >
-                Enter Loop
-              </a>
-            </div>
           </section>
         </div>
-
+            
         {/* PHASE 2: ABOUT (ROBOT LEFT / TEXT RIGHT) */}
         <div id="s2-about" className="section-overlay" style={{ opacity: 0 }}>
           <div className="composition-grid">
