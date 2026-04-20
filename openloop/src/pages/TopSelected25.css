@@ -53,6 +53,7 @@
   line-height: 1.05;
   margin: 0;
   background-image: linear-gradient(to bottom, #d9ed91, #8cef56);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 0.09em;
