@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  safeGetTimerSnapshot,
   type TimerMode,
 } from '../utils/timerClient';
+import { useTimerSync } from '../hooks/useTimerSync';
 
 interface HeroOverlayProps {
   scrollProgress: number;
@@ -34,6 +34,20 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const [timeLeft, setTimeLeft] = useState(initialEventSeconds);
   const [timerMode, setTimerMode] = useState<TimerMode>('EVENT');
   const [hoveredTimerCard, setHoveredTimerCard] = useState<number | null>(null);
+
+  // Use robust timer sync hook with instant updates
+  useTimerSync({
+    onUpdate: (snapshot) => {
+      const showChallenge = snapshot.mode === 'CHALLENGE' && snapshot.state === 'RUNNING';
+      setTimerMode(showChallenge ? 'CHALLENGE' : 'EVENT');
+      setTimeLeft(
+        showChallenge
+          ? snapshot.remainingSeconds
+          : snapshot.eventRemainingSeconds
+      );
+    },
+    pollInterval: 500, // More responsive polling
+  });
 
   const glassCardBase: React.CSSProperties = {
     display: 'flex',
@@ -73,32 +87,6 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
       inset 0 0 16px rgba(198, 255, 0, 0.1)
     `,
   };
-
-  // Keep hero timer synced live with shared backend timer state.
-  useEffect(() => {
-    let active = true;
-
-    const sync = async () => {
-      const snapshot = await safeGetTimerSnapshot();
-      if (!active) return;
-
-      const showChallenge = snapshot.mode === 'CHALLENGE' && snapshot.state === 'RUNNING';
-      setTimerMode(showChallenge ? 'CHALLENGE' : 'EVENT');
-      setTimeLeft(
-        showChallenge
-          ? snapshot.remainingSeconds
-          : snapshot.eventRemainingSeconds
-      );
-    };
-
-    void sync();
-    const interval = window.setInterval(sync, 1000);
-
-    return () => {
-      active = false;
-      clearInterval(interval);
-    };
-  }, []);
 
   // Format time for boxes
   const getTimeParts = (seconds: number) => {

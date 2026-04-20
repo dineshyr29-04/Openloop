@@ -53,6 +53,30 @@ const publishFallback = () => {
   fallbackChannel.postMessage(fallbackState);
 };
 
+// Publish timer sync events for cross-component updates
+let syncBroadcastChannel: BroadcastChannel | null = null;
+
+if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+  try {
+    syncBroadcastChannel = new BroadcastChannel('openloop-timer-sync');
+  } catch {
+    // BroadcastChannel not available
+  }
+}
+
+const publishTimerSync = (snapshot: TimerSnapshot) => {
+  if (!syncBroadcastChannel) return;
+  try {
+    syncBroadcastChannel.postMessage({
+      type: 'timer-sync',
+      timestamp: Date.now(),
+      data: snapshot,
+    });
+  } catch (error) {
+    console.warn('Failed to publish timer sync:', error);
+  }
+};
+
 const getFallbackSnapshot = (): TimerSnapshot => {
   const eventRemaining = getEventRemainingSeconds();
 
@@ -143,7 +167,10 @@ const postAction = async (action: 'start' | 'stop' | 'reset' | 'fast-forward'): 
       throw new Error(`Timer action failed: ${res.status}`);
     }
 
-    return (await res.json()) as TimerSnapshot;
+    const snapshot = (await res.json()) as TimerSnapshot;
+    // Broadcast the updated state to all listeners
+    publishTimerSync(snapshot);
+    return snapshot;
   } catch {
     if (action === 'start') {
       const startFrom =
@@ -160,7 +187,9 @@ const postAction = async (action: 'start' | 'stop' | 'reset' | 'fast-forward'): 
         endAtMs: Date.now() + startFrom * 1000,
       };
       publishFallback();
-      return getFallbackSnapshot();
+      const snapshot = getFallbackSnapshot();
+      publishTimerSync(snapshot);
+      return snapshot;
     }
 
     if (action === 'stop') {
@@ -178,7 +207,9 @@ const postAction = async (action: 'start' | 'stop' | 'reset' | 'fast-forward'): 
         endAtMs: null,
       };
       publishFallback();
-      return getFallbackSnapshot();
+      const snapshot = getFallbackSnapshot();
+      publishTimerSync(snapshot);
+      return snapshot;
     }
 
     if (action === 'reset') {
@@ -189,7 +220,9 @@ const postAction = async (action: 'start' | 'stop' | 'reset' | 'fast-forward'): 
         endAtMs: null,
       };
       publishFallback();
-      return getFallbackSnapshot();
+      const snapshot = getFallbackSnapshot();
+      publishTimerSync(snapshot);
+      return snapshot;
     }
 
     if (
@@ -203,10 +236,14 @@ const postAction = async (action: 'start' | 'stop' | 'reset' | 'fast-forward'): 
         endAtMs: Math.max(Date.now(), fallbackState.endAtMs - 3600 * 1000),
       };
       publishFallback();
-      return getFallbackSnapshot();
+      const snapshot = getFallbackSnapshot();
+      publishTimerSync(snapshot);
+      return snapshot;
     }
 
-    return getFallbackSnapshot();
+    const snapshot = getFallbackSnapshot();
+    publishTimerSync(snapshot);
+    return snapshot;
   }
 };
 
