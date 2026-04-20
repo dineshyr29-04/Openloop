@@ -35,12 +35,12 @@ export const TopSelected25: React.FC = () => {
   ];
 
   const achievements = [
-    { value: '309', label: 'Total participants', tone: 'blue', icon: Users },
-    { value: '120', label: 'Total teams', tone: 'cyan', icon: UsersRound },
-    { value: '100', label: 'Total colleges', tone: 'pink', icon: Building2 },
-    { value: '14', label: 'Total states', tone: 'gold', icon: Map },
-    { value: '58', label: 'Total cities', tone: 'lilac', icon: MapPin },
-    { value: '70%', label: 'Completion rate', tone: 'silver', icon: Gauge },
+    { value: '309', label: 'Total participants', hint: 'Makers who joined OpenLoop', tone: '#7da2ff', icon: Users },
+    { value: '120', label: 'Total teams', hint: 'Strong collaborative entries', tone: '#52ebff', icon: UsersRound },
+    { value: '100', label: 'Total colleges', hint: 'Campuses represented', tone: '#ff6fa9', icon: Building2 },
+    { value: '14', label: 'Total states', hint: 'Regional spread across India', tone: '#ffd88a', icon: Map },
+    { value: '58', label: 'Total cities', hint: 'Urban and semi-urban participation', tone: '#d5b7ff', icon: MapPin },
+    { value: '70%', label: 'Completion rate', hint: 'Teams that shipped end-to-end', tone: '#e4ebff', icon: Gauge },
   ];
 
   return (
@@ -87,19 +87,46 @@ export const TopSelected25: React.FC = () => {
             <p className="achievements-subtitle">These numbers highlight the reach and impact of OpenLoop.</p>
           </div>
 
-          <div className="achievements-grid">
-            {achievements.map((item) => {
-              const Icon = item.icon;
-              return (
-                <article key={item.label} className={`achievement-card tone-${item.tone}`}>
-                  <div className="achievement-icon-chip">
-                    <Icon size={16} />
-                  </div>
-                  <div className="achievement-value">{item.value}</div>
-                  <div className="achievement-label">{item.label}</div>
-                </article>
-              );
-            })}
+          <div className="achievements-highlight-strip">
+            <div className="achievements-highlight-item">
+              <span className="highlight-number">309</span>
+              <span className="highlight-label">Participants</span>
+            </div>
+            <div className="achievements-highlight-item">
+              <span className="highlight-number">120</span>
+              <span className="highlight-label">Teams</span>
+            </div>
+            <div className="achievements-highlight-item">
+              <span className="highlight-number">100</span>
+              <span className="highlight-label">Colleges</span>
+            </div>
+          </div>
+
+          <div className="achievements-body">
+            <p className="achievements-story">
+              OpenLoop attracted a strong multi-city, multi-campus community. With teams coming from 14 states and 58 cities,
+              the event built a wide innovation network beyond a single region.
+            </p>
+
+            <ul className="achievement-flow-list" aria-label="Detailed registration statistics">
+              {achievements.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li
+                    key={item.label}
+                    className="achievement-flow-item"
+                    style={{ '--tone': item.tone } as React.CSSProperties}
+                  >
+                    <span className="achievement-flow-icon">
+                      <Icon size={16} />
+                    </span>
+                    <span className="achievement-flow-label">{item.label}</span>
+                    <span className="achievement-flow-value">{item.value}</span>
+                    <span className="achievement-flow-hint">{item.hint}</span>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </section>
       </div>
