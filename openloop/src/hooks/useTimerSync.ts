@@ -49,7 +49,8 @@ export const useTimerSync = (options: UseTimerSyncOptions = {}) => {
 
   const buildLiveSnapshot = useCallback((base: TimerSnapshot): TimerSnapshot => {
     const now = Date.now();
-    const eventRemainingSeconds = clamp(Math.ceil((EVENT_TARGET_MS - now) / 1000), 0, 365 * 24 * 60 * 60);
+    // Use Math.max(0, ...) to ensure event seconds don't go negative if we pass the date
+    const eventRemainingSeconds = Math.max(0, Math.floor((EVENT_TARGET_MS - now) / 1000));
 
     if (base.mode !== 'CHALLENGE' || base.state !== 'RUNNING') {
       return {
@@ -58,10 +59,8 @@ export const useTimerSync = (options: UseTimerSyncOptions = {}) => {
       };
     }
 
-    // High precision calculation using performance.now() if available, or Date.now()
+    // High precision calculation for the challenge timer
     const elapsedMs = now - baseReceivedAtRef.current;
-    
-    // Use floor for seconds to ensure stable ticking, but keep precision high for UI
     const elapsedSeconds = Math.floor(elapsedMs / 1000);
     const liveRemaining = clamp(base.remainingSeconds - elapsedSeconds, 0, 24 * 60 * 60);
 
