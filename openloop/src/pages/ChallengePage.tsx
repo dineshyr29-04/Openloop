@@ -211,7 +211,7 @@ export const ChallengePage: React.FC = () => {
                 onClick={handleFastForward}
                 style={{
                   ...secondaryButtonStyle,
-                  marginTop: 32,
+                  marginTop: 'clamp(18px, 4vw, 32px)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
@@ -220,14 +220,14 @@ export const ChallengePage: React.FC = () => {
                   color: '#FFA500',
                   boxShadow: '0 0 10px rgba(255,165,0,0.2)',
                   fontWeight: 'bold',
-                  fontSize: 18,
+                  fontSize: 'clamp(12px, 3vw, 18px)',
                   cursor: 'pointer',
                   opacity: 0.85,
                   transition: 'all 0.2s',
                 }}
                 title="Fast forward 1 hour"
               >
-                <FastForward size={20} />
+                <FastForward size={18} />
                 Fast Forward 1hr
               </button>
             )}
@@ -274,8 +274,8 @@ export const ChallengePage: React.FC = () => {
 
 // Styles
 const containerStyle: React.CSSProperties = {
-  width: '100vw',
-  height: '100vh',
+  width: '100%',
+  minHeight: '100svh',
   backgroundColor: '#020600',
   display: 'flex',
   justifyContent: 'center',
@@ -313,6 +313,8 @@ const contentStyle: React.CSSProperties = {
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
+  width: 'min(96vw, 1200px)',
+  padding: 'clamp(16px, 4vw, 40px)',
 };
 
 const centerBlockStyle: React.CSSProperties = {
@@ -324,9 +326,9 @@ const centerBlockStyle: React.CSSProperties = {
 
 const titleStyle: React.CSSProperties = {
   fontFamily: 'Audiowide, sans-serif',
-  fontSize: 'clamp(40px, 8vw, 80px)',
+  fontSize: 'clamp(30px, 8vw, 80px)',
   letterSpacing: '0.1em',
-  marginBottom: '60px',
+  marginBottom: 'clamp(24px, 6vw, 60px)',
   textAlign: 'center',
   background: 'linear-gradient(to bottom, #ffffff, #888888)',
   WebkitBackgroundClip: 'text',
@@ -334,8 +336,8 @@ const titleStyle: React.CSSProperties = {
 };
 
 const primaryButtonStyle: React.CSSProperties = {
-  padding: '20px 60px',
-  fontSize: '24px',
+  padding: 'clamp(12px, 2.7vw, 20px) clamp(24px, 6vw, 60px)',
+  fontSize: 'clamp(16px, 4.2vw, 24px)',
   fontFamily: 'Share Tech Mono, monospace',
   backgroundColor: '#C6FF00',
   color: '#000',
@@ -344,28 +346,34 @@ const primaryButtonStyle: React.CSSProperties = {
   cursor: 'pointer',
   transition: 'all 0.3s ease',
   boxShadow: '0 0 15px rgba(198, 255, 0, 0.4)',
-  letterSpacing: '4px',
+  letterSpacing: 'clamp(2px, 0.8vw, 4px)',
   fontWeight: 'bold',
+  textTransform: 'uppercase',
 };
 
 const countdownNumberStyle: React.CSSProperties = {
-  fontSize: '200px',
+  fontSize: 'clamp(86px, 26vw, 200px)',
   fontFamily: 'Audiowide, sans-serif',
   color: '#C6FF00',
   textShadow: '0 0 40px rgba(198, 255, 0, 0.6)',
+  lineHeight: 1,
+  textAlign: 'center',
 };
 
 const timerTextStyle: React.CSSProperties = {
-  fontSize: 'clamp(60px, 10vw, 140px)',
+  fontSize: 'clamp(34px, 9.5vw, 140px)',
   fontFamily: 'Share Tech Mono, monospace',
   fontWeight: 'bold',
   transition: 'all 0.3s ease',
-  letterSpacing: '0.05em',
+  letterSpacing: 'clamp(0.02em, 0.4vw, 0.05em)',
+  lineHeight: 1.06,
+  textAlign: 'center',
+  wordBreak: 'break-word',
 };
 
 const secondaryButtonStyle: React.CSSProperties = {
-  padding: '12px 40px',
-  fontSize: '16px',
+  padding: 'clamp(10px, 2.4vw, 12px) clamp(18px, 4.6vw, 40px)',
+  fontSize: 'clamp(12px, 3vw, 16px)',
   fontFamily: 'Share Tech Mono, monospace',
   backgroundColor: 'transparent',
   color: '#fff',
@@ -373,18 +381,19 @@ const secondaryButtonStyle: React.CSSProperties = {
   borderRadius: '4px',
   cursor: 'pointer',
   transition: 'all 0.3s ease',
-  letterSpacing: '2px',
+  letterSpacing: 'clamp(1px, 0.4vw, 2px)',
+  textTransform: 'uppercase',
 };
 
 const secretIconStyle = (v: 'top' | 'bottom', h: 'left' | 'right'): React.CSSProperties => ({
   position: 'absolute',
-  [v]: '10px',
-  [h]: '10px',
+  [v]: 'clamp(8px, 2vw, 12px)',
+  [h]: 'clamp(8px, 2vw, 12px)',
   cursor: 'pointer',
   opacity: 0.1,
   color: 'rgba(255, 255, 255, 0.4)',
   zIndex: 100,
-  padding: '10px',
+  padding: 'clamp(8px, 2vw, 10px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -393,10 +402,10 @@ const secretIconStyle = (v: 'top' | 'bottom', h: 'left' | 'right'): React.CSSPro
 
 const cornerHUDStyle = (v: 'top' | 'bottom', h: 'left' | 'right'): React.CSSProperties => ({
     position: 'absolute',
-    [v]: '40px',
-    [h]: '40px',
-    width: '30px',
-    height: '30px',
+    [v]: 'clamp(16px, 3.6vw, 40px)',
+    [h]: 'clamp(16px, 3.6vw, 40px)',
+    width: 'clamp(20px, 3vw, 30px)',
+    height: 'clamp(20px, 3vw, 30px)',
     borderTop: v === 'top' ? '2px solid #C6FF00' : 'none',
     borderBottom: v === 'bottom' ? '2px solid #C6FF00' : 'none',
     borderLeft: h === 'left' ? '2px solid #C6FF00' : 'none',
@@ -407,14 +416,16 @@ const cornerHUDStyle = (v: 'top' | 'bottom', h: 'left' | 'right'): React.CSSProp
 
 const systemLabelStyle: React.CSSProperties = {
     position: 'absolute',
-    bottom: '40px',
+  bottom: 'clamp(14px, 4vw, 40px)',
     left: '50%',
     transform: 'translateX(-50%)',
     fontFamily: 'Share Tech Mono, monospace',
-    fontSize: '12px',
+  fontSize: 'clamp(9px, 2.2vw, 12px)',
     color: 'rgba(198, 255, 0, 0.6)',
-    letterSpacing: '2px',
+  letterSpacing: 'clamp(0.8px, 0.4vw, 2px)',
     zIndex: 20,
+  textAlign: 'center',
+  width: 'min(92vw, 560px)',
 };
 
 
