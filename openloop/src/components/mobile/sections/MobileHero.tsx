@@ -108,25 +108,59 @@ export const MobileHero: React.FC = () => {
 
         <Link 
           to="/top-25" 
-          className="cta-button" 
-          style={{ 
-            fontSize: 'clamp(11px, 2.5vw, 13px)', 
-            padding: '10px 24px',
-            textDecoration: 'none',
-            background: '#C6FF00',
-            color: '#000',
-            fontWeight: 'bold',
-            borderRadius: '4px',
-            zIndex: 10,
-            marginTop: '10px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 15px rgba(198, 255, 0, 0.3)',
-            fontFamily: "'Share Tech Mono', monospace",
-          }}
+          className="top-25-mobile-button"
         >
-          TOP SELECTED 25
+          <span className="btn-shine"></span>
+          <span className="btn-text">TOP SELECTED 25</span>
+          <style>{`
+            .top-25-mobile-button {
+              position: relative;
+              background: #C6FF00;
+              color: #000;
+              font-family: 'Share Tech Mono', monospace;
+              font-weight: 950;
+              font-size: 15px;
+              padding: 14px 32px;
+              margin-top: 15px;
+              border-radius: 6px;
+              letter-spacing: 0.1em;
+              text-transform: uppercase;
+              text-decoration: none;
+              box-shadow: 0 0 25px rgba(198, 255, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3);
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+              animation: button-pulse 2s infinite ease-in-out;
+            }
+
+            .btn-shine {
+              position: absolute;
+              top: 0;
+              left: -100%;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+              );
+              animation: btn-shine-anim 3s infinite linear;
+            }
+
+            @keyframes btn-shine-anim {
+              0% { left: -100%; }
+              20% { left: 100%; }
+              100% { left: 100%; }
+            }
+
+            @keyframes button-pulse {
+              0% { transform: scale(1); box-shadow: 0 0 20px rgba(198, 255, 0, 0.5); }
+              50% { transform: scale(1.03); box-shadow: 0 0 40px rgba(198, 255, 0, 0.8); }
+              100% { transform: scale(1); box-shadow: 0 0 20px rgba(198, 255, 0, 0.5); }
+            }
+          `}</style>
         </Link>
       </div>
       <div style={{ 

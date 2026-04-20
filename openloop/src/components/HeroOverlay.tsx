@@ -11,6 +11,19 @@ interface HeroOverlayProps {
 
 export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
   const p = scrollProgress;
+  const [magneticPos, setMagneticPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
+    const strength = 15;
+    const x = (e.clientX - centerX) / strength;
+    const y = (e.clientY - centerY) / strength;
+    setMagneticPos({ x, y });
+  };
+
+  const handleMouseLeave = () => setMagneticPos({ x: 0, y: 0 });
 
   const initialEventSeconds = Math.max(
     0,
@@ -277,25 +290,92 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
       {/* Top Right Desktop Button */}
       <Link 
         to="/top-25" 
-        className="cta-button" 
+        className="top-25-glow-button"
         style={{ 
           position: 'fixed', 
           right: '30px', 
-          top: '30px', 
-          fontSize: '14px', 
-          padding: '10px 24px',
-          textDecoration: 'none',
-          background: '#C6FF00',
-          color: '#000',
-          fontWeight: 'bold',
-          borderRadius: '4px',
+          top: '120px', 
           zIndex: 1000,
-          fontFamily: "'Share Tech Mono', monospace",
-          boxShadow: '0 0 20px rgba(198, 255, 0, 0.4)',
-          letterSpacing: '0.1em'
+          textDecoration: 'none'
         }}
       >
-        TOP SELECTED 25
+        <span className="button-glitch-layer">SELECTED 25</span>
+        <span className="button-main-layer">TOP SELECTED 25</span>
+        <style>{`
+          .top-25-glow-button {
+            background: #78d724b8;
+            color: #000;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 900;
+            font-size: 16px;
+            padding: 12px 30px;
+            border-radius: 4px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+          }
+
+          .top-25-glow-button:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 40px rgba(198, 255, 0, 0.8);
+            background: #C6FF00;
+            color: #000;
+          }
+
+          .top-25-glow-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(198, 255, 0, 0.4),
+              transparent
+            );
+            transition: 0.5s;
+          }
+
+          .top-25-glow-button:hover::before {
+            left: 100%;
+            transition: 0.6s;
+          }
+
+          .button-glitch-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #3fc6db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: 0.2s;
+          }
+
+          .top-25-glow-button:hover .button-glitch-layer {
+            opacity: 1;
+            background: #C6FF00;
+            animation: button-glitch 0.3s infinite;
+          }
+
+          @keyframes button-glitch {
+            0% { transform: translate(2px, -2px); }
+            25% { transform: translate(-2px, 2px); }
+            50% { transform: translate(2px, 2px); }
+            75% { transform: translate(-2px, -2px); }
+            100% { transform: translate(2px, -2px); }
+          }
+        `}</style>
       </Link>
 
       <section id="robot-sections">
