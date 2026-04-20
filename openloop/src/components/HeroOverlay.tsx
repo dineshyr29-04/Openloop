@@ -303,7 +303,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
       >
         <span style={{ 
           fontFamily: "'Share Tech Mono', monospace",
-          fontSize: '11px',
+          fontSize: '16px',
           color: '#C6FF00',
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
@@ -324,8 +324,8 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
             pointerEvents: 'auto'
           }}
         >
-          <span className="button-glitch-layer">SELECTED TEAMS</span>
-          <span className="button-main-layer">TOP SELECTED TEAMS</span>
+          <span className="button-glitch-layer">ShortListed TEAMS</span>
+          <span className="button-main-layer">Short Listed Teams</span>
           <style>{`
             .top-25-glow-button {
               background: linear-gradient(135deg, #f5f4f4 0%, #d9ff6e 45%, #c6ff00 100%);
@@ -333,7 +333,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ scrollProgress }) => {
               font-family: 'Share Tech Mono', monospace;
               font-weight: 900;
               font-size: 15px;
-              padding: 14px 30px;
+              padding: 20px 35px;
               border-radius: 999px;
               letter-spacing: 0.12em;
               text-transform: uppercase;
