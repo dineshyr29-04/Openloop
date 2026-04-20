@@ -96,15 +96,16 @@ export const TopSelected25: React.FC = () => {
 
           <div className="achievements-highlight-strip">
             <div className="achievements-highlight-item">
-              <span className="highlight-number">309</span>
+              <span className="highlight-number">300+</span>
+              
               <span className="highlight-label">Participants</span>
             </div>
             <div className="achievements-highlight-item">
-              <span className="highlight-number">120</span>
+              <span className="highlight-number">120+</span>
               <span className="highlight-label">Teams</span>
             </div>
             <div className="achievements-highlight-item">
-              <span className="highlight-number">100</span>
+              <span className="highlight-number">100+</span>
               <span className="highlight-label">Colleges</span>
             </div>
           </div>
