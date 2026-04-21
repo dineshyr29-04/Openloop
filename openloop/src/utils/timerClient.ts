@@ -69,6 +69,14 @@ function _apply(data: TimerData, broadcast = true) {
 // ─── Remaining time calculation ───────────────────────────────────────────────
 
 export function computeRemaining(data: TimerData): number {
+  // If the timer is paused, the server returns target_timestamp = server_time + remaining
+  // This means the remaining time is simply target_timestamp - server_time.
+  // We do not want it to keep ticking against Date.now()!
+  if (data.mode === 'CHALLENGE_PAUSED') {
+    return Math.max(0, Math.floor((data.target_timestamp - data.server_time) / 1000));
+  }
+
+  // Otherwise, timer is running.
   // Apply skew: if server clock is ahead of local clock, skew > 0
   // correctedNow is the "true" current time
   const correctedNow = Date.now() + skew;
