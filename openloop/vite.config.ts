@@ -4,6 +4,16 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        // If vercel dev is not running, requests will fail gracefully
+        // and the timerClient fallback kicks in automatically.
+      }
+    }
+  },
   build: {
     rollupOptions: {
       output: {

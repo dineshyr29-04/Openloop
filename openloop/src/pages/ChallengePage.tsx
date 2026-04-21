@@ -95,8 +95,8 @@ export const ChallengePage: React.FC = () => {
       } else {
         clearInterval(id);
         setCountdown321(null);
-        // Fire the server call – the useEffect above will clear uiPhase once
-        // the server responds and isChallenge becomes true.
+        // startChallengeTimer applies optimistically — isChallenge becomes
+        // true immediately, the useEffect below fires and clears uiPhase.
         void startChallengeTimer();
       }
     }, 1000);
