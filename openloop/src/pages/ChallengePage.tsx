@@ -79,16 +79,22 @@ export const ChallengePage: React.FC = () => {
           }
         } else {
           clearInterval(interval);
-          setCountdown321(null);
-          void startChallengeTimer().then(() => {
-            setLocalUIState(null);
-          });
+          void startChallengeTimer();
+          // We don't null anything here yet; the useEffect below handles the handoff
         }
       }, 1000);
 
       return () => clearInterval(interval);
     }
   }, [localUIState]);
+
+  // Handle seamless handoff from local 3-2-1 to global RUNNING state
+  useEffect(() => {
+    if (localUIState === 'COUNTDOWN_321' && serverTimerState === 'RUNNING') {
+      setLocalUIState(null);
+      setCountdown321(null);
+    }
+  }, [serverTimerState, localUIState]);
 
   const isDimmed = currentState === 'RUNNING';
 
