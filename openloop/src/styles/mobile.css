@@ -350,9 +350,9 @@
 }
 
 .mobile-hero-timer-value {
-  margin: 0;
+  margin-bottom: 20px;
   font-family: 'Audiowide', sans-serif;
-  font-size: clamp(24px, 7.6vw, 36px);
+  font-size: clamp(28px, 7.6vw, 36px);
   line-height: 1.1;
   letter-spacing: 0.1em;
   color: #ffffff;
