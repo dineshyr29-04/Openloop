@@ -89,11 +89,18 @@ export function computeRemaining(data: TimerData): number {
 // ─── API helpers (with local fallbacks) ──────────────────────────────────────
 
 async function _apiGet(): Promise<TimerData | null> {
+  // Simple check to avoid proxy errors in local dev when Vercel isn't running
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    // Only attempt real fetch if we can reasonably expect the server to be there
+    // For now, we allow the error but handle it silently to avoid UI noise
+  }
+  
   try {
     const res = await fetch(API_PATH, { cache: 'no-store' });
     if (!res.ok) return null;
     return (await res.json()) as TimerData;
-  } catch {
+  } catch (err) {
+    // Silently fail and use client fallback
     return null;
   }
 }
@@ -108,7 +115,8 @@ async function _apiPost(action: string): Promise<TimerData | null> {
     });
     if (!res.ok) return null;
     return (await res.json()) as TimerData;
-  } catch {
+  } catch (err) {
+    // Silently fail and use client fallback
     return null;
   }
 }

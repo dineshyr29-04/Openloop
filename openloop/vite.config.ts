@@ -14,8 +14,11 @@ export default defineConfig({
             // Silence the ECONNREFUSED error in the terminal when Vercel is not running locally.
             // Our frontend timerClient already handles the fallback gracefully.
             if ('writeHead' in res) {
-              res.writeHead(500, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Proxy backend not running' }));
+              res.writeHead(502, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ 
+                error: 'Proxy backend not running', 
+                message: 'Local development server not detected. Using client-side fallback.' 
+              }));
             }
           });
         }
