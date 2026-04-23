@@ -84,7 +84,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const state = await loadState();
     return res.status(200).json({
-      target_timestamp: state.mode === 'CHALLENGE_PAUSED' ? EVENT_TARGET_MS : state.target_timestamp,
+      target_timestamp: (state.mode === 'CHALLENGE_PAUSED' || state.mode === 'EVENT') ? EVENT_TARGET_MS : state.target_timestamp,
       paused_remaining_ms: state.mode === 'CHALLENGE_PAUSED' ? state.remaining_ms : null,
       server_time: Date.now(),
       mode: state.mode,
@@ -143,7 +143,7 @@ export default async function handler(req, res) {
     await saveState(state);
 
     return res.status(200).json({
-      target_timestamp: state.mode === 'CHALLENGE_PAUSED' 
+      target_timestamp: (state.mode === 'CHALLENGE_PAUSED' || state.mode === 'EVENT')
         ? EVENT_TARGET_MS  // Hero will see Event target
         : state.target_timestamp,
       paused_remaining_ms: state.mode === 'CHALLENGE_PAUSED' ? state.remaining_ms : null,
