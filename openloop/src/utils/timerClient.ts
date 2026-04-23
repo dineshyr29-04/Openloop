@@ -24,7 +24,8 @@ export interface TimerData {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-export const EVENT_TARGET_MS = new Date('2026-04-25T11:00:00+05:30').getTime();
+// April 25, 2026 at 11:00 AM IST is exactly 5:30 AM UTC
+export const EVENT_TARGET_MS = Date.UTC(2026, 3, 25, 5, 30, 0);
 export const CHALLENGE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hrs in ms
 const API_PATH = '/api/timer';
 const BC_NAME = 'openloop-timer-v2';

@@ -12,7 +12,8 @@
  * Clients compute remaining = target_timestamp - Date.now() locally.
  */
 
-const EVENT_TARGET_MS = new Date('2026-04-25T11:00:00+05:30').getTime();
+// April 25, 2026 at 11:00 AM IST is exactly 5:30 AM UTC
+const EVENT_TARGET_MS = Date.UTC(2026, 3, 25, 5, 30, 0); 
 const CHALLENGE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 const STORE_KEY = 'openloop:timer:v2';
 

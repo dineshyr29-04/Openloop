@@ -7,18 +7,18 @@ export const TopSelected25: React.FC = () => {
   const navigate = useNavigate();
 
   const teams = [
-    { id: 'OL01', name: 'Diamond Blender' },
+    { id: 'OL01', name: 'Alt F4' },
     { id: 'OL02', name: "Karan's Team" },
     { id: 'OL03', name: 'ByteBots' },
-    { id: 'OL04', name: 'Nimbus' },
-    { id: 'OL05', name: 'Algo boys' },
+    { id: 'OL04', name: 'Code Burglars' },
+    { id: 'OL05', name: 'Algo Boys' },
     { id: 'OL06', name: 'ButterByte' },
     { id: 'OL07', name: 'OpenSHA' },
     { id: 'OL08', name: 'AAF11' },
     { id: 'OL09', name: 'System Crash' },
     { id: 'OL10', name: 'Evo' },
     { id: 'OL11', name: 'SquidWardDevs' },
-    { id: 'OL12', name: 'DECODE' },
+    
     { id: 'OL13', name: 'Dot&Key' },
     { id: 'OL14', name: 'ZenithAI' },
     { id: 'OL15', name: 'rohan' },
@@ -30,8 +30,8 @@ export const TopSelected25: React.FC = () => {
     { id: 'OL21', name: 'Simple coders' },
     { id: 'OL22', name: 'Next-gen' },
     { id: 'OL23', name: 'QuantumCoders' },
-    { id: 'OL24', name: 'Trio squad' },
-    { id: 'OL25', name: 'Kindle' },
+    { id: 'OL24', name: 'Kai' },
+    { id: 'OL25', name: 'Hacktivators' },
   ];
 
   const achievements = [
