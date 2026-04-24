@@ -12,7 +12,8 @@
  * Clients compute remaining = target_timestamp - Date.now() locally.
  */
 
-const EVENT_TARGET_MS = new Date('2026-04-25T11:00:00+05:30').getTime();
+// April 25, 2026 at 11:00 AM IST is exactly 5:30 AM UTC
+const EVENT_TARGET_MS = Date.UTC(2026, 3, 25, 5, 30, 0); 
 const CHALLENGE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 const STORE_KEY = 'openloop:timer:v2';
 
@@ -84,7 +85,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const state = await loadState();
     return res.status(200).json({
-      target_timestamp: state.mode === 'CHALLENGE_PAUSED' ? EVENT_TARGET_MS : state.target_timestamp,
+      target_timestamp: (state.mode === 'CHALLENGE_PAUSED' || state.mode === 'EVENT') ? EVENT_TARGET_MS : state.target_timestamp,
       paused_remaining_ms: state.mode === 'CHALLENGE_PAUSED' ? state.remaining_ms : null,
       server_time: Date.now(),
       mode: state.mode,
@@ -105,11 +106,14 @@ export default async function handler(req, res) {
         target_timestamp: now + CHALLENGE_DURATION_MS,
       };
     } else if (action === 'stop' || action === 'suspend') {
-      // User requested: "if i stop there it want to return to normal 25th april timer"
-      state = {
-        mode: 'EVENT',
-        target_timestamp: EVENT_TARGET_MS,
-      };
+      if (state.mode === 'CHALLENGE') {
+        const remaining = Math.max(0, state.target_timestamp - now);
+        state = {
+          mode: 'CHALLENGE_PAUSED',
+          target_timestamp: now + remaining,
+          remaining_ms: remaining,
+        };
+      }
     } else if (action === 'resume') {
       if (state.mode === 'CHALLENGE_PAUSED') {
         state = {
@@ -140,7 +144,7 @@ export default async function handler(req, res) {
     await saveState(state);
 
     return res.status(200).json({
-      target_timestamp: state.mode === 'CHALLENGE_PAUSED' 
+      target_timestamp: (state.mode === 'CHALLENGE_PAUSED' || state.mode === 'EVENT')
         ? EVENT_TARGET_MS  // Hero will see Event target
         : state.target_timestamp,
       paused_remaining_ms: state.mode === 'CHALLENGE_PAUSED' ? state.remaining_ms : null,
