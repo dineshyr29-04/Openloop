@@ -53,11 +53,11 @@ const TeamCard: React.FC<{ team: any; index: number; onClick: (team: any) => voi
       <div className="team-card-body">
         <div className='team-card-photo'>
           <div className="photo-placeholder">
-             <ExternalLink size={10} />
+             <ExternalLink size={15} />
           </div>
           <h2 className='team-card-photo-para'>Click for Details</h2>
         </div>
-        <div className="team-card-name-mini">{team.name}</div>
+        
       </div>
 
       <div className="team-card-foot">
