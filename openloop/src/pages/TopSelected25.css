@@ -90,7 +90,8 @@
   gap: 12px;
 
   transform-style: preserve-3d;
-  transition: transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.1s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transform: perspective(1000px) rotateX(var(--rotateX, 0deg)) rotateY(var(--rotateY, 0deg));
 }
 
 /* Grid overlay */
@@ -150,6 +151,15 @@
 
 /* Optional holographic shimmer */
 .team-card-item:hover {
+  background-image: linear-gradient(
+    135deg,
+    rgba(198, 255, 0, 0.05) 0%,
+    rgba(198, 255, 0, 0.1) 25%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(198, 255, 0, 0.1) 75%,
+    rgba(198, 255, 0, 0.05) 100%
+  );
+  background-size: 200% 200%;
   animation: holo 3s linear infinite;
 }
 
@@ -605,9 +615,57 @@
   display:flex;
   flex-direction: column;
   align-items: center;
-  font-size: 10px;
-  color: rgb(148, 240, 180);
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+  padding: 20px;
+  background: rgba(198, 255, 0, 0.03);
+  border: 1px dashed rgba(198, 255, 0, 0.2);
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
+
+.team-card-item:hover .team-card-photo {
+  background: rgba(198, 255, 0, 0.08);
+  border-color: rgba(198, 255, 0, 0.5);
+  transform: translateZ(20px);
+}
+
+.photo-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(198, 255, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c6ff00;
+  box-shadow: 0 0 15px rgba(198, 255, 0, 0.2);
+}
+
+.team-card-photo-para {
+  font-size: 14px;
+  margin: 0;
+  color: #c6ff00;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.team-card-name-mini {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin-top: auto;
+  letter-spacing: 0.02em;
+  opacity: 0.8;
+}
+
+.team-card-item:hover .team-card-name-mini {
+  opacity: 1;
+  transform: translateZ(30px);
+}
+
 @media (max-width: 640px) {
   .team-modal-content {
     border-radius: 16px;

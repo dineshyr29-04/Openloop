@@ -1,8 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Gauge, Map, MapPin, Users, UsersRound, X } from 'lucide-react';
+import { ArrowLeft, Building2, Gauge, Map, MapPin, Users, UsersRound, X, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './TopSelected25.css';
+
+const TeamCard: React.FC<{ team: any; index: number; onClick: (team: any) => void }> = ({ team, index, onClick }) => {
+  const cardRef = useRef<HTMLElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = (y - centerY) / 10;
+    const rotateY = (centerX - x) / 10;
+
+    cardRef.current.style.setProperty('--rotateX', `${rotateX}deg`);
+    cardRef.current.style.setProperty('--rotateY', `${rotateY}deg`);
+    cardRef.current.style.setProperty('--x', `${(x / rect.width) * 100}%`);
+    cardRef.current.style.setProperty('--y', `${(y / rect.height) * 100}%`);
+  };
+
+  const handleMouseLeave = () => {
+    if (!cardRef.current) return;
+    cardRef.current.style.setProperty('--rotateX', `0deg`);
+    cardRef.current.style.setProperty('--rotateY', `0deg`);
+  };
+
+  return (
+    <article 
+      ref={cardRef}
+      className="team-card-item"
+      onClick={() => onClick({ ...team, rank: index + 1 })}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      role="button"
+      tabIndex={0}
+    >
+      <div className="light" />
+      <div className="team-card-meta">
+        <div className="team-id-block">
+          <span className="team-field-label">TEAM ID</span>
+          <span className="team-id-pill">{team.id}</span>
+        </div>
+        <span className="team-rank-pill">#{String(index + 1).padStart(2, '0')}</span>
+      </div>
+
+      <div className="team-card-body">
+        <div className='team-card-photo'>
+          <div className="photo-placeholder">
+             <ExternalLink size={20} />
+          </div>
+          <h2 className='team-card-photo-para'>Click for Details</h2>
+        </div>
+        <div className="team-card-name-mini">{team.name}</div>
+      </div>
+
+      <div className="team-card-foot">
+        <span className="team-tag">SHORTLISTED TEAM</span>
+      </div>
+      <div className="team-card-corner" />
+    </article>
+  );
+};
 
 export const TopSelected25: React.FC = () => {
   const navigate = useNavigate();
@@ -66,30 +130,12 @@ export const TopSelected25: React.FC = () => {
 
         <div className="teams-grid">
           {teams.map((team, index) => (
-            <article 
+            <TeamCard 
               key={team.id} 
-              className="team-card-item"
-              onClick={() => setSelectedTeam({ ...team, rank: index + 1 })}
-              role="button"
-              tabIndex={0}
-            >
-              <div className="team-card-meta">
-                <div className="team-id-block">
-                  <span className="team-field-label">TEAM ID</span>
-                  <span className="team-id-pill">{team.id}</span>
-                </div>
-                <span className="team-rank-pill">#{String(index + 1).padStart(2, '0')}</span>
-              </div>
-
-              
-              <div className="team-card-foot">
-                <span className="team-tag">SHORTLISTED TEAM</span>
-              </div>
-              <div className='team-card-photo'>
-                <h2 className='team-card-photo-para'>Click for Info</h2>
-              </div>
-              <div className="team-card-corner" />
-            </article>
+              team={team} 
+              index={index} 
+              onClick={setSelectedTeam} 
+            />
           ))}
         </div>
 
