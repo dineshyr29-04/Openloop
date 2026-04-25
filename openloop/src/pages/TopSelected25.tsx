@@ -81,11 +81,7 @@ export const TopSelected25: React.FC = () => {
                 <span className="team-rank-pill">#{String(index + 1).padStart(2, '0')}</span>
               </div>
 
-              <span className="team-field-label team-name-field-label">TEAM NAME</span>
-              <div className="team-name-text" title={team.name}>
-                {team.name}
-              </div>
-
+              
               <div className="team-card-foot">
                 <span className="team-tag">SHORTLISTED TEAM</span>
               </div>
@@ -123,9 +119,7 @@ export const TopSelected25: React.FC = () => {
 
                 <div className="modal-info-box">
                   <div className="modal-label">TEAM NAME</div>
-                  <h2 className="modal-team-name">{selectedTeam.name}</h2>
-                  <div className="modal-rank">RANKED #{String(selectedTeam.rank).padStart(2, '0')}</div>
-                  
+                  <h2 className="modal-team-name">{selectedTeam.name}</h2>                  
                 </div>
 
                 <div className="modal-footer">
