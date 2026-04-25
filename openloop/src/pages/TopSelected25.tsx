@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Gauge, Map, MapPin, Users, UsersRound } from 'lucide-react';
+import { ArrowLeft, Building2, Gauge, Map, MapPin, Users, UsersRound, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './TopSelected25.css';
 
 export const TopSelected25: React.FC = () => {
   const navigate = useNavigate();
+  const [selectedTeam, setSelectedTeam] = useState<any>(null);
 
   const teams = [
     { id: 'OL01', name: 'Alt F4' },
@@ -64,7 +66,13 @@ export const TopSelected25: React.FC = () => {
 
         <div className="teams-grid">
           {teams.map((team, index) => (
-            <article key={team.id} className="team-card-item">
+            <article 
+              key={team.id} 
+              className="team-card-item"
+              onClick={() => setSelectedTeam({ ...team, rank: index + 1 })}
+              role="button"
+              tabIndex={0}
+            >
               <div className="team-card-meta">
                 <div className="team-id-block">
                   <span className="team-field-label">TEAM ID</span>
@@ -86,6 +94,44 @@ export const TopSelected25: React.FC = () => {
             </article>
           ))}
         </div>
+
+        <AnimatePresence>
+          {selectedTeam && (
+            <div className="team-modal-overlay" onClick={() => setSelectedTeam(null)}>
+              <motion.div 
+                className="team-modal-content"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button className="modal-close-btn" onClick={() => setSelectedTeam(null)}>
+                  <X size={24} />
+                </button>
+
+                <div className="modal-photo-box">
+                  <img 
+                    src={`https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop`} 
+                    alt={selectedTeam.name}
+                    className="modal-large-photo"
+                  />
+                  <div className="modal-photo-overlay" />
+                  <div className="modal-id-badge">{selectedTeam.id}</div>
+                </div>
+
+                <div className="modal-info-box">
+                  <div className="modal-label">TEAM NAME</div>
+                  <h2 className="modal-team-name">{selectedTeam.name}</h2>
+                  <div className="modal-rank">RANKED #{String(selectedTeam.rank).padStart(2, '0')}</div>
+                </div>
+
+                <div className="modal-footer">
+                  <div className="modal-status-pill">OFFICIAL SHORTLISTED TEAM</div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         <section className="achievements-section" aria-labelledby="registration-stats-title">
           <div className="achievements-head">
