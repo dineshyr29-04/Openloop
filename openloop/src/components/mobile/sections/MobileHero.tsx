@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
 export const MobileHero: React.FC = () => {
-  const [hoveredBadge, setHoveredBadge] = useState(false);
-
   return (
     <section
       id="hero"
